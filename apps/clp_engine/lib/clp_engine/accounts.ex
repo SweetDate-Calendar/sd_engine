@@ -201,17 +201,76 @@ defmodule CLP.Accounts do
   alias CLP.Accounts.AccountUser
 
   @doc """
-  Create account user
+  Create account user.
 
   ## Examples
 
-    iex> create_account_user(account_id, user_id)
-    %CLP.Accounts.AccountUser{}
+      iex> create_account_user(account_id, user_id, "owner")
+      {:ok, %AccountUser{}}
 
+      iex> create_account_user(invalid_id, user_id, nil)
+      {:error, %Ecto.Changeset{}}
   """
   def create_account_user(account_id, user_id, role) do
     %AccountUser{}
     |> AccountUser.changeset(%{account_id: account_id, user_id: user_id, role: role})
     |> Repo.insert()
+  end
+
+  @doc """
+  Get an account user by ID.
+
+  ## Examples
+
+      iex> get_account_user!(123)
+      %AccountUser{}
+
+      iex> get_account_user!(456)
+      ** (Ecto.NoResultsError)
+  """
+  def get_account_user!(id), do: Repo.get!(AccountUser, id)
+
+  @doc """
+  List all account users.
+
+  ## Examples
+
+      iex> list_account_users()
+      [%AccountUser{}, ...]
+  """
+  def list_account_users, do: Repo.all(AccountUser)
+
+  @doc """
+  Update an account user.
+
+  ## Examples
+
+      iex> update_account_user(user, %{role: "admin"})
+      {:ok, %AccountUser{}}
+
+      iex> update_account_user(user, %{role: nil})
+      {:error, %Ecto.Changeset{}}
+  """
+  def update_account_user(%AccountUser{} = user, attrs) do
+    user
+    |> AccountUser.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Delete an account user.
+
+  ## Examples
+
+      iex> delete_account_user(user)
+      {:ok, %AccountUser{}}
+  """
+  def delete_account_user(%AccountUser{} = user), do: Repo.delete(user)
+
+  @doc """
+  Return an `%Ecto.Changeset{}` for tracking account user changes.
+  """
+  def change_account_user(%AccountUser{} = user, attrs \\ %{}) do
+    AccountUser.changeset(user, attrs)
   end
 end
