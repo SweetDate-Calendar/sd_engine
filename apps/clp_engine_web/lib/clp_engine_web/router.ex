@@ -28,6 +28,11 @@ defmodule CLPWeb.Router do
     live "/users/new", UserLive.Form, :new
     live "/users/:id", UserLive.Show, :show
     live "/users/:id/edit", UserLive.Form, :edit
+
+    live "/calendars", CalendarLive.Index, :index
+    live "/calendars/new", CalendarLive.Form, :new
+    live "/calendars/:id", CalendarLive.Show, :show
+    live "/calendars/:id/edit", CalendarLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.

@@ -7,5 +7,5 @@ mix phx.gen.schema Accounts.AccountUser accounts_users \
   user_id:references:users account_id:references:accounts
 
 Calendar
-mix phx.gen.live Calendars Calendar calendars account_id:references:accounts:binary \
+mix phx.gen.live Calendars Calendar calendars account_id:references:accounts \
 name:string color_theme:string visibility:string
