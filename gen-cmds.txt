@@ -1,0 +1,9 @@
+Accounts
+mix phx.gen.live Accounts Account account name:string 
+mix phx.live Accounts Users user, name:string
+
+
+
+Calendar
+mix phx.gen.live Calendars Calendar calendars account_id:references:accounts:binary \
+name:string color_theme:string visibility:string
