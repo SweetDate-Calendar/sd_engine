@@ -16,6 +16,10 @@ defmodule CLP.Calendars.Calendar do
       on_replace: :delete,
       join_keys: [calendar_id: :id, user_id: :id]
 
+    has_many :events, CLP.Events.Event,
+      foreign_key: :calendar_id,
+      references: :id
+
     timestamps()
   end
 
