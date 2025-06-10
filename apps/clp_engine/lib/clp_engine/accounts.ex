@@ -209,9 +209,9 @@ defmodule CLP.Accounts do
     %CLP.Accounts.AccountUser{}
 
   """
-  def create_account_user(account_id, user_id) do
+  def create_account_user(account_id, user_id, role) do
     %AccountUser{}
-    |> AccountUser.changeset(%{account_id: account_id, user_id: user_id})
-    |> Repo.insert!()
+    |> AccountUser.changeset(%{account_id: account_id, user_id: user_id, role: role})
+    |> Repo.insert()
   end
 end

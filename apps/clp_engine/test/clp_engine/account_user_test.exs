@@ -8,11 +8,21 @@ defmodule CLP.Accounts.AccountUserTest do
   import CLP.AccountsFixtures
 
   describe "accounts_users join" do
+    test "user can be added to account two times" do
+      user = user_fixture()
+      account = account_fixture()
+
+      Accounts.create_account_user(account.id, user.id, :guest)
+
+      assert {:error, _} =
+               Accounts.create_account_user(account.id, user.id, :guest)
+    end
+
     test "user can be added to account and accessed from both sides" do
       user = user_fixture()
       account = account_fixture()
 
-      Accounts.create_account_user(account.id, user.id)
+      Accounts.create_account_user(account.id, user.id, :guest)
 
       user = Repo.preload(user, :accounts)
       assert Enum.any?(user.accounts, &(&1.id == account.id))
@@ -25,7 +35,7 @@ defmodule CLP.Accounts.AccountUserTest do
       user = user_fixture()
       account = account_fixture()
 
-      Accounts.create_account_user(account.id, user.id)
+      Accounts.create_account_user(account.id, user.id, :guest)
 
       Repo.delete!(user)
 
@@ -40,7 +50,7 @@ defmodule CLP.Accounts.AccountUserTest do
       user = user_fixture()
       account = account_fixture()
 
-      Accounts.create_account_user(account.id, user.id)
+      Accounts.create_account_user(account.id, user.id, :guest)
 
       Repo.delete!(account)
 

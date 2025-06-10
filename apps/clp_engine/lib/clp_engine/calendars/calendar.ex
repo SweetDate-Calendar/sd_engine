@@ -8,7 +8,13 @@ defmodule CLP.Calendars.Calendar do
     field :name, :string
     field :color_theme, :string
     field :visibility, :string
-    field :account_id, :binary_id
+
+    belongs_to :account, CLP.Accounts.Account, type: :binary_id
+
+    many_to_many :users, CLP.Accounts.User,
+      join_through: "calendar_users",
+      on_replace: :delete,
+      join_keys: [calendar_id: :id, user_id: :id]
 
     timestamps()
   end

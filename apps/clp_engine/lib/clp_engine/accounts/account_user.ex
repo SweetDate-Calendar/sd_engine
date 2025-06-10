@@ -4,7 +4,9 @@ defmodule CLP.Accounts.AccountUser do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  schema "accounts_users" do
+  schema "account_users" do
+    field :role, Ecto.Enum, values: [:owner, :admin, :guest]
+
     belongs_to :account, CLP.Accounts.Account, type: :binary_id
     belongs_to :user, CLP.Accounts.User, type: :binary_id
 
@@ -14,7 +16,8 @@ defmodule CLP.Accounts.AccountUser do
   @doc false
   def changeset(account_user, attrs) do
     account_user
-    |> cast(attrs, [:user_id, :account_id])
-    |> validate_required([:user_id, :account_id])
+    |> cast(attrs, [:user_id, :account_id, :role])
+    |> validate_required([:user_id, :account_id, :role])
+    |> unique_constraint([:account_id, :user_id], name: "account_users_account_id_user_id_index")
   end
 end

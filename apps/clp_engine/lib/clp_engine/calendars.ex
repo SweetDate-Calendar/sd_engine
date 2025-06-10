@@ -101,4 +101,21 @@ defmodule CLP.Calendars do
   def change_calendar(%Calendar{} = calendar, attrs \\ %{}) do
     Calendar.changeset(calendar, attrs)
   end
+
+  alias CLP.Calendars.CalendarUser
+
+  @doc """
+  Create account user
+
+  ## Examples
+
+    iex> create_account_user(account_id, user_id)
+    %CLP.Accounts.AccountUser{}
+
+  """
+  def create_calendar_user(calendar_id, user_id, role) do
+    %CalendarUser{}
+    |> CalendarUser.changeset(%{calendar_id: calendar_id, user_id: user_id, role: role})
+    |> Repo.insert()
+  end
 end
