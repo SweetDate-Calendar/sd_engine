@@ -1,8 +1,10 @@
 Accounts
 mix phx.gen.live Accounts Account account name:string 
-mix phx.live Accounts Users user, name:string
+mix phx.gen
+mix phx.live Accounts Users user, name:string 
 
-
+mix phx.gen.schema Accounts.AccountUser accounts_users \
+  user_id:references:users account_id:references:accounts
 
 Calendar
 mix phx.gen.live Calendars Calendar calendars account_id:references:accounts:binary \
