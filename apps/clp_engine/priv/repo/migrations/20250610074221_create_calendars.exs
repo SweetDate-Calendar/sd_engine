@@ -7,7 +7,7 @@ defmodule CLP.Repo.Migrations.CreateCalendars do
       add :name, :string
       add :color_theme, :string
       add :visibility, :string
-      add :account_id, references(:accounts, on_delete: :nothing, type: :binary_id)
+      add :account_id, references(:accounts, on_delete: :delete_all, type: :binary_id)
 
       timestamps()
     end

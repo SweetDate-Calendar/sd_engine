@@ -3,9 +3,13 @@ mix phx.gen.live Accounts Account account name:string
 mix phx.gen.live Accounts User users name:string
 mix phx.live Accounts Users user, name:string 
 
-mix phx.gen.schema Accounts.AccountUser accounts_users \
-  user_id:references:users account_id:references:accounts
+mix phx.gen.schema Accounts.AccountUser account_users \
+  user_id:references:users account_id:references:accounts role:string
 
 Calendar
 mix phx.gen.live Calendars Calendar calendars account_id:references:accounts \
 name:string color_theme:string visibility:string
+
+mix phx.gen.schema Calendars.CalendarUser calendars_users \
+  account_id:references:accounts \
+  user_id:references:users calendar_id:references:calendars role:string 
