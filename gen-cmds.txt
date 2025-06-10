@@ -1,6 +1,6 @@
 Accounts
 mix phx.gen.live Accounts Account account name:string 
-mix phx.gen
+mix phx.gen.live Accounts User users name:string
 mix phx.live Accounts Users user, name:string 
 
 mix phx.gen.schema Accounts.AccountUser accounts_users \
