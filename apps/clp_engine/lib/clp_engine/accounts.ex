@@ -197,4 +197,21 @@ defmodule CLP.Accounts do
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end
+
+  alias CLP.Accounts.AccountUser
+
+  @doc """
+  Create account user
+
+  ## Examples
+
+    iex> create_account_user(account_id, user_id)
+    %CLP.Accounts.AccountUser{}
+
+  """
+  def create_account_user(account_id, user_id) do
+    %AccountUser{}
+    |> AccountUser.changeset(%{account_id: account_id, user_id: user_id})
+    |> Repo.insert!()
+  end
 end

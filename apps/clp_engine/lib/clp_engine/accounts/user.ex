@@ -7,6 +7,11 @@ defmodule CLP.Accounts.User do
   schema "users" do
     field :name, :string
 
+    many_to_many :accounts, CLP.Accounts.Account,
+      join_through: "accounts_users",
+      on_replace: :delete,
+      join_keys: [user_id: :id, account_id: :id]
+
     timestamps()
   end
 
