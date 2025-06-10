@@ -18,6 +18,11 @@ defmodule CLPWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/accounts", AccountLive.Index, :index
+    live "/accounts/new", AccountLive.Form, :new
+    live "/accounts/:id", AccountLive.Show, :show
+    live "/accounts/:id/edit", AccountLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.
