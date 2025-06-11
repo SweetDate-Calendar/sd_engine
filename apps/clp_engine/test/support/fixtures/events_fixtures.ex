@@ -8,10 +8,15 @@ defmodule CLP.EventsFixtures do
   Generate a event.
   """
   def event_fixture(attrs \\ %{}) do
+    calendar_id =
+      Map.get(attrs, :calendar_id) ||
+        CLP.CalendarsFixtures.calendar_fixture().id
+
     {:ok, event} =
       attrs
       |> Enum.into(%{
         all_day: true,
+        calendar_id: calendar_id,
         color_theme: "some color_theme",
         description: "some description",
         end_time: ~U[2025-06-09 17:09:00Z],

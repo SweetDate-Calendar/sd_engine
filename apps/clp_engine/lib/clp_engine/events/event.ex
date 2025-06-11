@@ -28,6 +28,11 @@ defmodule CLP.Events.Event do
     field :all_day, :boolean, default: false
     belongs_to :calendar, CLP.Calendars.Calendar, type: :binary_id
 
+    many_to_many :users, CLP.Accounts.User,
+      join_through: "event_users",
+      on_replace: :delete,
+      join_keys: [event_id: :id, user_id: :id]
+
     timestamps()
   end
 
