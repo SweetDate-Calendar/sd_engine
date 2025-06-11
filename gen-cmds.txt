@@ -10,7 +10,7 @@ Calendar
 mix phx.gen.live Calendars Calendar calendars account_id:references:accounts \
 name:string color_theme:string visibility:string
 
-mix phx.gen.schema Calendars.CalendarUser calendars_users \
+mix phx.gen.schema Calendars.CalendarUser calendar_users \
   account_id:references:accounts \
   user_id:references:users calendar_id:references:calendars role:string 
 
@@ -21,33 +21,8 @@ name:string description:string color_theme:string visibility:string \
 location:string start_time:utc_datetime end_time:utc_datetime \
 recurrence_rule:string all_day:boolean
 
+mix phx.gen.schema Events.EventUser event_users\
+  event_id:references:events \
+  user_id:references:users role:string status:string 
 
-schema "events" do
-    field :status, Ecto.Enum,
-      values: [:scheduled, :cancelled, :postponed, :completed],
-      default: :scheduled
 
-    field :description, :string
-    field :title, :string
-    field :location, :string
-    field :start_time, :utc_datetime
-    field :end_time, :utc_datetime
-
-    field :recurrence_rule, Ecto.Enum,
-      values: [:none, :daily, :weekly, :monthly, :yearly],
-      default: :none
-
-    field :all_day, :boolean, default: false
-    field :is_virtual, :boolean, default: false
-
-    belongs_to :calendar, Calypso.Calendars.Calendar, type: :binary_id
-    belongs_to :creator, Calypso.Accounts.User, type: :binary_id
-
-    has_many :participations, Calypso.Events.Participation
-    has_many :reminders, Calypso.Notifications.Reminder
-    has_many :attachments, Calypso.Events.Attachment
-
-    many_to_many :tags, Calypso.Events.Tag, join_through: "event_tags"
-
-    timestamps(type: :utc_datetime)
-  end

@@ -17,6 +17,11 @@ defmodule CLP.Accounts.User do
       on_replace: :delete,
       join_keys: [user_id: :id, calendar_id: :id]
 
+    many_to_many :events, CLP.Events.Event,
+      join_through: "event_users",
+      on_replace: :delete,
+      join_keys: [user_id: :id, event_id: :id]
+
     timestamps()
   end
 
