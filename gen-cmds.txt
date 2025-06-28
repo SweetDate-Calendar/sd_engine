@@ -14,7 +14,7 @@ account_id:references:accounts
 
 mix phx.gen.schema Tiers.TierUser tier_users \
   tier_id:references:tier \
-  user_id:references:users tier_id:references:tier role:string 
+  user_id:references:users  role:string 
 
 Calendar
 mix phx.gen.live Calendars Calendar calendars account_id:references:accounts \
