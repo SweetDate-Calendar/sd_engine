@@ -3,8 +3,18 @@ mix phx.gen.live Accounts Account account name:string
 mix phx.gen.live Accounts User users name:string
 mix phx.live Accounts Users user, name:string 
 
+
 mix phx.gen.schema Accounts.AccountUser account_users \
   user_id:references:users account_id:references:accounts role:string
+
+
+Tiers
+mix phx.gen.live Tiers Tier tiers name:string \
+account_id:references:accounts
+
+mix phx.gen.schema Tiers.TierUser tier_users \
+  tier_id:references:tier \
+  user_id:references:users tier_id:references:tier role:string 
 
 Calendar
 mix phx.gen.live Calendars Calendar calendars account_id:references:accounts \

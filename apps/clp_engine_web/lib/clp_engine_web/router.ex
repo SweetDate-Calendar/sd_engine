@@ -24,6 +24,11 @@ defmodule CLPWeb.Router do
     live "/accounts/:id", AccountLive.Show, :show
     live "/accounts/:id/edit", AccountLive.Form, :edit
 
+    live "/tiers", TierLive.Index, :index
+    live "/tiers/new", TierLive.Form, :new
+    live "/tiers/:id", TierLive.Show, :show
+    live "/tiers/:id/edit", TierLive.Form, :edit
+
     live "/users", UserLive.Index, :index
     live "/users/new", UserLive.Form, :new
     live "/users/:id", UserLive.Show, :show
