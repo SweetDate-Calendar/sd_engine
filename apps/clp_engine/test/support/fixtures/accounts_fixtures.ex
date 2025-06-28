@@ -25,7 +25,8 @@ defmodule CLP.AccountsFixtures do
     {:ok, user} =
       attrs
       |> Enum.into(%{
-        name: "some name"
+        name: "some name",
+        role: :admin
       })
       |> CLP.Accounts.create_user()
 

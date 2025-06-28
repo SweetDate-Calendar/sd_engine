@@ -101,4 +101,80 @@ defmodule CLP.Tiers do
   def change_tier(%Tier{} = tier, attrs \\ %{}) do
     Tier.changeset(tier, attrs)
   end
+
+  alias CLP.Tiers.TierUser
+
+  @doc """
+    Create a tier user.
+
+    ## Examples
+
+        iex> create_tier_user(tier_id, user_id, "owner")
+        {:ok, %TierUser{}}
+
+        iex> create_tier_user(invalid_id, user_id, nil)
+        {:error, %Ecto.Changeset{}}
+  """
+  def create_tier_user(tier_id, user_id, role) do
+    %TierUser{}
+    |> TierUser.changeset(%{tier_id: tier_id, user_id: user_id, role: role})
+    |> Repo.insert()
+  end
+
+  @doc """
+  Get a tier user by ID.
+
+  ## Examples
+
+      iex> get_tier_user!(123)
+      %TierUser{}
+
+      iex> get_tier_user!(456)
+      ** (Ecto.NoResultsError)
+  """
+  def get_tier_user!(id), do: Repo.get!(TierUser, id)
+
+  @doc """
+  List all tier users.
+
+  ## Examples
+
+      iex> list_tier_users()
+      [%TierUser{}, ...]
+  """
+  def list_tier_users, do: Repo.all(TierUser)
+
+  @doc """
+  Update a tier user.
+
+  ## Examples
+
+      iex> update_tier_user(user, %{role: "editor"})
+      {:ok, %TierUser{}}
+
+      iex> update_tier_user(user, %{role: nil})
+      {:error, %Ecto.Changeset{}}
+  """
+  def update_tier_user(%TierUser{} = user, attrs) do
+    user
+    |> TierUser.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Delete a tier user.
+
+  ## Examples
+
+      iex> delete_tier_user(user)
+      {:ok, %TierUser{}}
+  """
+  def delete_tier_user(%TierUser{} = user), do: Repo.delete(user)
+
+  @doc """
+  Return an `%Ecto.Changeset{}` for tracking tier user changes.
+  """
+  def change_tier_user(%TierUser{} = user, attrs \\ %{}) do
+    TierUser.changeset(user, attrs)
+  end
 end

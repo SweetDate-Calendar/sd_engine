@@ -12,6 +12,11 @@ defmodule CLP.Accounts.User do
       on_replace: :delete,
       join_keys: [user_id: :id, account_id: :id]
 
+    many_to_many :tiers, CLP.Tiers.Tier,
+      join_through: "tier_users",
+      on_replace: :delete,
+      join_keys: [user_id: :id, tier_id: :id]
+
     many_to_many :calendars, CLP.Calendars.Calendar,
       join_through: "calendar_users",
       on_replace: :delete,

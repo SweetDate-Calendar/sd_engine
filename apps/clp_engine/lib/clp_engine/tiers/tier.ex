@@ -8,6 +8,11 @@ defmodule CLP.Tiers.Tier do
     field :name, :string
     belongs_to :account, CLP.Accounts.Account, type: :binary_id
 
+    many_to_many :users, CLP.Accounts.User,
+      join_through: "tier_users",
+      on_replace: :delete,
+      join_keys: [tier_id: :id, user_id: :id]
+
     timestamps()
   end
 
@@ -16,6 +21,6 @@ defmodule CLP.Tiers.Tier do
     tier
     |> cast(attrs, [:name])
     |> validate_required([:name])
-    |> unique_constraint([:account_id, :name])
+    |> unique_constraint([:tier_id, :name])
   end
 end
