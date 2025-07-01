@@ -51,7 +51,7 @@ defmodule CLPWeb.AccountLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    account = Accounts.get_account!(id)
+    account = Accounts.get_account(id)
     {:ok, _} = Accounts.delete_account(account)
 
     {:noreply, stream_delete(socket, :accounts, account)}

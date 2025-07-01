@@ -7,13 +7,15 @@ defmodule ClpTcp.MixProject do
       version: "0.1.0",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {ClpTcp.Application, []},
       extra_applications: [:logger]
     ]
   end

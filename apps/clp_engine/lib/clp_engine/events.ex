@@ -28,14 +28,14 @@ defmodule CLP.Events do
 
   ## Examples
 
-      iex> get_event!(123)
+      iex> get_event(123)
       %Event{}
 
-      iex> get_event!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_event(456)
+      ** nil
 
   """
-  def get_event!(id), do: Repo.get!(Event, id)
+  def get_event(id), do: Repo.get(Event, id)
 
   @doc """
   Creates a event.
@@ -132,7 +132,7 @@ defmodule CLP.Events do
       iex> get_event_user!(456)
       ** (Ecto.NoResultsError)
   """
-  def get_event_user!(id), do: Repo.get!(EventUser, id)
+  def get_event_user!(id), do: Repo.get(EventUser, id)
 
   @doc """
   List all account users.

@@ -4,8 +4,12 @@ defmodule CLP.Accounts.Account do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @derive {Jason.Encoder, only: [:id, :name]}
+
   schema "accounts" do
     field :name, :string
+
+    has_many :tiers, CLP.Tiers.Tier
 
     many_to_many :users, CLP.Accounts.User,
       join_through: "account_users",

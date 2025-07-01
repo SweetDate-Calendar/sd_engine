@@ -25,9 +25,9 @@ defmodule CLP.EventsTest do
       assert Events.list_events() == [event]
     end
 
-    test "get_event!/1 returns the event with given id" do
+    test "get_event/1 returns the event with given id" do
       event = event_fixture()
-      assert Events.get_event!(event.id) == event
+      assert Events.get_event(event.id) == event
     end
 
     test "create_event/1 with valid data creates a event" do
@@ -92,13 +92,13 @@ defmodule CLP.EventsTest do
     test "update_event/2 with invalid data returns error changeset" do
       event = event_fixture()
       assert {:error, %Ecto.Changeset{}} = Events.update_event(event, @invalid_attrs)
-      assert event == Events.get_event!(event.id)
+      assert event == Events.get_event(event.id)
     end
 
     test "delete_event/1 deletes the event" do
       event = event_fixture()
       assert {:ok, %Event{}} = Events.delete_event(event)
-      assert_raise Ecto.NoResultsError, fn -> Events.get_event!(event.id) end
+      refute Events.get_event(event.id)
     end
 
     test "change_event/1 returns a event changeset" do

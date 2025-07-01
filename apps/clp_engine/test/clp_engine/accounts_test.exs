@@ -2,12 +2,11 @@ defmodule CLP.AccountsTest do
   use CLP.DataCase
 
   alias CLP.Accounts
+  alias CLP.Accounts.Account
+
+  import CLP.AccountsFixtures
 
   describe "accounts" do
-    alias CLP.Accounts.Account
-
-    import CLP.AccountsFixtures
-
     @invalid_attrs %{name: nil}
 
     test "list_accounts/0 returns all accounts" do
@@ -17,7 +16,7 @@ defmodule CLP.AccountsTest do
 
     test "get_account!/1 returns the account with given id" do
       account = account_fixture()
-      assert Accounts.get_account!(account.id) == account
+      assert Accounts.get_account(account.id) == account
     end
 
     test "create_account/1 with valid data creates a account" do
@@ -42,13 +41,13 @@ defmodule CLP.AccountsTest do
     test "update_account/2 with invalid data returns error changeset" do
       account = account_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_account(account, @invalid_attrs)
-      assert account == Accounts.get_account!(account.id)
+      assert account == Accounts.get_account(account.id)
     end
 
     test "delete_account/1 deletes the account" do
       account = account_fixture()
       assert {:ok, %Account{}} = Accounts.delete_account(account)
-      assert_raise Ecto.NoResultsError, fn -> Accounts.get_account!(account.id) end
+      refute Accounts.get_account(account.id)
     end
 
     test "change_account/1 returns a account changeset" do
@@ -71,7 +70,7 @@ defmodule CLP.AccountsTest do
 
     test "get_user!/1 returns the user with given id" do
       user = user_fixture()
-      assert Accounts.get_user!(user.id) == user
+      assert Accounts.get_user(user.id) == user
     end
 
     test "create_user/1 with valid data creates a user" do
@@ -96,18 +95,33 @@ defmodule CLP.AccountsTest do
     test "update_user/2 with invalid data returns error changeset" do
       user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-      assert user == Accounts.get_user!(user.id)
+      assert user == Accounts.get_user(user.id)
     end
 
     test "delete_user/1 deletes the user" do
       user = user_fixture()
       assert {:ok, %User{}} = Accounts.delete_user(user)
-      assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(user.id) end
+      refute Accounts.get_user(user.id)
     end
 
     test "change_user/1 returns a user changeset" do
       user = user_fixture()
       assert %Ecto.Changeset{} = Accounts.change_user(user)
+    end
+  end
+
+  describe "tiers" do
+    test "create_tier/1 with valid data creates a tier" do
+      account = account_fixture()
+
+      valid_attrs = %{name: "some name", account_id: account.id}
+
+      assert {:ok, %CLP.Tiers.Tier{} = tier} = Accounts.create_tier(valid_attrs)
+      assert tier.name == "some name"
+    end
+
+    test "create_tier/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_tier(%{name: nil, account_id: nil})
     end
   end
 end

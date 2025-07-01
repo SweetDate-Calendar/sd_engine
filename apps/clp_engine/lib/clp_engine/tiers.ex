@@ -28,32 +28,14 @@ defmodule CLP.Tiers do
 
   ## Examples
 
-      iex> get_tier!(123)
+      iex> get_tier(123)
       %Tier{}
 
-      iex> get_tier!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_tier(456)
+      ** nil
 
   """
-  def get_tier!(id), do: Repo.get!(Tier, id)
-
-  @doc """
-  Creates a tier.
-
-  ## Examples
-
-      iex> create_tier(%{field: value})
-      {:ok, %Tier{}}
-
-      iex> create_tier(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_tier(attrs) do
-    %Tier{}
-    |> Tier.changeset(attrs)
-    |> Repo.insert()
-  end
+  def get_tier(id), do: Repo.get(Tier, id)
 
   @doc """
   Updates a tier.
@@ -132,7 +114,7 @@ defmodule CLP.Tiers do
       iex> get_tier_user!(456)
       ** (Ecto.NoResultsError)
   """
-  def get_tier_user!(id), do: Repo.get!(TierUser, id)
+  def get_tier_user!(id), do: Repo.get(TierUser, id)
 
   @doc """
   List all tier users.

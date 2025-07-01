@@ -28,14 +28,14 @@ defmodule CLP.Calendars do
 
   ## Examples
 
-      iex> get_calendar!(123)
+      iex> get_calendar(123)
       %Calendar{}
 
-      iex> get_calendar!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_calendar(456)
+      ** nil
 
   """
-  def get_calendar!(id), do: Repo.get!(Calendar, id)
+  def get_calendar(id), do: Repo.get(Calendar, id)
 
   @doc """
   Creates a calendar.
@@ -132,7 +132,7 @@ defmodule CLP.Calendars do
       iex> get_calendar_user!(456)
       ** (Ecto.NoResultsError)
   """
-  def get_calendar_user!(id), do: Repo.get!(CalendarUser, id)
+  def get_calendar_user!(id), do: Repo.get(CalendarUser, id)
 
   @doc """
   List all calendar users.

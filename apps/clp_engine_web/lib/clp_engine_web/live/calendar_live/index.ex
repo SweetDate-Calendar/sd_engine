@@ -53,7 +53,7 @@ defmodule CLPWeb.CalendarLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    calendar = Calendars.get_calendar!(id)
+    calendar = Calendars.get_calendar(id)
     {:ok, _} = Calendars.delete_calendar(calendar)
 
     {:noreply, stream_delete(socket, :calendars, calendar)}

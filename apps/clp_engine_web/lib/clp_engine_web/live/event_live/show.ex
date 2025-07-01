@@ -40,6 +40,6 @@ defmodule CLPWeb.EventLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Event")
-     |> assign(:event, Events.get_event!(id))}
+     |> assign(:event, Events.get_event(id))}
   end
 end

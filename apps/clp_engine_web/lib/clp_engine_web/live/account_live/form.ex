@@ -36,7 +36,7 @@ defmodule CLPWeb.AccountLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    account = Accounts.get_account!(id)
+    account = Accounts.get_account(id)
 
     socket
     |> assign(:page_title, "Edit Account")

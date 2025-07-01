@@ -3,7 +3,7 @@ defmodule ClpTcp.Application do
 
   def start(_type, _args) do
     children = [
-      {ClpTcp.Server, String.to_integer(System.get_env("CP_BACKEND_TCP_PORT") || "5050")}
+      {ClpTcp.Server, String.to_integer(System.get_env("TCP_PORT") || "5050")}
     ]
 
     opts = [strategy: :one_for_one, name: ClpTcp.Supervisor]

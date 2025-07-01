@@ -34,6 +34,6 @@ defmodule CLPWeb.CalendarLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Calendar")
-     |> assign(:calendar, Calendars.get_calendar!(id))}
+     |> assign(:calendar, Calendars.get_calendar(id))}
   end
 end
