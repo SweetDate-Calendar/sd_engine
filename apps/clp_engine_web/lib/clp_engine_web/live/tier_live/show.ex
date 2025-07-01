@@ -11,12 +11,12 @@ defmodule CLPWeb.TierLive.Show do
         Tier {@tier.id}
         <:subtitle>This is a tier record from your database.</:subtitle>
         <:actions>
-          <.button navigate={~p"/accounts/#{@tier.account_id}"}>
+          <.button navigate={~p"/accounts/#{@tier.account}"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button
             variant="primary"
-            navigate={~p"/accounts/@{@tier.account_id}/tiers/#{@tier}/edit?return_to=show"}
+            navigate={~p"/accounts/#{@tier.account}/tiers/#{@tier}/edit?return_to=show"}
           >
             <.icon name="hero-pencil-square" /> Edit tier
           </.button>
@@ -35,6 +35,6 @@ defmodule CLPWeb.TierLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Tier")
-     |> assign(:tier, Tiers.get_tier(id))}
+     |> assign(:tier, Tiers.get_tier(id) |> CLP.Repo.preload(:account))}
   end
 end

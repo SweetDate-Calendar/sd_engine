@@ -72,7 +72,7 @@ defmodule CLPWeb.TierLive.Form do
     account = CLP.Accounts.get_account(account_id)
 
     case Tiers.update_tier(socket.assigns.tier, tier_params) do
-      {:ok, tier} ->
+      {:ok, _tier} ->
         {:noreply,
          socket
          |> put_flash(:info, "Tier updated successfully")
@@ -101,4 +101,6 @@ defmodule CLPWeb.TierLive.Form do
 
   defp return_path("index", %Tier{account_id: account_id}), do: ~p"/accounts/#{account_id}"
   defp return_path("show", account), do: ~p"/accounts/#{account}"
+  defp return_path(_, %CLP.Accounts.Account{id: id}), do: ~p"/accounts/#{id}"
+  defp return_path(_, %CLP.Tiers.Tier{account_id: id}), do: ~p"/accounts/#{id}"
 end
