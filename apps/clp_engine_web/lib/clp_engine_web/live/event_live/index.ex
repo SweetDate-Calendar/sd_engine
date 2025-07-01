@@ -59,7 +59,7 @@ defmodule CLPWeb.EventLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    event = Events.get_event!(id)
+    event = Events.get_event(id)
     {:ok, _} = Events.delete_event(event)
 
     {:noreply, stream_delete(socket, :events, event)}

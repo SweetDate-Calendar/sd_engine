@@ -28,14 +28,14 @@ defmodule CLP.Accounts do
 
   ## Examples
 
-      iex> get_account!(123)
+      iex> get_account(123)
       %Account{}
 
-      iex> get_account!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_account(456)
+      ** nil
 
   """
-  def get_account!(id), do: Repo.get!(Account, id)
+  def get_account(id), do: Repo.get(Account, id)
 
   @doc """
   Creates a account.
@@ -124,14 +124,14 @@ defmodule CLP.Accounts do
 
   ## Examples
 
-      iex> get_user!(123)
+      iex> get_user(123)
       %User{}
 
-      iex> get_user!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_user(456)
+      ** nil
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user(id), do: Repo.get(User, id)
 
   @doc """
   Creates a user.
@@ -228,7 +228,7 @@ defmodule CLP.Accounts do
       iex> get_account_user!(456)
       ** (Ecto.NoResultsError)
   """
-  def get_account_user!(id), do: Repo.get!(AccountUser, id)
+  def get_account_user!(id), do: Repo.get(AccountUser, id)
 
   @doc """
   List all account users.
@@ -272,5 +272,25 @@ defmodule CLP.Accounts do
   """
   def change_account_user(%AccountUser{} = user, attrs \\ %{}) do
     AccountUser.changeset(user, attrs)
+  end
+
+  alias CLP.Tiers.Tier
+
+  @doc """
+  Creates a tier.
+
+  ## Examples
+
+      iex> create_tier(%{field: value})
+      {:ok, %Tier{}}
+
+      iex> create_tier(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_tier(attrs) do
+    %Tier{}
+    |> Tier.changeset(attrs)
+    |> Repo.insert()
   end
 end

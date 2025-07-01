@@ -8,13 +8,19 @@ defmodule CLP.TiersFixtures do
   Generate a tier.
   """
   def tier_fixture(attrs \\ %{}) do
-    {:ok, tier} =
-      attrs
-      |> Enum.into(%{
-        name: "some name"
-      })
-      |> CLP.Tiers.create_tier()
+    attrs =
+      case Map.get(attrs, :account_id) || Map.get(attrs, "account_id") do
+        nil ->
+          %{id: account_id} = CLP.AccountsFixtures.account_fixture()
+          Map.put(attrs, :account_id, account_id)
 
+        _ ->
+          attrs
+      end
+
+    attrs = Enum.into(attrs, %{name: "some name"})
+
+    {:ok, tier} = CLP.Accounts.create_tier(attrs)
     tier
   end
 end

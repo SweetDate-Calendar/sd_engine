@@ -32,6 +32,6 @@ defmodule CLPWeb.UserLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show User")
-     |> assign(:user, Accounts.get_user!(id))}
+     |> assign(:user, Accounts.get_user(id))}
   end
 end

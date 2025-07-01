@@ -1,12 +1,12 @@
-defmodule ClpTcp.Handlers.Calendars do
+defmodule ClpTcp.Handlers.Tiers do
   def dispatch("LIST", _json) do
-    %{status: "ok", calendars: CLP.Calendars.list_calendars()}
+    %{status: "ok", tiers: CLP.Tiers.list_tiers()}
   end
 
   def dispatch("CREATE", json) do
     case Jason.decode(json) do
       {:ok, attrs} ->
-        case CLP.Calendars.create_calendar(attrs) do
+        case CLP.Accounts.create_tier(attrs) do
           {:ok, cal} -> %{status: "ok", id: cal.id}
           {:error, cs} -> %{status: "error", errors: cs.errors}
         end
@@ -19,9 +19,9 @@ defmodule ClpTcp.Handlers.Calendars do
   def dispatch("GET", json) do
     case Jason.decode(json) do
       {:ok, %{"id" => id}} ->
-        case CLP.Calendars.get_calendar(id) do
-          %CLP.Calendars.Calendar{} = calendar ->
-            %{status: "ok", calendar: %{"id" => calendar.id, "name" => calendar.name}}
+        case CLP.Tiers.get_tier(id) do
+          %CLP.Tiers.Tier{} = tier ->
+            %{status: "ok", tier: %{"id" => tier.id, "name" => tier.name}}
 
           nil ->
             %{status: "error", message: "not found"}
@@ -34,9 +34,9 @@ defmodule ClpTcp.Handlers.Calendars do
 
   def dispatch("UPDATE", json) do
     with {:ok, %{"id" => id} = attrs} <- Jason.decode(json),
-         cal <- CLP.Calendars.get_calendar(id),
-         {:ok, updated} <- CLP.Calendars.update_calendar(cal, attrs) do
-      %{status: "ok", calendar: updated}
+         cal <- CLP.Tiers.get_tier(id),
+         {:ok, updated} <- CLP.Tiers.update_tier(cal, attrs) do
+      %{status: "ok", tier: updated}
     else
       {:error, changeset} -> %{status: "error", errors: changeset.errors}
       _ -> %{status: "error", message: "invalid input or not found"}
@@ -45,8 +45,8 @@ defmodule ClpTcp.Handlers.Calendars do
 
   def dispatch("DELETE", json) do
     with {:ok, %{"id" => id}} <- Jason.decode(json),
-         cal <- CLP.Calendars.get_calendar(id),
-         {:ok, _} <- CLP.Calendars.delete_calendar(cal) do
+         cal <- CLP.Tiers.get_tier(id),
+         {:ok, _} <- CLP.Tiers.delete_tier(cal) do
       %{status: "ok"}
     else
       _ -> %{status: "error", message: "not found or failed to delete"}

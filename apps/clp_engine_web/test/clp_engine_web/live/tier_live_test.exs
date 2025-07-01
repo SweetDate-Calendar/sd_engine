@@ -3,34 +3,40 @@ defmodule CLPWeb.TierLiveTest do
 
   import Phoenix.LiveViewTest
   import CLP.TiersFixtures
+  import CLP.AccountsFixtures
 
-  @create_attrs %{name: "some name"}
+  # @create_attrs %{name: "some name"}
   @update_attrs %{name: "some updated name"}
   @invalid_attrs %{name: nil}
   defp create_tier(_) do
-    tier = tier_fixture()
+    tier =
+      tier_fixture()
+      |> CLP.Repo.preload(:account)
 
-    %{tier: tier}
+    %{tier: tier, account: tier.account}
   end
 
   describe "Index" do
     setup [:create_tier]
 
-    test "lists all tiers", %{conn: conn, tier: tier} do
-      {:ok, _index_live, html} = live(conn, ~p"/tiers")
+    test "lists all tiers", %{conn: conn, tier: tier, account: account} do
+      {:ok, _index_live, html} = live(conn, ~p"/accounts/#{account}")
 
-      assert html =~ "Listing Tiers"
+      assert html =~ "Tiers"
       assert html =~ tier.name
     end
 
     test "saves new tier", %{conn: conn} do
-      {:ok, index_live, _html} = live(conn, ~p"/tiers")
+      account = account_fixture()
+      create_attrs = Map.put(%{name: "some name"}, :account_id, account.id)
+
+      {:ok, index_live, _html} = live(conn, ~p"/accounts/#{account.id}")
 
       assert {:ok, form_live, _} =
                index_live
                |> element("a", "New Tier")
                |> render_click()
-               |> follow_redirect(conn, ~p"/tiers/new")
+               |> follow_redirect(conn, ~p"/accounts/#{account.id}/tiers/new")
 
       assert render(form_live) =~ "New Tier"
 
@@ -40,7 +46,7 @@ defmodule CLPWeb.TierLiveTest do
 
       assert {:ok, index_live, _html} =
                form_live
-               |> form("#tier-form", tier: @create_attrs)
+               |> form("#tier-form", tier: create_attrs)
                |> render_submit()
                |> follow_redirect(conn, ~p"/tiers")
 
@@ -50,7 +56,8 @@ defmodule CLPWeb.TierLiveTest do
     end
 
     test "updates tier in listing", %{conn: conn, tier: tier} do
-      {:ok, index_live, _html} = live(conn, ~p"/tiers")
+      account = account_fixture()
+      {:ok, index_live, _html} = live(conn, ~p"/accounts/#{account}/tiers")
 
       assert {:ok, form_live, _html} =
                index_live
@@ -93,14 +100,17 @@ defmodule CLPWeb.TierLiveTest do
       assert html =~ tier.name
     end
 
-    test "updates tier and returns to show", %{conn: conn, tier: tier} do
-      {:ok, show_live, _html} = live(conn, ~p"/tiers/#{tier}")
+    test "updates tier and returns to show", %{conn: conn, tier: tier, account: account} do
+      {:ok, show_live, _html} = live(conn, ~p"/accounts/#{account}/tiers/#{tier}")
 
       assert {:ok, form_live, _} =
                show_live
                |> element("a", "Edit")
                |> render_click()
-               |> follow_redirect(conn, ~p"/tiers/#{tier}/edit?return_to=show")
+               |> follow_redirect(
+                 conn,
+                 ~p"/accounts/#{account}/tiers/#{tier}/edit?return_to=show"
+               )
 
       assert render(form_live) =~ "Edit Tier"
 
@@ -112,11 +122,37 @@ defmodule CLPWeb.TierLiveTest do
                form_live
                |> form("#tier-form", tier: @update_attrs)
                |> render_submit()
-               |> follow_redirect(conn, ~p"/tiers/#{tier}")
+               |> follow_redirect(conn, ~p"/accounts/#{account}/tiers/#{tier}")
 
       html = render(show_live)
       assert html =~ "Tier updated successfully"
       assert html =~ "some updated name"
     end
+
+    # test "updates tier and returns to show", %{conn: conn, tier: tier, account: account} do
+    #   {:ok, show_live, _html} = live(conn, ~p"/tiers/#{tier}")
+
+    #   assert {:ok, form_live, _} =
+    #            show_live
+    #            |> element("a", "Edit")
+    #            |> render_click()
+    #            |> follow_redirect(conn, ~p"/tiers/#{tier}/edit?return_to=show")
+
+    #   assert render(form_live) =~ "Edit Tier"
+
+    #   assert form_live
+    #          |> form("#tier-form", tier: @invalid_attrs)
+    #          |> render_change() =~ "can&#39;t be blank"
+
+    #   assert {:ok, show_live, _html} =
+    #            form_live
+    #            |> form("#tier-form", tier: @update_attrs)
+    #            |> render_submit()
+    #            |> follow_redirect(conn, ~p"/tiers/#{tier}")
+
+    #   html = render(show_live)
+    #   assert html =~ "Tier updated successfully"
+    #   assert html =~ "some updated name"
+    # end
   end
 end

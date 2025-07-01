@@ -1,21 +1,23 @@
 # ClpTcp
 
-**TODO: Add description**
 
-## Installation
+ClpTcp is a lightweight TCP server for handling protocol-based communication in the CLP engine. It listens for incoming connections and dispatches namespaced commands (e.g., `PING`, `CALENDARS.CREATE`) using a simple, JSON-encoded message format.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `clp_tcp` to your list of dependencies in `mix.exs`:
+## Part of the `clp_engine` Umbrella
 
-```elixir
-def deps do
-  [
-    {:clp_tcp, "~> 0.1.0"}
-  ]
-end
+This app is located under the `apps/clp_tcp/` directory inside the `clp_engine` umbrella project.
+
+## Running
+
+Start the TCP server by running the umbrella app:
+
+```bash
+cd clp_engine
+mix deps.get
+iex -S mix
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/clp_tcp>.
-
+## Confirm from terminal
+```bash
+echo "PING" | nc localhost 5050
+```

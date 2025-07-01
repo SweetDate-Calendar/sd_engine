@@ -45,7 +45,7 @@ defmodule CLPWeb.EventLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    event = Events.get_event!(id)
+    event = Events.get_event(id)
 
     socket
     |> assign(:page_title, "Edit Event")

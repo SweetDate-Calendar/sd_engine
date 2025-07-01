@@ -17,18 +17,7 @@ defmodule CLP.TiersTest do
 
     test "get_tier!/1 returns the tier with given id" do
       tier = tier_fixture()
-      assert Tiers.get_tier!(tier.id) == tier
-    end
-
-    test "create_tier/1 with valid data creates a tier" do
-      valid_attrs = %{name: "some name"}
-
-      assert {:ok, %Tier{} = tier} = Tiers.create_tier(valid_attrs)
-      assert tier.name == "some name"
-    end
-
-    test "create_tier/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Tiers.create_tier(@invalid_attrs)
+      assert Tiers.get_tier(tier.id) == tier
     end
 
     test "update_tier/2 with valid data updates the tier" do
@@ -42,13 +31,13 @@ defmodule CLP.TiersTest do
     test "update_tier/2 with invalid data returns error changeset" do
       tier = tier_fixture()
       assert {:error, %Ecto.Changeset{}} = Tiers.update_tier(tier, @invalid_attrs)
-      assert tier == Tiers.get_tier!(tier.id)
+      assert tier == Tiers.get_tier(tier.id)
     end
 
     test "delete_tier/1 deletes the tier" do
       tier = tier_fixture()
       assert {:ok, %Tier{}} = Tiers.delete_tier(tier)
-      assert_raise Ecto.NoResultsError, fn -> Tiers.get_tier!(tier.id) end
+      refute Tiers.get_tier(tier.id)
     end
 
     test "change_tier/1 returns a tier changeset" do

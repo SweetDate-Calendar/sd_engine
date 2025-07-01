@@ -9,11 +9,11 @@ defmodule CLPWeb.TierLive.Index do
     <Layouts.app flash={@flash}>
       <.header>
         Listing Tiers
-        <:actions>
+        <%!-- <:actions>
           <.button variant="primary" navigate={~p"/tiers/new"}>
             <.icon name="hero-plus" /> New Tier
           </.button>
-        </:actions>
+        </:actions> --%>
       </.header>
 
       <.table
@@ -51,7 +51,7 @@ defmodule CLPWeb.TierLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    tier = Tiers.get_tier!(id)
+    tier = Tiers.get_tier(id)
     {:ok, _} = Tiers.delete_tier(tier)
 
     {:noreply, stream_delete(socket, :tiers, tier)}

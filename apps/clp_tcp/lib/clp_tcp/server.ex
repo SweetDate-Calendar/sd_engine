@@ -3,7 +3,6 @@ defmodule ClpTcp.Server do
 
   require Logger
 
-  # 👇 This makes the module supervisor-compatible
   def child_spec(port) do
     %{
       id: __MODULE__,
@@ -55,7 +54,8 @@ defmodule ClpTcp.Server do
   end
 
   defp dispatch("PING", json), do: ClpTcp.Handlers.Ping.dispatch(json)
-  # defp dispatch("AUTH." <> action, json), do: ClpTcp.Handlers.Auth.dispatch(action, json)
+  defp dispatch("ACCOUNTS." <> action, json), do: ClpTcp.Handlers.Accounts.dispatch(action, json)
+  defp dispatch("TIERS." <> action, json), do: ClpTcp.Handlers.Tiers.dispatch(action, json)
 
   # defp dispatch("CALENDARS." <> action, json),
   #   do: ClpTcp.Handlers.Calendars.dispatch(action, json)
