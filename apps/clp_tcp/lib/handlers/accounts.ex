@@ -52,4 +52,20 @@ defmodule ClpTcp.Handlers.Accounts do
       _ -> %{status: "error", message: "not found or failed to delete"}
     end
   end
+
+  def dispatch("LIST_CALENDARS", json) do
+    case Jason.decode(json) do
+      {:ok, %{"id" => id}} ->
+        case CLP.Accounts.get_account(id) do
+          %CLP.Accounts.Account{} = account ->
+            %{status: "ok", calendars: CLP.Accounts.list_calendars(account)}
+
+          nil ->
+            %{status: "error", message: "not found"}
+        end
+
+      _ ->
+        %{status: "error", message: "invalid json"}
+    end
+  end
 end

@@ -124,4 +124,18 @@ defmodule CLP.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_tier(%{name: nil, account_id: nil})
     end
   end
+
+  describe "calendars" do
+    test "list_calendars/1 returns a list of calendars" do
+      account = account_fixture()
+      tier_a = CLP.TiersFixtures.tier_fixture(%{account_id: account.id})
+      calendar_a = CLP.CalendarsFixtures.calendar_fixture(%{tier_id: tier_a.id})
+      tier_b = CLP.TiersFixtures.tier_fixture(%{account_id: account.id})
+      calendar_b = CLP.CalendarsFixtures.calendar_fixture(%{tier_id: tier_b.id})
+
+      tier_c = CLP.TiersFixtures.tier_fixture()
+      _calendar_c = CLP.CalendarsFixtures.calendar_fixture(%{tier_id: tier_c.id})
+      assert CLP.Accounts.list_calendars(account) == [calendar_a, calendar_b]
+    end
+  end
 end

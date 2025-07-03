@@ -64,4 +64,45 @@ defmodule ClpTcp.Handlers.AccountsTest do
     get_resp = TestHelper.tcp_send("ACCOUNTS.GET|" <> Jason.encode!(%{"id" => account.id}))
     assert get_resp["status"] == "error"
   end
+
+  test "list calendars" do
+    account = account_fixture()
+    tier_a = CLP.TiersFixtures.tier_fixture(%{account_id: account.id})
+    calendar_a = CLP.CalendarsFixtures.calendar_fixture(%{tier_id: tier_a.id})
+    tier_b = CLP.TiersFixtures.tier_fixture(%{account_id: account.id})
+    calendar_b = CLP.CalendarsFixtures.calendar_fixture(%{tier_id: tier_b.id})
+
+    tier_c = CLP.TiersFixtures.tier_fixture()
+    _calendar_c = CLP.CalendarsFixtures.calendar_fixture(%{tier_id: tier_c.id})
+
+    payload = %{
+      "id" => account.id
+    }
+
+    response = TestHelper.tcp_send("ACCOUNTS.LIST_CALENDARS|" <> Jason.encode!(payload))
+    assert response["status"] == "ok"
+
+    expected = [
+      %{
+        "id" => calendar_a.id,
+        "name" => calendar_a.name,
+        "tier_id" => calendar_a.tier_id,
+        "color_theme" => calendar_a.color_theme,
+        "visibility" => to_string(calendar_a.visibility)
+      },
+      %{
+        "id" => calendar_b.id,
+        "name" => calendar_b.name,
+        "tier_id" => calendar_b.tier_id,
+        "color_theme" => calendar_b.color_theme,
+        "visibility" => to_string(calendar_b.visibility)
+      }
+    ]
+
+    # Allow either order
+    assert Enum.sort_by(response["calendars"], & &1["id"]) ==
+             Enum.sort_by(expected, & &1["id"])
+
+    # assert CLP.Accounts.list_calendars(account) == [calendar_a, calendar_b]
+  end
 end

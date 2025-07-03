@@ -2,7 +2,7 @@ defmodule CLP.Calendars.Calendar do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @derive {Jason.Encoder, only: [:id, :name, :tier_id, :color_theme]}
+  @derive {Jason.Encoder, only: [:id, :name, :tier_id, :color_theme, :visibility]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id

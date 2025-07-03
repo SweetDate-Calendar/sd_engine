@@ -293,4 +293,22 @@ defmodule CLP.Accounts do
     |> Tier.changeset(attrs)
     |> Repo.insert()
   end
+
+  @doc """
+  List calendars
+
+  ## Example
+      iex> list_calendars(account)
+      [%Calendar{}, ...]
+
+  """
+  def list_calendars(%CLP.Accounts.Account{id: account_id}) do
+    from(c in CLP.Calendars.Calendar,
+      join: t in CLP.Tiers.Tier,
+      on: c.tier_id == t.id,
+      where: t.account_id == ^account_id,
+      select: c
+    )
+    |> Repo.all()
+  end
 end
