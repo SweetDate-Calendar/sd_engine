@@ -15,6 +15,13 @@ defmodule CLPWeb.TierLiveTest do
     %{tier: tier, account: tier.account}
   end
 
+  defp create_attrs(account_id) do
+    %{
+      name: "some new tier name",
+      account_id: account_id
+    }
+  end
+
   describe "Index" do
     setup [:create_tier]
 
@@ -26,15 +33,16 @@ defmodule CLPWeb.TierLiveTest do
     end
 
     test "saves new tier", %{conn: conn, account: account} do
-      create_attrs = Map.put(%{name: "some new tier name"}, :account_id, account.id)
-
       {:ok, index_live, _html} = live(conn, ~p"/accounts/#{account.id}")
 
       assert {:ok, form_live, _} =
                index_live
                |> element("a", "New Tier")
                |> render_click()
-               |> follow_redirect(conn, ~p"/accounts/#{account.id}/tiers/new")
+               |> follow_redirect(
+                 conn,
+                 ~p"/accounts/#{account.id}/tiers/new?return_to=show_account"
+               )
 
       assert render(form_live) =~ "New Tier"
 
@@ -44,7 +52,7 @@ defmodule CLPWeb.TierLiveTest do
 
       assert {:ok, index_live, _html} =
                form_live
-               |> form("#tier-form", tier: create_attrs)
+               |> form("#tier-form", tier: create_attrs(account.id))
                |> render_submit()
                |> follow_redirect(conn, ~p"/accounts/#{account.id}")
 
@@ -62,7 +70,7 @@ defmodule CLPWeb.TierLiveTest do
                |> render_click()
                |> follow_redirect(
                  conn,
-                 ~p"/accounts/#{account}/tiers/#{tier}/edit?return_to=show"
+                 ~p"/accounts/#{account}/tiers/#{tier}/edit?return_to=show_account"
                )
 
       assert render(form_live) =~ "Edit Tier"
@@ -100,7 +108,7 @@ defmodule CLPWeb.TierLiveTest do
       assert html =~ tier.name
     end
 
-    test "updates tier and returns to account show", %{conn: conn, tier: tier, account: account} do
+    test "updates tier", %{conn: conn, tier: tier, account: account} do
       {:ok, show_live, _html} = live(conn, ~p"/accounts/#{account}/tiers/#{tier}")
 
       assert {:ok, form_live, _} =
@@ -109,7 +117,7 @@ defmodule CLPWeb.TierLiveTest do
                |> render_click()
                |> follow_redirect(
                  conn,
-                 ~p"/accounts/#{account}/tiers/#{tier}/edit?return_to=show"
+                 ~p"/accounts/#{account}/tiers/#{tier}/edit?return_to=show_tier"
                )
 
       assert render(form_live) =~ "Edit Tier"
@@ -124,7 +132,7 @@ defmodule CLPWeb.TierLiveTest do
                |> render_submit()
                |> follow_redirect(
                  conn,
-                 ~p"/accounts/#{account}"
+                 ~p"/accounts/#{account}/tiers/#{tier}"
                )
 
       html = render(show_live)

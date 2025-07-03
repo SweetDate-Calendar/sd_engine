@@ -35,11 +35,11 @@ defmodule CLPWeb.TierLive.Form do
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp return_to("show"), do: "show"
-  defp return_to(_), do: "index"
+  defp return_to("show_account"), do: "show_account"
+  defp return_to(_), do: "show_tier"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    tier = Tiers.get_tier(id)
+    tier = Tiers.get_tier(id) |> CLP.Repo.preload(:account)
 
     socket
     |> assign(:page_title, "Edit Tier")
@@ -68,15 +68,12 @@ defmodule CLPWeb.TierLive.Form do
   end
 
   defp save_tier(socket, :edit, tier_params) do
-    account_id = Map.get(tier_params, "account_id") || Map.get(tier_params, :account_id)
-    account = CLP.Accounts.get_account(account_id)
-
     case Tiers.update_tier(socket.assigns.tier, tier_params) do
-      {:ok, _tier} ->
+      {:ok, tier} ->
         {:noreply,
          socket
          |> put_flash(:info, "Tier updated successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, account))}
+         |> push_navigate(to: return_path(socket.assigns.return_to, tier))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -84,23 +81,23 @@ defmodule CLPWeb.TierLive.Form do
   end
 
   defp save_tier(socket, :new, tier_params) do
-    account_id = Map.get(tier_params, "account_id") || Map.get(tier_params, :account_id)
-    account = CLP.Accounts.get_account(account_id)
-
     case CLP.Accounts.create_tier(tier_params) do
-      {:ok, _tier} ->
+      {:ok, tier} ->
         {:noreply,
          socket
          |> put_flash(:info, "Tier created successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, account))}
+         |> push_navigate(to: return_path(socket.assigns.return_to, tier))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
 
-  defp return_path("index", %Tier{account_id: account_id}), do: ~p"/accounts/#{account_id}"
-  defp return_path("show", account), do: ~p"/accounts/#{account}"
-  defp return_path(_, %CLP.Accounts.Account{id: id}), do: ~p"/accounts/#{id}"
-  defp return_path(_, %CLP.Tiers.Tier{account_id: id}), do: ~p"/accounts/#{id}"
+  defp return_path("show_account", tier) do
+    ~p"/accounts/#{tier.account_id}"
+  end
+
+  defp return_path("show_tier", tier) do
+    ~p"/accounts/#{tier.account_id}/tiers/#{tier}"
+  end
 end

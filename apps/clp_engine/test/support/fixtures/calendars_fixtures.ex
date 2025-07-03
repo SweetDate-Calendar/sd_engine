@@ -8,15 +8,26 @@ defmodule CLP.CalendarsFixtures do
   Generate a calendar.
   """
   def calendar_fixture(attrs \\ %{}) do
-    {:ok, calendar} =
+    attrs =
+      case Map.get(attrs, :tier_id) do
+        nil ->
+          %{id: tier_id} = CLP.TiersFixtures.tier_fixture()
+
+          Map.put(attrs, :tier_id, tier_id)
+
+        _ ->
+          attrs
+      end
+
+    attrs =
       attrs
       |> Enum.into(%{
         color_theme: "some color_theme",
         name: "some name",
-        visibility: "some visibility"
+        visibility: :public
       })
-      |> CLP.Calendars.create_calendar()
 
+    {:ok, calendar} = CLP.Calendars.create_calendar(attrs)
     calendar
   end
 end

@@ -17,6 +17,8 @@ defmodule CLPWeb.CalendarLive.Form do
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:color_theme]} type="text" label="Color theme" />
         <.input field={@form[:visibility]} type="text" label="Visibility" />
+        <.input field={@form[:tier_id]} type="text" class="hidden" />
+
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Calendar</.button>
           <.button navigate={return_path(@return_to, @calendar)}>Cancel</.button>
@@ -27,15 +29,16 @@ defmodule CLPWeb.CalendarLive.Form do
   end
 
   @impl true
-  def mount(params, _session, socket) do
+  def mount(%{"tier_id" => tier_id} = params, _session, socket) do
     {:ok,
      socket
      |> assign(:return_to, return_to(params["return_to"]))
+     |> assign(:tier_id, tier_id)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp return_to("show"), do: "show"
-  defp return_to(_), do: "index"
+  defp return_to("show_tier"), do: "show_tier"
+  defp return_to(_), do: "show_calendar"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     calendar = Calendars.get_calendar(id)
@@ -46,8 +49,8 @@ defmodule CLPWeb.CalendarLive.Form do
     |> assign(:form, to_form(Calendars.change_calendar(calendar)))
   end
 
-  defp apply_action(socket, :new, _params) do
-    calendar = %Calendar{}
+  defp apply_action(socket, :new, %{"tier_id" => tier_id}) do
+    calendar = %Calendar{tier_id: tier_id}
 
     socket
     |> assign(:page_title, "New Calendar")
@@ -91,6 +94,15 @@ defmodule CLPWeb.CalendarLive.Form do
     end
   end
 
-  defp return_path("index", _calendar), do: ~p"/calendars"
-  defp return_path("show", calendar), do: ~p"/calendars/#{calendar}"
+  defp return_path("show_tier", calendar) do
+    calendar =
+      calendar
+      |> CLP.Repo.preload(:tier)
+
+    ~p"/accounts/#{calendar.tier.account_id}/tiers/#{calendar.tier_id}"
+  end
+
+  defp return_path("show_calendar", calendar) do
+    ~p"/tiers/#{calendar.tier_id}/calendars/#{calendar}"
+  end
 end
