@@ -4,13 +4,24 @@ defmodule CLPWeb.CalendarLiveTest do
   import Phoenix.LiveViewTest
   import CLP.CalendarsFixtures
 
-  @create_attrs %{name: "some name", color_theme: "some color_theme", visibility: "some visibility"}
-  @update_attrs %{name: "some updated name", color_theme: "some updated color_theme", visibility: "some updated visibility"}
+  @create_attrs %{name: "some name", color_theme: "some color_theme", visibility: :private}
+  @update_attrs %{
+    name: "some updated name",
+    color_theme: "some updated color_theme",
+    visibility: :public
+  }
   @invalid_attrs %{name: nil, color_theme: nil, visibility: nil}
   defp create_calendar(_) do
-    calendar = calendar_fixture()
+    calendar =
+      calendar_fixture()
 
     %{calendar: calendar}
+  end
+
+  defp create_attrs() do
+    tier = CLP.TiersFixtures.tier_fixture()
+
+    Map.put(@create_attrs, tier_id: tier.id)
   end
 
   describe "Index" do
@@ -40,7 +51,7 @@ defmodule CLPWeb.CalendarLiveTest do
 
       assert {:ok, index_live, _html} =
                form_live
-               |> form("#calendar-form", calendar: @create_attrs)
+               |> form("#calendar-form", calendar: create_attrs())
                |> render_submit()
                |> follow_redirect(conn, ~p"/calendars")
 

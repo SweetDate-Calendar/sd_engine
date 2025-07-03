@@ -17,6 +17,8 @@ defmodule CLPWeb.CalendarLive.Form do
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:color_theme]} type="text" label="Color theme" />
         <.input field={@form[:visibility]} type="text" label="Visibility" />
+        <.input field={@form[:tier_id]} type="text" class="hidden" />
+
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Calendar</.button>
           <.button navigate={return_path(@return_to, @calendar)}>Cancel</.button>
@@ -27,10 +29,11 @@ defmodule CLPWeb.CalendarLive.Form do
   end
 
   @impl true
-  def mount(params, _session, socket) do
+  def mount(%{"tier_id" => tier_id} = params, _session, socket) do
     {:ok,
      socket
      |> assign(:return_to, return_to(params["return_to"]))
+     |> assign(:tier_id, tier_id)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
@@ -46,8 +49,8 @@ defmodule CLPWeb.CalendarLive.Form do
     |> assign(:form, to_form(Calendars.change_calendar(calendar)))
   end
 
-  defp apply_action(socket, :new, _params) do
-    calendar = %Calendar{}
+  defp apply_action(socket, :new, %{"tier_id" => tier_id}) do
+    calendar = %Calendar{tier_id: tier_id}
 
     socket
     |> assign(:page_title, "New Calendar")
@@ -66,12 +69,15 @@ defmodule CLPWeb.CalendarLive.Form do
   end
 
   defp save_calendar(socket, :edit, calendar_params) do
+    tier_id = Map.get(calendar_params, "tier_id") || Map.get(calendar_params, :tier_id)
+    tier = CLP.Tiers.get_tier(tier_id)
+
     case Calendars.update_calendar(socket.assigns.calendar, calendar_params) do
-      {:ok, calendar} ->
+      {:ok, _calendar} ->
         {:noreply,
          socket
          |> put_flash(:info, "Calendar updated successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, calendar))}
+         |> push_navigate(to: return_path(socket.assigns.return_to, tier))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -79,18 +85,29 @@ defmodule CLPWeb.CalendarLive.Form do
   end
 
   defp save_calendar(socket, :new, calendar_params) do
+    tier_id = Map.get(calendar_params, "tier_id") || Map.get(calendar_params, :tier_id)
+    tier = CLP.Tiers.get_tier(tier_id)
+
     case Calendars.create_calendar(calendar_params) do
-      {:ok, calendar} ->
+      {:ok, _calendar} ->
         {:noreply,
          socket
          |> put_flash(:info, "Calendar created successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, calendar))}
+         |> push_navigate(to: return_path(socket.assigns.return_to, tier))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
 
-  defp return_path("index", _calendar), do: ~p"/calendars"
-  defp return_path("show", calendar), do: ~p"/calendars/#{calendar}"
+  defp return_path("index", %Calendar{tier_id: tier_id}) do
+    ~p"/tiers/#{tier_id}/calendars/"
+  end
+
+  # defp return_path("show", account), do: ~p"/accounts/#{account}"
+  # defp return_path(_, %CLP.Accounts.Account{id: id}), do: ~p"/accounts/#{id}"
+  # defp return_path(_, %CLP.Tiers.Tier{account_id: id}), do: ~p"/accounts/#{id}"
+
+  # defp return_path("index", _calendar), do: ~p"/"
+  # defp return_path("show", calendar), do: ~p"/calendars/#{calendar}"
 end

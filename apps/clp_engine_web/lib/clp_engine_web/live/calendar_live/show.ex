@@ -14,7 +14,10 @@ defmodule CLPWeb.CalendarLive.Show do
           <.button navigate={~p"/calendars"}>
             <.icon name="hero-arrow-left" />
           </.button>
-          <.button variant="primary" navigate={~p"/calendars/#{@calendar}/edit?return_to=show"}>
+          <.button
+            variant="primary"
+            navigate={~p"/tiers/#{@calendar.tier}/#{@calendar}/edit?return_to=show"}
+          >
             <.icon name="hero-pencil-square" /> Edit calendar
           </.button>
         </:actions>
@@ -34,6 +37,7 @@ defmodule CLPWeb.CalendarLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Calendar")
-     |> assign(:calendar, Calendars.get_calendar(id))}
+     |> assign(:calendar, Calendars.get_calendar(id))
+     |> CLP.Repo.preload(:tier)}
   end
 end
