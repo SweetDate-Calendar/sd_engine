@@ -32,6 +32,6 @@ defmodule CLP.Calendars.Calendar do
   def changeset(calendar, attrs) do
     calendar
     |> cast(attrs, [:name, :color_theme, :visibility, :tier_id])
-    |> validate_required([:name, :color_theme, :visibility, :tier_id])
+    |> validate_required([:name, :visibility, :tier_id])
   end
 end
