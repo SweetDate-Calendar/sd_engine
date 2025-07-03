@@ -86,3 +86,8 @@ config :swoosh, :api_client, false
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
+
+config :clp_engine, :tcp,
+  port: String.to_integer(System.get_env("CLP_TCP_PORT") || "5050"),
+  access_key_id: System.get_env("CLP_ACCESS_KEY_ID") || "changeme",
+  secret_access_key: System.get_env("CLP_SECRET_ACCESS_KEY") || "changeme"

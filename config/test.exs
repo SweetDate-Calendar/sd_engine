@@ -36,3 +36,8 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+config :clp_engine, :tcp,
+  port: String.to_integer(System.get_env("CLP_TCP_PORT") || "5050"),
+  access_key_id: System.get_env("CLP_ACCESS_KEY_ID") || "changeme",
+  secret_access_key: System.get_env("CLP_SECRET_ACCESS_KEY") || "changeme"

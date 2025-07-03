@@ -1,21 +1,22 @@
 defmodule ClpTcp.Handlers.AccountsTest do
   use ClpTcp.DataCase, async: false
   import CLP.AccountsFixtures
-  alias ClpTcp.TestHelper
+  import ClpTcp.TestHelper
 
   test "list all accounts" do
     account_fixture(%{name: "One"})
     account_fixture(%{name: "Two"})
 
-    response = TestHelper.tcp_send("ACCOUNTS.LIST|{}")
+    response = tcp_send("ACCOUNTS.LIST|" <> Jason.encode!(authorize(%{})))
+
     assert response["status"] == "ok"
     assert length(response["accounts"]) >= 2
   end
 
   test "ACCOUNDS.CREATE creates a new account with just a title" do
-    payload = %{"name" => "RubyConf"}
+    payload = %{"name" => "RubyConf"} |> authorize()
     raw = "ACCOUNTS.CREATE|#{Jason.encode!(payload)}"
-    response = TestHelper.tcp_send(raw)
+    response = tcp_send(raw)
 
     assert %{"status" => "ok", "id" => id} = response
     assert is_binary(id)
@@ -24,17 +25,19 @@ defmodule ClpTcp.Handlers.AccountsTest do
   test "fetch account by id" do
     account = account_fixture(%{name: "Fetch Me"})
 
-    payload = %{"id" => account.id}
-    get_resp = TestHelper.tcp_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
+    payload = %{"id" => account.id} |> authorize()
+    get_resp = tcp_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
 
     assert get_resp["status"] == "ok"
     assert get_resp["account"]["name"] == "Fetch Me"
   end
 
   test "fetch account with invalid id returns error" do
-    payload = %{"id" => "00000000-0000-0000-0000-000000000000"}
+    payload =
+      %{"id" => "00000000-0000-0000-0000-000000000000"}
+      |> authorize()
 
-    response = TestHelper.tcp_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
+    response = tcp_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
 
     assert response["status"] == "error"
     assert response["message"] == "not found"
@@ -43,25 +46,29 @@ defmodule ClpTcp.Handlers.AccountsTest do
   test "update account name" do
     account = account_fixture(%{name: "Old Name"})
 
-    payload = %{
-      "id" => account.id,
-      "name" => "New Name"
-    }
+    payload =
+      %{
+        "id" => account.id,
+        "name" => "New Name",
+        "access_key_id" => "demo_access_key_id",
+        "access_key" => "demo_access_key"
+      }
+      |> authorize()
 
-    response = TestHelper.tcp_send("ACCOUNTS.UPDATE|" <> Jason.encode!(payload))
+    response = tcp_send("ACCOUNTS.UPDATE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
     assert response["account"]["name"] == "New Name"
   end
 
   test "delete account" do
     account = account_fixture()
-    payload = %{"id" => account.id}
+    payload = %{"id" => account.id} |> authorize()
 
-    response = TestHelper.tcp_send("ACCOUNTS.DELETE|" <> Jason.encode!(payload))
+    response = tcp_send("ACCOUNTS.DELETE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
 
     # Ensure it's gone
-    get_resp = TestHelper.tcp_send("ACCOUNTS.GET|" <> Jason.encode!(%{"id" => account.id}))
+    get_resp = tcp_send("ACCOUNTS.GET|" <> Jason.encode!(%{"id" => account.id}))
     assert get_resp["status"] == "error"
   end
 
@@ -75,11 +82,9 @@ defmodule ClpTcp.Handlers.AccountsTest do
     tier_c = CLP.TiersFixtures.tier_fixture()
     _calendar_c = CLP.CalendarsFixtures.calendar_fixture(%{tier_id: tier_c.id})
 
-    payload = %{
-      "id" => account.id
-    }
+    payload = %{"id" => account.id} |> authorize()
 
-    response = TestHelper.tcp_send("ACCOUNTS.LIST_CALENDARS|" <> Jason.encode!(payload))
+    response = tcp_send("ACCOUNTS.LIST_CALENDARS|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
 
     expected = [

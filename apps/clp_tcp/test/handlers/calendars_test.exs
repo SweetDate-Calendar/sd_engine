@@ -7,17 +7,17 @@ defmodule ClpTcp.Handlers.CalendarsTest do
   test "list all calendars" do
     account_id = account_fixture().id
     calendar_fixture(%{name: "One", account_id: account_id})
-
     calendar_fixture(%{name: "Two", account_id: account_id})
 
-    response = tcp_send("CALENDARS.LIST|{}")
+    response = tcp_send("CALENDARS.LIST|" <> Jason.encode!(authorize(%{})))
+
     assert response["status"] == "ok"
     assert length(response["calendars"]) >= 2
   end
 
   test "CALENDARS.CREATE creates a new calendar with just a title" do
     tier = CLP.TiersFixtures.tier_fixture()
-    payload = %{"name" => "RubyConf", "tier_id" => tier.id}
+    payload = %{"name" => "RubyConf", "tier_id" => tier.id} |> authorize()
     raw = "CALENDARS.CREATE|#{Jason.encode!(payload)}"
     response = tcp_send(raw)
 
@@ -28,7 +28,7 @@ defmodule ClpTcp.Handlers.CalendarsTest do
   test "fetch calendar by id" do
     calendar = calendar_fixture(%{name: "Fetch Me"})
 
-    payload = %{"id" => calendar.id}
+    payload = %{"id" => calendar.id} |> authorize()
     get_resp = tcp_send("CALENDARS.GET|" <> Jason.encode!(payload))
 
     assert get_resp["status"] == "ok"
@@ -36,7 +36,7 @@ defmodule ClpTcp.Handlers.CalendarsTest do
   end
 
   test "fetch calendar with invalid id returns error" do
-    payload = %{"id" => "00000000-0000-0000-0000-000000000000"}
+    payload = %{"id" => "00000000-0000-0000-0000-000000000000"} |> authorize()
 
     response = tcp_send("CALENDARS.GET|" <> Jason.encode!(payload))
 
@@ -47,10 +47,12 @@ defmodule ClpTcp.Handlers.CalendarsTest do
   test "update calendar name" do
     calendar = calendar_fixture(%{name: "Old Name"})
 
-    payload = %{
-      "id" => calendar.id,
-      "name" => "New Name"
-    }
+    payload =
+      %{
+        "id" => calendar.id,
+        "name" => "New Name"
+      }
+      |> authorize()
 
     response = tcp_send("CALENDARS.UPDATE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
@@ -59,7 +61,7 @@ defmodule ClpTcp.Handlers.CalendarsTest do
 
   test "delete calendar" do
     calendar = calendar_fixture()
-    payload = %{"id" => calendar.id}
+    payload = %{"id" => calendar.id} |> authorize()
 
     response = tcp_send("CALENDARS.DELETE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
