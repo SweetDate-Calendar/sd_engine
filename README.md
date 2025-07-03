@@ -12,7 +12,7 @@ This umbrella consists of three main applications:
 2. **clp_tcp**  
    A minimal TCP interface for inter-process and inter-application communication using a structured command-based protocol.
 
-3. **clp_gui** *(planned or in development)*  
+3. **clp_gui**  
    A developer GUI in the spirit of [MinIO](https://min.io/) and [RedisInsight](https://redis.com/redis-enterprise/redis-insight/) that lets developers inspect calendars, events, and other data structures visually.
 
 ## Purpose
