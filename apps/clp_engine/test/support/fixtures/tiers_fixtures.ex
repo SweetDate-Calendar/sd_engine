@@ -18,7 +18,7 @@ defmodule CLP.TiersFixtures do
           attrs
       end
 
-    attrs = Enum.into(attrs, %{name: "some name"})
+    attrs = Enum.into(attrs, %{name: "some name#{System.unique_integer()}"})
 
     {:ok, tier} = CLP.Accounts.create_tier(attrs)
     tier
