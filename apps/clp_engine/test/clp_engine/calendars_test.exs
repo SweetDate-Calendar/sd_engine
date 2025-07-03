@@ -21,16 +21,20 @@ defmodule CLP.CalendarsTest do
     end
 
     test "create_calendar/1 with valid data creates a calendar" do
-      valid_attrs = %{
-        name: "some name",
-        color_theme: "some color_theme",
-        visibility: "some visibility"
-      }
+      tier = CLP.TiersFixtures.tier_fixture()
+
+      valid_attrs =
+        %{
+          tier_id: tier.id,
+          name: "some name",
+          color_theme: "some color_theme",
+          visibility: :public
+        }
 
       assert {:ok, %Calendar{} = calendar} = Calendars.create_calendar(valid_attrs)
       assert calendar.name == "some name"
       assert calendar.color_theme == "some color_theme"
-      assert calendar.visibility == "some visibility"
+      assert calendar.visibility == :public
     end
 
     test "create_calendar/1 with invalid data returns error changeset" do
@@ -43,13 +47,13 @@ defmodule CLP.CalendarsTest do
       update_attrs = %{
         name: "some updated name",
         color_theme: "some updated color_theme",
-        visibility: "some updated visibility"
+        visibility: :private
       }
 
       assert {:ok, %Calendar{} = calendar} = Calendars.update_calendar(calendar, update_attrs)
       assert calendar.name == "some updated name"
       assert calendar.color_theme == "some updated color_theme"
-      assert calendar.visibility == "some updated visibility"
+      assert calendar.visibility == :private
     end
 
     test "update_calendar/2 with invalid data returns error changeset" do

@@ -57,6 +57,9 @@ defmodule ClpTcp.Server do
   defp dispatch("ACCOUNTS." <> action, json), do: ClpTcp.Handlers.Accounts.dispatch(action, json)
   defp dispatch("TIERS." <> action, json), do: ClpTcp.Handlers.Tiers.dispatch(action, json)
 
+  defp dispatch("CALENDARS." <> action, json),
+    do: ClpTcp.Handlers.Calendars.dispatch(action, json)
+
   # defp dispatch("CALENDARS." <> action, json),
   #   do: ClpTcp.Handlers.Calendars.dispatch(action, json)
 

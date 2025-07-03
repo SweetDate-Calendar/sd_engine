@@ -9,6 +9,7 @@ defmodule CLP.Tiers.Tier do
   schema "tiers" do
     field :name, :string
     belongs_to :account, CLP.Accounts.Account, type: :binary_id
+    has_many :calendars, CLP.Calendars.Calendar
 
     many_to_many :users, CLP.Accounts.User,
       join_through: "tier_users",

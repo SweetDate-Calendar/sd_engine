@@ -19,7 +19,10 @@ defmodule CLPWeb.AccountLive.Show do
             <.icon name="hero-pencil-square" /> Edit account
           </.button>
 
-          <.button variant="primary" navigate={~p"/accounts/#{@account}/tiers/new"}>
+          <.button
+            variant="primary"
+            navigate={~p"/accounts/#{@account}/tiers/new?return_to=show_account"}
+          >
             <.icon name="hero-plus" /> New Tier
           </.button>
         </:actions>
@@ -39,7 +42,7 @@ defmodule CLPWeb.AccountLive.Show do
           <div class="sr-only">
             <.link navigate={~p"/accounts/#{tier.account_id}/tiers/#{tier}"}>Show</.link>
           </div>
-          <.link navigate={~p"/accounts/#{tier.account_id}/tiers/#{tier}/edit?return_to=show"}>
+          <.link navigate={~p"/accounts/#{tier.account_id}/tiers/#{tier}/edit?return_to=show_account"}>
             Edit
           </.link>
         </:action>

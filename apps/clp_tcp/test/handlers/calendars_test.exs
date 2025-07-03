@@ -1,16 +1,19 @@
 defmodule ClpTcp.Handlers.CalendarsTest do
-  # use ClpTcp.DataCase, async: false
-  # import CP.CalendarsFixtures
-  # import ClpTcp.TestHelper
+  use ClpTcp.DataCase, async: false
+  import CLP.CalendarsFixtures
+  import CLP.AccountsFixtures
+  import ClpTcp.TestHelper
 
-  # test "list all calendars" do
-  #   calendar_fixture(%{name: "One"})
-  #   calendar_fixture(%{name: "Two"})
+  test "list all calendars" do
+    account_id = account_fixture().id
+    calendar_fixture(%{name: "One", account_id: account_id})
 
-  #   response = tcp_send("CALENDARS.LIST|{}")
-  #   assert response["status"] == "ok"
-  #   assert length(response["calendars"]) >= 2
-  # end
+    calendar_fixture(%{name: "Two", account_id: account_id})
+
+    response = tcp_send("CALENDARS.LIST|{}")
+    assert response["status"] == "ok"
+    assert length(response["calendars"]) >= 2
+  end
 
   # test "CALENDARS.CREATE creates a new calendar with just a title" do
   #   payload = %{"name" => "RubyConf"}

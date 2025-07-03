@@ -1,5 +1,6 @@
 defmodule ClpTcp.Handlers.Calendars do
   def dispatch("LIST", _json) do
+    IO.inspect("success I was called")
     %{status: "ok", calendars: CLP.Calendars.list_calendars()}
   end
 

@@ -12,7 +12,7 @@ defmodule ClpTcp.Handlers.TiersTest do
     assert length(response["tiers"]) >= 2
   end
 
-  test "ACCOUNDS.CREATE creates a new tier with just a title" do
+  test "TIERS.CREATE creates a new tier with just a title" do
     account = CLP.AccountsFixtures.account_fixture()
     payload = %{"name" => "RubyConf", account_id: account.id}
     raw = "TIERS.CREATE|#{Jason.encode!(payload)}"

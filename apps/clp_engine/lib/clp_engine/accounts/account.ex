@@ -16,11 +16,6 @@ defmodule CLP.Accounts.Account do
       on_replace: :delete,
       join_keys: [account_id: :id, user_id: :id]
 
-    has_many :calendars, CLP.Calendars.Calendar,
-      foreign_key: :account_id,
-      on_delete: :delete_all,
-      references: :id
-
     timestamps()
   end
 

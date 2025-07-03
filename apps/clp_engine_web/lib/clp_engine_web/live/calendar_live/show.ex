@@ -11,12 +11,14 @@ defmodule CLPWeb.CalendarLive.Show do
         Calendar {@calendar.id}
         <:subtitle>This is a calendar record from your database.</:subtitle>
         <:actions>
-          <.button navigate={~p"/calendars"}>
+          <.button navigate={~p"/accounts/#{@calendar.tier.account}/tiers/#{@calendar.tier}"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button
             variant="primary"
-            navigate={~p"/tiers/#{@calendar.tier}/#{@calendar}/edit?return_to=show"}
+            navigate={
+              ~p"/tiers/#{@calendar.tier_id}/calendars/#{@calendar}/edit?return_to=show_calendar"
+            }
           >
             <.icon name="hero-pencil-square" /> Edit calendar
           </.button>
@@ -34,10 +36,12 @@ defmodule CLPWeb.CalendarLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    calendar = Calendars.get_calendar(id) |> CLP.Repo.preload(tier: [:account])
+
     {:ok,
      socket
      |> assign(:page_title, "Show Calendar")
-     |> assign(:calendar, Calendars.get_calendar(id))
-     |> CLP.Repo.preload(:tier)}
+     |> stream(:events, [])
+     |> assign(:calendar, calendar)}
   end
 end

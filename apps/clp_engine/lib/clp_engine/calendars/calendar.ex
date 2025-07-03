@@ -2,14 +2,19 @@ defmodule CLP.Calendars.Calendar do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, only: [:id, :name, :tier_id, :color_theme]}
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "calendars" do
     field :name, :string
     field :color_theme, :string
-    field :visibility, :string
 
-    belongs_to :account, CLP.Accounts.Account, type: :binary_id
+    field :visibility, Ecto.Enum,
+      values: [:private, :shared, :public, :unlisted, :tiered],
+      default: :public
+
+    belongs_to :tier, CLP.Tiers.Tier, type: :binary_id
 
     many_to_many :users, CLP.Accounts.User,
       join_through: "calendar_users",
@@ -26,7 +31,7 @@ defmodule CLP.Calendars.Calendar do
   @doc false
   def changeset(calendar, attrs) do
     calendar
-    |> cast(attrs, [:name, :color_theme, :visibility])
-    |> validate_required([:name, :color_theme, :visibility])
+    |> cast(attrs, [:name, :color_theme, :visibility, :tier_id])
+    |> validate_required([:name, :color_theme, :visibility, :tier_id])
   end
 end

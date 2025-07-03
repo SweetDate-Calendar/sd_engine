@@ -37,8 +37,8 @@ defmodule CLPWeb.CalendarLive.Form do
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp return_to("show"), do: "show"
-  defp return_to(_), do: "index"
+  defp return_to("show_tier"), do: "show_tier"
+  defp return_to(_), do: "show_calendar"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     calendar = Calendars.get_calendar(id)
@@ -69,15 +69,12 @@ defmodule CLPWeb.CalendarLive.Form do
   end
 
   defp save_calendar(socket, :edit, calendar_params) do
-    tier_id = Map.get(calendar_params, "tier_id") || Map.get(calendar_params, :tier_id)
-    tier = CLP.Tiers.get_tier(tier_id)
-
     case Calendars.update_calendar(socket.assigns.calendar, calendar_params) do
-      {:ok, _calendar} ->
+      {:ok, calendar} ->
         {:noreply,
          socket
          |> put_flash(:info, "Calendar updated successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, tier))}
+         |> push_navigate(to: return_path(socket.assigns.return_to, calendar))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -85,29 +82,27 @@ defmodule CLPWeb.CalendarLive.Form do
   end
 
   defp save_calendar(socket, :new, calendar_params) do
-    tier_id = Map.get(calendar_params, "tier_id") || Map.get(calendar_params, :tier_id)
-    tier = CLP.Tiers.get_tier(tier_id)
-
     case Calendars.create_calendar(calendar_params) do
-      {:ok, _calendar} ->
+      {:ok, calendar} ->
         {:noreply,
          socket
          |> put_flash(:info, "Calendar created successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, tier))}
+         |> push_navigate(to: return_path(socket.assigns.return_to, calendar))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
 
-  defp return_path("index", %Calendar{tier_id: tier_id}) do
-    ~p"/tiers/#{tier_id}/calendars/"
+  defp return_path("show_tier", calendar) do
+    calendar =
+      calendar
+      |> CLP.Repo.preload(:tier)
+
+    ~p"/accounts/#{calendar.tier.account_id}/tiers/#{calendar.tier_id}"
   end
 
-  # defp return_path("show", account), do: ~p"/accounts/#{account}"
-  # defp return_path(_, %CLP.Accounts.Account{id: id}), do: ~p"/accounts/#{id}"
-  # defp return_path(_, %CLP.Tiers.Tier{account_id: id}), do: ~p"/accounts/#{id}"
-
-  # defp return_path("index", _calendar), do: ~p"/"
-  # defp return_path("show", calendar), do: ~p"/calendars/#{calendar}"
+  defp return_path("show_calendar", calendar) do
+    ~p"/tiers/#{calendar.tier_id}/calendars/#{calendar}"
+  end
 end

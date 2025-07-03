@@ -32,7 +32,7 @@ defmodule CLPWeb.Router do
     live "/users/:id", UserLive.Show, :show
     live "/users/:id/edit", UserLive.Form, :edit
 
-    live "/tiers/:tier_id/calendars", CalendarLive.Index, :index
+    # live "/tiers/:tier_id/calendars", CalendarLive.Index, :index
     live "/tiers/:tier_id/calendars/new", CalendarLive.Form, :new
     live "/tiers/:tier_id/calendars/:id", CalendarLive.Show, :show
     live "/tiers/:tier_id/calendars/:id/edit", CalendarLive.Form, :edit
