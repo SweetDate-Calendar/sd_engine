@@ -7,6 +7,9 @@ Path.wildcard(Path.expand("support/**/*.exs", __DIR__))
 defmodule ClpTcp.TestHelper do
   @moduledoc false
 
+  @access_key_id Application.compile_env(:clp_engine, :tcp)[:access_key_id]
+  @access_key Application.compile_env(:clp_engine, :tcp)[:secret_access_key]
+
   def tcp_send(message) do
     port = System.get_env("TCP_PORT") |> String.to_integer()
     {:ok, socket} = :gen_tcp.connect(~c"localhost", port, [:binary, active: false])
@@ -14,5 +17,12 @@ defmodule ClpTcp.TestHelper do
     {:ok, response} = :gen_tcp.recv(socket, 0)
     :gen_tcp.close(socket)
     Jason.decode!(response)
+  end
+
+  def authorize(data) when is_map(data) do
+    Map.merge(data, %{
+      "access_key_id" => @access_key_id,
+      "access_key" => @access_key
+    })
   end
 end

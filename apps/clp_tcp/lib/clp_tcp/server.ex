@@ -40,18 +40,41 @@ defmodule ClpTcp.Server do
         [command, json] =
           case String.split(raw, "|", parts: 2) do
             [cmd, body] -> [String.trim(cmd), String.trim(body)]
-            # handles "PING\n"
             [cmd_only] -> [String.trim(cmd_only), "{}"]
           end
 
-        response = dispatch(command, json)
-        :gen_tcp.send(socket, Jason.encode!(response) <> "\n")
+        case Jason.decode(json) do
+          {:ok, payload} ->
+            if authorized?(payload) do
+              response = dispatch(command, json)
+              :gen_tcp.send(socket, Jason.encode!(response) <> "\n")
+            else
+              :gen_tcp.send(
+                socket,
+                Jason.encode!(%{status: "error", message: "unauthorized"}) <> "\n"
+              )
+            end
+
+          {:error, _} ->
+            :gen_tcp.send(
+              socket,
+              Jason.encode!(%{status: "error", message: "invalid json"}) <> "\n"
+            )
+        end
+
         handle(socket)
 
       {:error, _} ->
         :gen_tcp.close(socket)
     end
   end
+
+  defp authorized?(%{"access_key_id" => id, "access_key" => key}) do
+    config = Application.get_env(:clp_engine, :tcp, %{})
+    id == config[:access_key_id] && key == config[:secret_access_key]
+  end
+
+  defp authorized?(_), do: false
 
   defp dispatch("PING", json), do: ClpTcp.Handlers.Ping.dispatch(json)
   defp dispatch("ACCOUNTS." <> action, json), do: ClpTcp.Handlers.Accounts.dispatch(action, json)
