@@ -10,9 +10,9 @@
 import Config
 
 # Configure Mix tasks and generators
-config :clp_engine,
-  namespace: CLP,
-  ecto_repos: [CLP.Repo]
+config :sd_engine,
+  namespace: SD,
+  ecto_repos: [SD.Repo]
 
 # Configures the mailer
 #
@@ -21,43 +21,43 @@ config :clp_engine,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :clp_engine, CLP.Mailer, adapter: Swoosh.Adapters.Local
+config :sd_engine, SD.Mailer, adapter: Swoosh.Adapters.Local
 
-config :clp_engine_web,
+config :sd_engine_web,
   namespace: CLPWeb,
-  ecto_repos: [CLP.Repo],
-  generators: [context_app: :clp_engine, binary_id: true]
+  ecto_repos: [SD.Repo],
+  generators: [context_app: :sd_engine, binary_id: true]
 
 # Configures the endpoint
-config :clp_engine_web, CLPWeb.Endpoint,
+config :sd_engine_web, CLPWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [html: CLPWeb.ErrorHTML, json: CLPWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: CLP.PubSub,
+  pubsub_server: SD.PubSub,
   live_view: [signing_salt: "QQRRf7XW"]
 
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
-  clp_engine_web: [
+  sd_engine_web: [
     args:
       ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/*),
-    cd: Path.expand("../apps/clp_engine_web/assets", __DIR__),
+    cd: Path.expand("../apps/sd_engine_web/assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
 # Configure tailwind (the version is required)
 config :tailwind,
   version: "4.0.9",
-  clp_engine_web: [
+  sd_engine_web: [
     args: ~w(
       --input=assets/css/app.css
       --output=priv/static/assets/css/app.css
     ),
-    cd: Path.expand("../apps/clp_engine_web", __DIR__)
+    cd: Path.expand("../apps/sd_engine_web", __DIR__)
   ]
 
 # Configures Elixir's Logger

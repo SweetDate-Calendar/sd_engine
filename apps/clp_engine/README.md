@@ -1,3 +1,0 @@
-# CLP
-
-**TODO: Add description**
