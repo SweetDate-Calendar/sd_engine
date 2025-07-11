@@ -1,5 +1,5 @@
-defmodule CLPWeb.UserLiveTest do
-  use CLPWeb.ConnCase
+defmodule SDWeb.UserLiveTest do
+  use SDWeb.ConnCase
 
   import Phoenix.LiveViewTest
   import SD.AccountsFixtures

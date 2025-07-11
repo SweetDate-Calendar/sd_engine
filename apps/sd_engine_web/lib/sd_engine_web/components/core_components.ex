@@ -1,4 +1,4 @@
-defmodule CLPWeb.CoreComponents do
+defmodule SDWeb.CoreComponents do
   @moduledoc """
   Provides core UI components.
 
@@ -27,7 +27,7 @@ defmodule CLPWeb.CoreComponents do
 
   """
   use Phoenix.Component
-  use Gettext, backend: CLPWeb.Gettext
+  use Gettext, backend: SDWeb.Gettext
 
   alias Phoenix.LiveView.JS
 
@@ -454,9 +454,9 @@ defmodule CLPWeb.CoreComponents do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(CLPWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(SDWeb.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(CLPWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(SDWeb.Gettext, "errors", msg, opts)
     end
   end
 

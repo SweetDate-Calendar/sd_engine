@@ -1,5 +1,5 @@
-defmodule CLPWeb.TierLive.Show do
-  use CLPWeb, :live_view
+defmodule SDWeb.TierLive.Show do
+  use SDWeb, :live_view
 
   @impl true
   def render(assigns) do

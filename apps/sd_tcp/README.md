@@ -1,7 +1,7 @@
-# ClpTcp
+# SDTCP
 
 
-ClpTcp is a lightweight TCP server for handling protocol-based communication in the SD engine. It listens for incoming connections and dispatches namespaced commands (e.g., `PING`, `CALENDARS.CREATE`) using a simple, JSON-encoded message format.
+SDTCP is a lightweight TCP server for handling protocol-based communication in the SD engine. It listens for incoming connections and dispatches namespaced commands (e.g., `PING`, `CALENDARS.CREATE`) using a simple, JSON-encoded message format.
 
 ## Part of the `sd_engine` Umbrella
 

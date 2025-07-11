@@ -1,5 +1,5 @@
-defmodule CLPWeb.EventLiveTest do
-  use CLPWeb.ConnCase
+defmodule SDWeb.EventLiveTest do
+  use SDWeb.ConnCase
 
   import Phoenix.LiveViewTest
   import SD.EventsFixtures

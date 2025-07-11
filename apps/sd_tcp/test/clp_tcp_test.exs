@@ -1,8 +1,8 @@
-defmodule ClpTcpTest do
+defmodule SDTCPTest do
   use ExUnit.Case
-  doctest ClpTcp
+  doctest SDTCP
 
   test "greets the world" do
-    assert ClpTcp.hello() == :world
+    assert SDTCP.hello() == :world
   end
 end

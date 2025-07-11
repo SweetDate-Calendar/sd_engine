@@ -1,6 +1,6 @@
-defmodule ClpTcp do
+defmodule SDTCP do
   @moduledoc """
-  Documentation for `ClpTcp`.
+  Documentation for `SDTCP`.
   """
 
   @doc """
@@ -8,7 +8,7 @@ defmodule ClpTcp do
 
   ## Examples
 
-      iex> ClpTcp.hello()
+      iex> SDTCP.hello()
       :world
 
   """

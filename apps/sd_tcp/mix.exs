@@ -1,4 +1,4 @@
-defmodule ClpTcp.MixProject do
+defmodule SDTCP.MixProject do
   use Mix.Project
 
   def project do
@@ -15,7 +15,7 @@ defmodule ClpTcp.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {ClpTcp.Application, []},
+      mod: {SDTCP.Application, []},
       extra_applications: [:logger]
     ]
   end

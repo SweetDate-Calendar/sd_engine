@@ -1,4 +1,4 @@
-defmodule ClpTcp.Handlers.Auth do
+defmodule SDTCP.Handlers.Auth do
   require Logger
 
   # def dispatch("CREATE", json) do
@@ -15,7 +15,7 @@ defmodule ClpTcp.Handlers.Auth do
   # def dispatch("GET", json) do
   #   case Jason.decode(json) do
   #     {:ok, %{"secret_key_id" => id, "secret_key" => key}} ->
-  #       case ClpTcp.Auth.get_by_key(id, key) do
+  #       case SDTCP.Auth.get_by_key(id, key) do
   #         nil -> %{status: "error", message: "not found"}
   #         auth -> %{status: "ok", authorization_hold: serialize(auth)}
   #       end
@@ -26,7 +26,7 @@ defmodule ClpTcp.Handlers.Auth do
   # end
 
   # def dispatch("LIST", _json) do
-  #   auths = ClpTcp.Auth.list_authorization_holds()
+  #   auths = SDTCP.Auth.list_authorization_holds()
   #   %{status: "ok", authorization_holds: Enum.map(auths, &serialize/1)}
   # end
 
@@ -34,7 +34,7 @@ defmodule ClpTcp.Handlers.Auth do
   #   case Jason.decode(json) do
   #     {:ok, %{"secret_key_id" => id, "secret_key" => key} = attrs} ->
   #       with auth when not is_nil(auth) <- CP.Auth.get_by_key(id, key),
-  #            {:ok, updated} <- ClpTcp.Auth.update_authorization_hold(auth, attrs) do
+  #            {:ok, updated} <- SDTCP.Auth.update_authorization_hold(auth, attrs) do
   #         %{status: "ok", authorization_hold: serialize(updated)}
   #       else
   #         nil -> %{status: "error", message: "not found"}
@@ -50,7 +50,7 @@ defmodule ClpTcp.Handlers.Auth do
   #   case Jason.decode(json) do
   #     {:ok, %{"secret_key_id" => id, "secret_key" => key}} ->
   #       with auth when not is_nil(auth) <- CP.Auth.get_by_key(id, key),
-  #            {:ok, _} <- ClpTcp.Auth.delete_authorization_hold(auth) do
+  #            {:ok, _} <- SDTCP.Auth.delete_authorization_hold(auth) do
   #         %{status: "ok"}
   #       else
   #         _ -> %{status: "error", message: "not found"}
@@ -76,7 +76,7 @@ defmodule ClpTcp.Handlers.Auth do
 
   # defp handle_create(attrs) do
   #   if attrs["provisioning_key"] == Application.get_env(:cp_tcp, :provisioning_key) do
-  #     case ClpTcp.Auth.create_authorization_hold(attrs) do
+  #     case SDTCP.Auth.create_authorization_hold(attrs) do
   #       {:ok, _hold} ->
   #         %{status: "ok"}
 

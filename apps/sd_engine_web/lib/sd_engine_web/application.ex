@@ -1,4 +1,4 @@
-defmodule CLPWeb.Application do
+defmodule SDWeb.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,16 +8,16 @@ defmodule CLPWeb.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      CLPWeb.Telemetry,
-      # Start a worker by calling: CLPWeb.Worker.start_link(arg)
-      # {CLPWeb.Worker, arg},
+      SDWeb.Telemetry,
+      # Start a worker by calling: SDWeb.Worker.start_link(arg)
+      # {SDWeb.Worker, arg},
       # Start to serve requests, typically the last entry
-      CLPWeb.Endpoint
+      SDWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: CLPWeb.Supervisor]
+    opts = [strategy: :one_for_one, name: SDWeb.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
@@ -25,7 +25,7 @@ defmodule CLPWeb.Application do
   # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
-    CLPWeb.Endpoint.config_change(changed, removed)
+    SDWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

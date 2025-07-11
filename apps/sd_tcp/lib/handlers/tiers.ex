@@ -1,4 +1,4 @@
-defmodule ClpTcp.Handlers.Tiers do
+defmodule SDTCP.Handlers.Tiers do
   def dispatch("LIST", _json) do
     %{status: "ok", tiers: SD.Tiers.list_tiers()}
   end

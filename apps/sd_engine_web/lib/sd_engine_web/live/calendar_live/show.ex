@@ -1,5 +1,5 @@
-defmodule CLPWeb.CalendarLive.Show do
-  use CLPWeb, :live_view
+defmodule SDWeb.CalendarLive.Show do
+  use SDWeb, :live_view
 
   alias SD.Calendars
 

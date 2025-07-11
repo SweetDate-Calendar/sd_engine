@@ -1,12 +1,12 @@
-defmodule CLPWeb do
+defmodule SDWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, components, channels, and so on.
 
   This can be used in your application as:
 
-      use CLPWeb, :controller
-      use CLPWeb, :html
+      use SDWeb, :controller
+      use SDWeb, :html
 
   The definitions below will be executed for every controller,
   component, etc, so keep them short and clean, focused
@@ -40,7 +40,7 @@ defmodule CLPWeb do
     quote do
       use Phoenix.Controller, formats: [:html, :json]
 
-      use Gettext, backend: CLPWeb.Gettext
+      use Gettext, backend: SDWeb.Gettext
 
       import Plug.Conn
 
@@ -80,16 +80,16 @@ defmodule CLPWeb do
   defp html_helpers do
     quote do
       # Translation
-      use Gettext, backend: CLPWeb.Gettext
+      use Gettext, backend: SDWeb.Gettext
 
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
-      import CLPWeb.CoreComponents
+      import SDWeb.CoreComponents
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS
-      alias CLPWeb.Layouts
+      alias SDWeb.Layouts
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())
@@ -99,9 +99,9 @@ defmodule CLPWeb do
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
-        endpoint: CLPWeb.Endpoint,
-        router: CLPWeb.Router,
-        statics: CLPWeb.static_paths()
+        endpoint: SDWeb.Endpoint,
+        router: SDWeb.Router,
+        statics: SDWeb.static_paths()
     end
   end
 

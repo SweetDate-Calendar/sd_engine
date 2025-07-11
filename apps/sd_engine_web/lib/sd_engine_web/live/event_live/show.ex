@@ -1,5 +1,5 @@
-defmodule CLPWeb.EventLive.Show do
-  use CLPWeb, :live_view
+defmodule SDWeb.EventLive.Show do
+  use SDWeb, :live_view
 
   alias SD.Events
 

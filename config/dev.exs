@@ -17,7 +17,7 @@ config :sd_engine, SD.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
-config :sd_engine_web, CLPWeb.Endpoint,
+config :sd_engine_web, SDWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT") || "4000")],
@@ -54,7 +54,7 @@ config :sd_engine_web, CLPWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :sd_engine_web, CLPWeb.Endpoint,
+config :sd_engine_web, SDWeb.Endpoint,
   live_reload: [
     web_console_logger: true,
     patterns: [
@@ -88,6 +88,6 @@ config :swoosh, :api_client, false
 config :phoenix, :stacktrace_depth, 20
 
 config :sd_engine, :tcp,
-  port: String.to_integer(System.get_env("CLP_TCP_PORT") || "5050"),
-  access_key_id: System.get_env("CLP_ACCESS_KEY_ID") || "changeme",
-  secret_access_key: System.get_env("CLP_SECRET_ACCESS_KEY") || "changeme"
+  port: String.to_integer(System.get_env("SD_TCP_PORT") || "5050"),
+  access_key_id: System.get_env("SD_ACCESS_KEY_ID") || "changeme",
+  secret_access_key: System.get_env("SD_SECRET_ACCESS_KEY") || "changeme"

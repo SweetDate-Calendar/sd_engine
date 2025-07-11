@@ -1,13 +1,13 @@
-defmodule ClpTcp.Handlers.TiersTest do
-  use ClpTcp.DataCase, async: false
+defmodule SDTCP.Handlers.TiersTest do
+  use SDTCP.DataCase, async: false
   import SD.TiersFixtures
-  import ClpTcp.TestHelper
+  import SDTCP.TestHelper
 
   test "list all tiers" do
     tier_fixture(%{name: "One"})
     tier_fixture(%{name: "Two"})
 
-    response = tcp_send("TIERS.LIST|" <> Jason.encode!(authorize(%{})))
+    response = sd_send("TIERS.LIST|" <> Jason.encode!(authorize(%{})))
     assert response["status"] == "ok"
     assert length(response["tiers"]) >= 2
   end
@@ -20,7 +20,7 @@ defmodule ClpTcp.Handlers.TiersTest do
       |> authorize()
 
     raw = "TIERS.CREATE|#{Jason.encode!(payload)}"
-    response = tcp_send(raw)
+    response = sd_send(raw)
 
     assert %{"status" => "ok", "id" => id} = response
     assert is_binary(id)
@@ -33,7 +33,7 @@ defmodule ClpTcp.Handlers.TiersTest do
       %{"id" => tier.id}
       |> authorize()
 
-    get_resp = tcp_send("TIERS.GET|" <> Jason.encode!(payload))
+    get_resp = sd_send("TIERS.GET|" <> Jason.encode!(payload))
 
     assert get_resp["status"] == "ok"
     assert get_resp["tier"]["name"] == "Fetch Me"
@@ -44,7 +44,7 @@ defmodule ClpTcp.Handlers.TiersTest do
       %{"id" => "00000000-0000-0000-0000-000000000000"}
       |> authorize()
 
-    response = tcp_send("TIERS.GET|" <> Jason.encode!(payload))
+    response = sd_send("TIERS.GET|" <> Jason.encode!(payload))
 
     assert response["status"] == "error"
     assert response["message"] == "not found"
@@ -60,7 +60,7 @@ defmodule ClpTcp.Handlers.TiersTest do
       }
       |> authorize()
 
-    response = tcp_send("TIERS.UPDATE|" <> Jason.encode!(payload))
+    response = sd_send("TIERS.UPDATE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
     assert response["tier"]["name"] == "New Name"
   end
@@ -72,11 +72,11 @@ defmodule ClpTcp.Handlers.TiersTest do
       %{"id" => tier.id}
       |> authorize()
 
-    response = tcp_send("TIERS.DELETE|" <> Jason.encode!(payload))
+    response = sd_send("TIERS.DELETE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
 
     # Ensure it's gone
-    get_resp = tcp_send("TIERS.GET|" <> Jason.encode!(%{"id" => tier.id}))
+    get_resp = sd_send("TIERS.GET|" <> Jason.encode!(%{"id" => tier.id}))
     assert get_resp["status"] == "error"
   end
 end

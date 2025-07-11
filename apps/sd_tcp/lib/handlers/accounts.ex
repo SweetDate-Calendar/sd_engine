@@ -1,4 +1,4 @@
-defmodule ClpTcp.Handlers.Accounts do
+defmodule SDTCP.Handlers.Accounts do
   def dispatch("LIST", _json) do
     %{status: "ok", accounts: SD.Accounts.list_accounts()}
   end

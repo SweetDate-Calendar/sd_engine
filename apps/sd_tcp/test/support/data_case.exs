@@ -1,4 +1,4 @@
-defmodule ClpTcp.DataCase do
+defmodule SDTCP.DataCase do
   use ExUnit.CaseTemplate
 
   using do

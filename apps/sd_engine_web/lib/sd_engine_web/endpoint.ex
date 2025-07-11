@@ -1,4 +1,4 @@
-defmodule CLPWeb.Endpoint do
+defmodule SDWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :sd_engine_web
 
   # The session will be stored in the cookie and signed,
@@ -24,7 +24,7 @@ defmodule CLPWeb.Endpoint do
     at: "/",
     from: :sd_engine_web,
     gzip: not code_reloading?,
-    only: CLPWeb.static_paths()
+    only: SDWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -50,5 +50,5 @@ defmodule CLPWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug CLPWeb.Router
+  plug SDWeb.Router
 end

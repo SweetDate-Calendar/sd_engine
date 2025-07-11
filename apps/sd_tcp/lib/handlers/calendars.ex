@@ -1,4 +1,4 @@
-defmodule ClpTcp.Handlers.Calendars do
+defmodule SDTCP.Handlers.Calendars do
   def dispatch("LIST", _json) do
     %{status: "ok", calendars: SD.Calendars.list_calendars()}
   end

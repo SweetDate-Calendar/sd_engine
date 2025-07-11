@@ -1,4 +1,4 @@
-defmodule CLPWeb.Layouts do
+defmodule SDWeb.Layouts do
   @moduledoc """
   This module holds different layouts used by your application.
 
@@ -7,7 +7,7 @@ defmodule CLPWeb.Layouts do
   application router. The "app" layout is rendered as component
   in regular views and live views.
   """
-  use CLPWeb, :html
+  use SDWeb, :html
 
   embed_templates "layouts/*"
 
@@ -19,7 +19,7 @@ defmodule CLPWeb.Layouts do
       <Layouts.app flash={@flash}>
         <h1>Content</h1>
       </Layout.app>
-      
+
   """
   attr :flash, :map, required: true, doc: "the map of flash messages"
 

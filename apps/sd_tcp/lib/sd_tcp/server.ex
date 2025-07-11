@@ -1,4 +1,4 @@
-defmodule ClpTcp.Server do
+defmodule SDTCP.Server do
   @moduledoc "TCP server"
 
   require Logger
@@ -76,15 +76,15 @@ defmodule ClpTcp.Server do
 
   defp authorized?(_), do: false
 
-  defp dispatch("PING", json), do: ClpTcp.Handlers.Ping.dispatch(json)
-  defp dispatch("ACCOUNTS." <> action, json), do: ClpTcp.Handlers.Accounts.dispatch(action, json)
-  defp dispatch("TIERS." <> action, json), do: ClpTcp.Handlers.Tiers.dispatch(action, json)
+  defp dispatch("PING", json), do: SDTCP.Handlers.Ping.dispatch(json)
+  defp dispatch("ACCOUNTS." <> action, json), do: SDTCP.Handlers.Accounts.dispatch(action, json)
+  defp dispatch("TIERS." <> action, json), do: SDTCP.Handlers.Tiers.dispatch(action, json)
 
   defp dispatch("CALENDARS." <> action, json),
-    do: ClpTcp.Handlers.Calendars.dispatch(action, json)
+    do: SDTCP.Handlers.Calendars.dispatch(action, json)
 
   # defp dispatch("CALENDARS." <> action, json),
-  #   do: ClpTcp.Handlers.Calendars.dispatch(action, json)
+  #   do: SDTCP.Handlers.Calendars.dispatch(action, json)
 
   defp dispatch(_, _), do: %{status: "error", message: "unknown command"}
 end

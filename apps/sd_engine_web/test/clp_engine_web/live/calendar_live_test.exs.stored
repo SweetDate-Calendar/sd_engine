@@ -1,5 +1,5 @@
-defmodule CLPWeb.CalendarLiveTest do
-  use CLPWeb.ConnCase
+defmodule SDWeb.CalendarLiveTest do
+  use SDWeb.ConnCase
 
   import Phoenix.LiveViewTest
   import SD.CalendarsFixtures

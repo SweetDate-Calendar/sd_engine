@@ -1,5 +1,5 @@
-defmodule CLPWeb.UserLive.Show do
-  use CLPWeb, :live_view
+defmodule SDWeb.UserLive.Show do
+  use SDWeb, :live_view
 
   alias SD.Accounts
 

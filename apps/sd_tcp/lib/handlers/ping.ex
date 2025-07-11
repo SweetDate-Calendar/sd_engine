@@ -1,3 +1,3 @@
-defmodule ClpTcp.Handlers.Ping do
+defmodule SDTCP.Handlers.Ping do
   def dispatch(_), do: %{status: "ok", message: "pong"}
 end

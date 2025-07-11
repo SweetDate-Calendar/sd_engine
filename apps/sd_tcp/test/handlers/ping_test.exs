@@ -1,15 +1,15 @@
-defmodule ClpTcp.Handlers.PingTest do
+defmodule SDTCP.Handlers.PingTest do
   use ExUnit.Case, async: false
 
-  import ClpTcp.TestHelper
+  import SDTCP.TestHelper
 
   test "responds with pong on PING" do
     assert %{"status" => "ok", "message" => "pong"} =
-             tcp_send("PING|" <> Jason.encode!(authorize(%{})))
+             sd_send("PING|" <> Jason.encode!(authorize(%{})))
   end
 
   test "responds with unauthorized" do
     assert %{"message" => "unauthorized", "status" => "error"} =
-             tcp_send("PING|" <> Jason.encode!(%{}))
+             sd_send("PING|" <> Jason.encode!(%{}))
   end
 end

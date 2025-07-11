@@ -1,4 +1,4 @@
-defmodule CLPWeb.Telemetry do
+defmodule SDWeb.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 
@@ -87,7 +87,7 @@ defmodule CLPWeb.Telemetry do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {CLPWeb, :count_users, []}
+      # {SDWeb, :count_users, []}
     ]
   end
 end

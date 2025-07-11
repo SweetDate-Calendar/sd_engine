@@ -1,5 +1,5 @@
-defmodule CLPWeb.TierLive.Form do
-  use CLPWeb, :live_view
+defmodule SDWeb.TierLive.Form do
+  use SDWeb, :live_view
 
   alias SD.Tiers
   alias SD.Tiers.Tier

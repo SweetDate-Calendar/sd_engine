@@ -1,13 +1,13 @@
-defmodule ClpTcp.Handlers.AccountsTest do
-  use ClpTcp.DataCase, async: false
+defmodule SDTCP.Handlers.AccountsTest do
+  use SDTCP.DataCase, async: false
   import SD.AccountsFixtures
-  import ClpTcp.TestHelper
+  import SDTCP.TestHelper
 
   test "list all accounts" do
     account_fixture(%{name: "One"})
     account_fixture(%{name: "Two"})
 
-    response = tcp_send("ACCOUNTS.LIST|" <> Jason.encode!(authorize(%{})))
+    response = sd_send("ACCOUNTS.LIST|" <> Jason.encode!(authorize(%{})))
 
     assert response["status"] == "ok"
     assert length(response["accounts"]) >= 2
@@ -16,7 +16,7 @@ defmodule ClpTcp.Handlers.AccountsTest do
   test "ACCOUNDS.CREATE creates a new account with just a title" do
     payload = %{"name" => "RubyConf"} |> authorize()
     raw = "ACCOUNTS.CREATE|#{Jason.encode!(payload)}"
-    response = tcp_send(raw)
+    response = sd_send(raw)
 
     assert %{"status" => "ok", "id" => id} = response
     assert is_binary(id)
@@ -26,7 +26,7 @@ defmodule ClpTcp.Handlers.AccountsTest do
     account = account_fixture(%{name: "Fetch Me"})
 
     payload = %{"id" => account.id} |> authorize()
-    get_resp = tcp_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
+    get_resp = sd_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
 
     assert get_resp["status"] == "ok"
     assert get_resp["account"]["name"] == "Fetch Me"
@@ -37,7 +37,7 @@ defmodule ClpTcp.Handlers.AccountsTest do
       %{"id" => "00000000-0000-0000-0000-000000000000"}
       |> authorize()
 
-    response = tcp_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
+    response = sd_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
 
     assert response["status"] == "error"
     assert response["message"] == "not found"
@@ -55,7 +55,7 @@ defmodule ClpTcp.Handlers.AccountsTest do
       }
       |> authorize()
 
-    response = tcp_send("ACCOUNTS.UPDATE|" <> Jason.encode!(payload))
+    response = sd_send("ACCOUNTS.UPDATE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
     assert response["account"]["name"] == "New Name"
   end
@@ -64,11 +64,11 @@ defmodule ClpTcp.Handlers.AccountsTest do
     account = account_fixture()
     payload = %{"id" => account.id} |> authorize()
 
-    response = tcp_send("ACCOUNTS.DELETE|" <> Jason.encode!(payload))
+    response = sd_send("ACCOUNTS.DELETE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
 
     # Ensure it's gone
-    get_resp = tcp_send("ACCOUNTS.GET|" <> Jason.encode!(%{"id" => account.id}))
+    get_resp = sd_send("ACCOUNTS.GET|" <> Jason.encode!(%{"id" => account.id}))
     assert get_resp["status"] == "error"
   end
 
@@ -84,7 +84,7 @@ defmodule ClpTcp.Handlers.AccountsTest do
 
     payload = %{"id" => account.id} |> authorize()
 
-    response = tcp_send("ACCOUNTS.LIST_CALENDARS|" <> Jason.encode!(payload))
+    response = sd_send("ACCOUNTS.LIST_CALENDARS|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
 
     expected = [

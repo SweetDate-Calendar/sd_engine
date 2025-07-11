@@ -1,4 +1,4 @@
-defmodule CLPWeb.MixProject do
+defmodule SDWeb.MixProject do
   use Mix.Project
 
   def project do
@@ -23,7 +23,7 @@ defmodule CLPWeb.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {CLPWeb.Application, []},
+      mod: {SDWeb.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

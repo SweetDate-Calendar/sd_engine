@@ -1,5 +1,5 @@
-defmodule CLPWeb.AccountLive.Index do
-  use CLPWeb, :live_view
+defmodule SDWeb.AccountLive.Index do
+  use SDWeb, :live_view
 
   alias SD.Accounts
 

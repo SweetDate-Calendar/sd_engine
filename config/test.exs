@@ -16,7 +16,7 @@ config :sd_engine, SD.Repo,
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :sd_engine_web, CLPWeb.Endpoint,
+config :sd_engine_web, SDWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "BueOLdp058N5KQlyJvHYHcfpeQPRGIHdKgaqVgCqgafqGT/1Qzf85JwNA+XS8XsM",
   server: false

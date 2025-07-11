@@ -1,6 +1,6 @@
-defmodule ClpTcp.Handlers.AuthTest do
-  # use ClpTcp.DataCase, async: false
-  # import ClpTcp.TestHelper
+defmodule SDTCP.Handlers.AuthTest do
+  # use SDTCP.DataCase, async: false
+  # import SDTCP.TestHelper
 
   # @valid_payload %{
   #   "provisioning_key" => System.get_env("CLP_PROVISIONING_KEY"),
@@ -13,7 +13,7 @@ defmodule ClpTcp.Handlers.AuthTest do
   # }
 
   # test "AUTH.CREATE creates an authorization hold" do
-  #   response = tcp_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
+  #   response = sd_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
   #   assert response["status"] == "ok"
 
   #   auth = CP.Auth.get_by_key("test-client-123", "supersecretkey")
@@ -23,10 +23,10 @@ defmodule ClpTcp.Handlers.AuthTest do
   # end
 
   # test "AUTH.GET returns the created authorization hold" do
-  #   tcp_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
+  #   sd_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
 
   #   response =
-  #     tcp_send(
+  #     sd_send(
   #       "AUTH.GET|#{Jason.encode!(%{"secret_key_id" => "test-client-123", "secret_key" => "supersecretkey"})}"
   #     )
 
@@ -35,9 +35,9 @@ defmodule ClpTcp.Handlers.AuthTest do
   # end
 
   # test "AUTH.LIST returns list of authorization holds" do
-  #   tcp_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
+  #   sd_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
 
-  #   response = tcp_send("AUTH.LIST|{}")
+  #   response = sd_send("AUTH.LIST|{}")
   #   assert response["status"] == "ok"
 
   #   assert Enum.any?(response["authorization_holds"], fn hold ->
@@ -46,10 +46,10 @@ defmodule ClpTcp.Handlers.AuthTest do
   # end
 
   # test "AUTH.UPDATE updates metadata" do
-  #   tcp_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
+  #   sd_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
 
   #   response =
-  #     tcp_send(
+  #     sd_send(
   #       "AUTH.UPDATE|#{Jason.encode!(%{"secret_key_id" => "test-client-123", "secret_key" => "supersecretkey", "metadata" => %{"role" => "admin"}})}"
   #     )
 
@@ -58,16 +58,16 @@ defmodule ClpTcp.Handlers.AuthTest do
   # end
 
   # test "AUTH.DELETE removes the authorization hold" do
-  #   tcp_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
+  #   sd_send("AUTH.CREATE|#{Jason.encode!(@valid_payload)}")
 
   #   response =
-  #     tcp_send(
+  #     sd_send(
   #       "AUTH.DELETE|#{Jason.encode!(%{"secret_key_id" => "test-client-123", "secret_key" => "supersecretkey"})}"
   #     )
 
   #   assert response["status"] == "ok"
 
-  #   assert tcp_send(
+  #   assert sd_send(
   #            "AUTH.GET|#{Jason.encode!(%{"secret_key_id" => "test-client-123", "secret_key" => "supersecretkey"})}"
   #          )["status"] == "error"
   # end
@@ -75,7 +75,7 @@ defmodule ClpTcp.Handlers.AuthTest do
   # test "AUTH.CREATE fails with invalid provisioning key" do
   #   payload = Map.put(@valid_payload, "provisioning_key", "wrong-key")
 
-  #   response = tcp_send("AUTH.CREATE|#{Jason.encode!(payload)}")
+  #   response = sd_send("AUTH.CREATE|#{Jason.encode!(payload)}")
 
   #   assert response["status"] == "error"
   #   assert response["message"] == "unauthorized"

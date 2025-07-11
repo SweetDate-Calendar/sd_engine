@@ -1,4 +1,4 @@
-# CLPWeb
+# SDWeb
 
 To start your Phoenix server:
 

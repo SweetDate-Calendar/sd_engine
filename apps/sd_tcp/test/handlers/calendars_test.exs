@@ -1,15 +1,15 @@
-defmodule ClpTcp.Handlers.CalendarsTest do
-  use ClpTcp.DataCase, async: false
+defmodule SDTCP.Handlers.CalendarsTest do
+  use SDTCP.DataCase, async: false
   import SD.CalendarsFixtures
   import SD.AccountsFixtures
-  import ClpTcp.TestHelper
+  import SDTCP.TestHelper
 
   test "list all calendars" do
     account_id = account_fixture().id
     calendar_fixture(%{name: "One", account_id: account_id})
     calendar_fixture(%{name: "Two", account_id: account_id})
 
-    response = tcp_send("CALENDARS.LIST|" <> Jason.encode!(authorize(%{})))
+    response = sd_send("CALENDARS.LIST|" <> Jason.encode!(authorize(%{})))
 
     assert response["status"] == "ok"
     assert length(response["calendars"]) >= 2
@@ -19,7 +19,7 @@ defmodule ClpTcp.Handlers.CalendarsTest do
     tier = SD.TiersFixtures.tier_fixture()
     payload = %{"name" => "RubyConf", "tier_id" => tier.id} |> authorize()
     raw = "CALENDARS.CREATE|#{Jason.encode!(payload)}"
-    response = tcp_send(raw)
+    response = sd_send(raw)
 
     assert %{"status" => "ok", "id" => id} = response
     assert is_binary(id)
@@ -29,7 +29,7 @@ defmodule ClpTcp.Handlers.CalendarsTest do
     calendar = calendar_fixture(%{name: "Fetch Me"})
 
     payload = %{"id" => calendar.id} |> authorize()
-    get_resp = tcp_send("CALENDARS.GET|" <> Jason.encode!(payload))
+    get_resp = sd_send("CALENDARS.GET|" <> Jason.encode!(payload))
 
     assert get_resp["status"] == "ok"
     assert get_resp["calendar"]["name"] == "Fetch Me"
@@ -38,7 +38,7 @@ defmodule ClpTcp.Handlers.CalendarsTest do
   test "fetch calendar with invalid id returns error" do
     payload = %{"id" => "00000000-0000-0000-0000-000000000000"} |> authorize()
 
-    response = tcp_send("CALENDARS.GET|" <> Jason.encode!(payload))
+    response = sd_send("CALENDARS.GET|" <> Jason.encode!(payload))
 
     assert response["status"] == "error"
     assert response["message"] == "not found"
@@ -54,7 +54,7 @@ defmodule ClpTcp.Handlers.CalendarsTest do
       }
       |> authorize()
 
-    response = tcp_send("CALENDARS.UPDATE|" <> Jason.encode!(payload))
+    response = sd_send("CALENDARS.UPDATE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
     assert response["calendar"]["name"] == "New Name"
   end
@@ -63,11 +63,11 @@ defmodule ClpTcp.Handlers.CalendarsTest do
     calendar = calendar_fixture()
     payload = %{"id" => calendar.id} |> authorize()
 
-    response = tcp_send("CALENDARS.DELETE|" <> Jason.encode!(payload))
+    response = sd_send("CALENDARS.DELETE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
 
     # Ensure it's gone
-    get_resp = tcp_send("CALENDARS.GET|" <> Jason.encode!(%{"id" => calendar.id}))
+    get_resp = sd_send("CALENDARS.GET|" <> Jason.encode!(%{"id" => calendar.id}))
     assert get_resp["status"] == "error"
   end
 end

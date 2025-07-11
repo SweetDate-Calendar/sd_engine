@@ -1,5 +1,5 @@
-defmodule CLPWeb.TierLiveTest do
-  use CLPWeb.ConnCase
+defmodule SDWeb.TierLiveTest do
+  use SDWeb.ConnCase
 
   import Phoenix.LiveViewTest
   import SD.TiersFixtures

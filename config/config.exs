@@ -24,16 +24,16 @@ config :sd_engine,
 config :sd_engine, SD.Mailer, adapter: Swoosh.Adapters.Local
 
 config :sd_engine_web,
-  namespace: CLPWeb,
+  namespace: SDWeb,
   ecto_repos: [SD.Repo],
   generators: [context_app: :sd_engine, binary_id: true]
 
 # Configures the endpoint
-config :sd_engine_web, CLPWeb.Endpoint,
+config :sd_engine_web, SDWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: CLPWeb.ErrorHTML, json: CLPWeb.ErrorJSON],
+    formats: [html: SDWeb.ErrorHTML, json: SDWeb.ErrorJSON],
     layout: false
   ],
   pubsub_server: SD.PubSub,

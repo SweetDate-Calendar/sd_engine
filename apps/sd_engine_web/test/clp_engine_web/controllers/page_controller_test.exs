@@ -1,5 +1,5 @@
-defmodule CLPWeb.PageControllerTest do
-  use CLPWeb.ConnCase
+defmodule SDWeb.PageControllerTest do
+  use SDWeb.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")
