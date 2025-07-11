@@ -1,6 +1,6 @@
-# SD Engine — A Headless Calendar System
+# SweetDate — A Headless Calendar System
 
-**SD** is a modular, headless, and developer-friendly calendar backend. It is built as an Elixir umbrella project and designed to be easily integrated into modern software systems — especially those that need robust calendar functionality without the bloat of traditional calendar UIs.
+**SweetDate** is a modular, headless, and developer-friendly calendar backend. It is built as an Elixir umbrella project and designed to be easily integrated into modern software systems — especially those that need robust calendar functionality without the bloat of traditional calendar UIs.
 
 ## Project Structure
 
