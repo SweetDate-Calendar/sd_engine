@@ -1,4 +1,4 @@
-defmodule CLP.Umbrella.MixProject do
+defmodule SD.Umbrella.MixProject do
   use Mix.Project
 
   def project do

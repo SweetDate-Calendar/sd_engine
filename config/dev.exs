@@ -1,11 +1,11 @@
 import Config
 
 # Configure your database
-config :clp_engine, CLP.Repo,
+config :sd_engine, SD.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "clp_engine_dev",
+  database: "sd_engine_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10,
@@ -17,7 +17,7 @@ config :clp_engine, CLP.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
-config :clp_engine_web, CLPWeb.Endpoint,
+config :sd_engine_web, SDWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT") || "4000")],
@@ -26,8 +26,8 @@ config :clp_engine_web, CLPWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "sPF0ffWhTx+sDZmjot8/3G31Og9du5pvP7vCQNgE/x0tC0KjXr1epRS7bQw2622f",
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:clp_engine_web, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:clp_engine_web, ~w(--watch)]}
+    esbuild: {Esbuild, :install_and_run, [:sd_engine_web, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:sd_engine_web, ~w(--watch)]}
   ]
 
 # ## SSL Support
@@ -54,18 +54,18 @@ config :clp_engine_web, CLPWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :clp_engine_web, CLPWeb.Endpoint,
+config :sd_engine_web, SDWeb.Endpoint,
   live_reload: [
     web_console_logger: true,
     patterns: [
       ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/clp_engine_web/(?:controllers|live|components|router)/?.*\.(ex|heex)$"
+      ~r"lib/sd_engine_web/(?:controllers|live|components|router)/?.*\.(ex|heex)$"
     ]
   ]
 
 # Enable dev routes for dashboard and mailbox
-config :clp_engine_web, dev_routes: true
+config :sd_engine_web, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :default_formatter, format: "[$level] $message\n"
@@ -87,7 +87,7 @@ config :swoosh, :api_client, false
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-config :clp_engine, :tcp,
-  port: String.to_integer(System.get_env("CLP_TCP_PORT") || "5050"),
-  access_key_id: System.get_env("CLP_ACCESS_KEY_ID") || "changeme",
-  secret_access_key: System.get_env("CLP_SECRET_ACCESS_KEY") || "changeme"
+config :sd_engine, :tcp,
+  port: String.to_integer(System.get_env("SD_TCP_PORT") || "5050"),
+  access_key_id: System.get_env("SD_ACCESS_KEY_ID") || "changeme",
+  secret_access_key: System.get_env("SD_SECRET_ACCESS_KEY") || "changeme"

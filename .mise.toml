@@ -1,0 +1,12 @@
+[tools]
+elixir = "1.18.3-otp-27"
+erlang = "27.3.4"
+direnv = "2.34.0"
+
+[env]
+# TCP Configuration
+SD_TCP_PORT = "5050"
+TCP_PORT = "5050"  # This is what the test helper looks for
+SD_ACCESS_KEY_ID = "changeme"
+SD_SECRET_ACCESS_KEY = "changeme"
+SD_BACKEND_TCP_PORT = "super_secret"
