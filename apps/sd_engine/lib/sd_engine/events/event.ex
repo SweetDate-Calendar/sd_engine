@@ -49,7 +49,8 @@ defmodule SD.Events.Event do
       :start_time,
       :end_time,
       :recurrence_rule,
-      :all_day
+      :all_day,
+      :calendar_id
     ])
     |> validate_required([
       :status,
@@ -61,7 +62,8 @@ defmodule SD.Events.Event do
       :start_time,
       :end_time,
       :recurrence_rule,
-      :all_day
+      :all_day,
+      :calendar_id
     ])
   end
 end

@@ -45,10 +45,10 @@ defmodule SDWeb.Router do
     live "/tiers/:tier_id/calendars/:id", CalendarLive.Show, :show
     live "/tiers/:tier_id/calendars/:id/edit", CalendarLive.Form, :edit
 
-    live "/events", EventLive.Index, :index
-    live "/events/new", EventLive.Form, :new
-    live "/events/:id", EventLive.Show, :show
-    live "/events/:id/edit", EventLive.Form, :edit
+    # live "/calendars/:calendar_id/events", EventLive.Index, :index
+    live "/calendars/:calendar_id/events/new", EventLive.Form, :new
+    live "/calendars/:calendar_id/events/:id", EventLive.Show, :show
+    live "/calendars/:calendar_id/events/:id/edit", EventLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.

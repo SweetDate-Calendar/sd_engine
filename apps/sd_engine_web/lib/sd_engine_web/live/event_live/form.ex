@@ -1,6 +1,5 @@
 defmodule SDWeb.EventLive.Form do
   use SDWeb, :live_view
-
   alias SD.Events
   alias SD.Events.Event
 
@@ -12,7 +11,6 @@ defmodule SDWeb.EventLive.Form do
         {@page_title}
         <:subtitle>Use this form to manage event records in your database.</:subtitle>
       </.header>
-
       <.form for={@form} id="event-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:description]} type="text" label="Description" />
@@ -24,6 +22,7 @@ defmodule SDWeb.EventLive.Form do
         <.input field={@form[:end_time]} type="datetime-local" label="End time" />
         <.input field={@form[:recurrence_rule]} type="text" label="Recurrence rule" />
         <.input field={@form[:all_day]} type="checkbox" label="All day" />
+        <.input field={@form[:calendar_id]} type="text" class="hidden" />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Event</.button>
           <.button navigate={return_path(@return_to, @event)}>Cancel</.button>
@@ -34,15 +33,16 @@ defmodule SDWeb.EventLive.Form do
   end
 
   @impl true
-  def mount(params, _session, socket) do
+  def mount(%{"calendar_id" => calendar_id} = params, _session, socket) do
     {:ok,
      socket
      |> assign(:return_to, return_to(params["return_to"]))
+     |> assign(:calendar_id, calendar_id)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp return_to("show"), do: "show"
-  defp return_to(_), do: "index"
+  defp return_to("show_calendar"), do: "show_calendar"
+  defp return_to(_), do: "show_event"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     event = Events.get_event(id)
@@ -53,8 +53,8 @@ defmodule SDWeb.EventLive.Form do
     |> assign(:form, to_form(Events.change_event(event)))
   end
 
-  defp apply_action(socket, :new, _params) do
-    event = %Event{}
+  defp apply_action(socket, :new, %{"calendar_id" => calendar_id}) do
+    event = %Event{calendar_id: calendar_id}
 
     socket
     |> assign(:page_title, "New Event")
@@ -98,6 +98,12 @@ defmodule SDWeb.EventLive.Form do
     end
   end
 
-  defp return_path("index", _event), do: ~p"/events"
-  defp return_path("show", event), do: ~p"/events/#{event}"
+  defp return_path("show_calendar", event) do
+    event = SD.Repo.preload(event, :calendar)
+    ~p"/tiers/#{event.calendar.tier_id}/calendars/#{event.calendar_id}"
+  end
+
+  defp return_path("show_event", event) do
+    ~p"/calendars/#{event.calendar_id}/events/#{event}"
+  end
 end

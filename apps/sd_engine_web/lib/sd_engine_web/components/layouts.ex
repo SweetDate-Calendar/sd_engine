@@ -41,6 +41,16 @@ defmodule SDWeb.Layouts do
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <li>
+            <.link href={~p"/accounts"} class="btn btn-ghost">
+              Accounts
+            </.link>
+          </li>
+          <li>
+            <.link href={~p"/users"} class="btn btn-ghost">
+              Users
+            </.link>
+          </li>
+          <li>
             <.link href={~p"/logout"} method="delete" class="btn btn-ghost">
               Logout
             </.link>
@@ -63,9 +73,11 @@ defmodule SDWeb.Layouts do
       </div>
     </header>
 
-    <main class="px-4 py-20 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl space-y-4">
-        {render_slot(@inner_block)}
+    <main class="px-4  sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-4xl space-y-4">
+        <div class="py-20">
+          {render_slot(@inner_block)}
+        </div>
       </div>
     </main>
 
