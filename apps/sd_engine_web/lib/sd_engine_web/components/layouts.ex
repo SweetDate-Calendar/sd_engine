@@ -35,22 +35,27 @@ defmodule SDWeb.Layouts do
       <div class="flex-1">
         <a href="/" class="flex-1 flex w-fit items-center gap-2">
           <img src={~p"/images/logo.svg"} width="36" />
-          <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
+          <span class="text-sm font-semibold">SweetDate v 0.01</span>
         </a>
       </div>
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <li>
-            <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>
+            <.link href={~p"/logout"} method="delete" class="btn btn-ghost">
+              Logout
+            </.link>
           </li>
           <li>
-            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
+            <a href="https://sweetdate.io/" class="btn btn-ghost">Website</a>
+          </li>
+          <li>
+            <a href="https://github.com/SweetDate-Calendar" class="btn btn-ghost">GitHub</a>
           </li>
           <li>
             <.theme_toggle />
           </li>
           <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
+            <a href="https://sweetdate-calendar.github.io/sd_docs/" class="btn btn-primary">
               Get Started <span aria-hidden="true">&rarr;</span>
             </a>
           </li>

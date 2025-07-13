@@ -23,7 +23,7 @@ defmodule SDWeb.TierLiveTest do
   end
 
   describe "Index" do
-    setup [:create_tier]
+    setup [:create_tier, :log_in_admin]
 
     test "lists all tiers", %{conn: conn, tier: tier, account: account} do
       {:ok, _index_live, html} = live(conn, ~p"/accounts/#{account}")
@@ -99,7 +99,7 @@ defmodule SDWeb.TierLiveTest do
   end
 
   describe "Show" do
-    setup [:create_tier]
+    setup [:create_tier, :log_in_admin]
 
     test "displays tier", %{conn: conn, tier: tier, account: account} do
       {:ok, _show_live, html} = live(conn, ~p"/accounts/#{account}/tiers/#{tier}")

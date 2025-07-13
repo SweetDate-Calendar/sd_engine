@@ -1,6 +1,8 @@
 defmodule SDWeb.Router do
   use SDWeb, :router
 
+  import SDWeb.Plugs.AdminAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -15,9 +17,15 @@ defmodule SDWeb.Router do
   end
 
   scope "/", SDWeb do
-    pipe_through :browser
-
+    pipe_through [:browser, :redirect_if_admin_is_authenticated]
     get "/", PageController, :home
+    post "/login", SessionController, :create
+  end
+
+  scope "/", SDWeb do
+    pipe_through [:browser, :require_authenticated_admin]
+
+    delete "/logout", SessionController, :delete
 
     live "/accounts", AccountLive.Index, :index
     live "/accounts/new", AccountLive.Form, :new

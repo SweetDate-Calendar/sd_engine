@@ -14,7 +14,7 @@ defmodule SDWeb.AccountLiveTest do
   end
 
   describe "Index" do
-    setup [:create_account]
+    setup [:create_account, :log_in_admin]
 
     test "lists all accounts", %{conn: conn, account: account} do
       {:ok, _index_live, html} = live(conn, ~p"/accounts")
@@ -84,7 +84,7 @@ defmodule SDWeb.AccountLiveTest do
   end
 
   describe "Show" do
-    setup [:create_account]
+    setup [:create_account, :log_in_admin]
 
     test "displays account", %{conn: conn, account: account} do
       {:ok, _show_live, html} = live(conn, ~p"/accounts/#{account}")

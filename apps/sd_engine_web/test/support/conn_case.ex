@@ -35,4 +35,22 @@ defmodule SDWeb.ConnCase do
     SD.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
+
+  @doc """
+  Setup helper that logs in an admin for testing protected routes.
+  """
+  def log_in_admin(%{conn: conn}) do
+    conn =
+      conn
+      |> Plug.Test.init_test_session(%{})
+      |> Plug.Conn.put_session(:current_admin_id, "admin")
+
+    %{conn: conn}
+  end
+
+  def log_in_admin(conn) when is_struct(conn, Plug.Conn) do
+    conn
+    |> Plug.Test.init_test_session(%{})
+    |> Plug.Conn.put_session(:current_admin_id, "admin")
+  end
 end

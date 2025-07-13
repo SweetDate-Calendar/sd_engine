@@ -47,7 +47,7 @@ defmodule SDWeb.EventLiveTest do
   end
 
   describe "Index" do
-    setup [:create_event]
+    setup [:create_event, :log_in_admin]
 
     test "lists all events", %{conn: conn, event: event} do
       {:ok, _index_live, html} = live(conn, ~p"/events")
@@ -117,7 +117,7 @@ defmodule SDWeb.EventLiveTest do
   end
 
   describe "Show" do
-    setup [:create_event]
+    setup [:create_event, :log_in_admin]
 
     test "displays event", %{conn: conn, event: event} do
       {:ok, _show_live, html} = live(conn, ~p"/events/#{event}")
