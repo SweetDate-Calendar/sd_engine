@@ -22,6 +22,13 @@ defmodule SDWeb.CalendarLive.Show do
           >
             <.icon name="hero-pencil-square" /> Edit calendar
           </.button>
+
+          <.button
+            variant="primary"
+            navigate={~p"/calendars/#{@calendar}/events/new?return_to=show_calendar"}
+          >
+            <.icon name="hero-plus" /> New event
+          </.button>
         </:actions>
       </.header>
 
@@ -30,18 +37,48 @@ defmodule SDWeb.CalendarLive.Show do
         <:item title="Color theme">{@calendar.color_theme}</:item>
         <:item title="Visibility">{@calendar.visibility}</:item>
       </.list>
+      Events
+      <.table
+        id="events"
+        rows={@streams.events}
+        row_click={fn {_id, event} -> JS.navigate(~p"/calendars/#{@calendar}/events/#{event}") end}
+      >
+        <:col :let={{_id, event}} label="Name">{event.name}</:col>
+        <:col :let={{_id, event}} label="Description">{event.description}</:col>
+        <:col :let={{_id, event}} label="Color theme">{event.color_theme}</:col>
+        <:col :let={{_id, event}} label="Visibility">{event.visibility}</:col>
+        <:col :let={{_id, event}} label="Location">{event.location}</:col>
+        <:col :let={{_id, event}} label="Start time">{event.start_time}</:col>
+        <:col :let={{_id, event}} label="End time">{event.end_time}</:col>
+        <:col :let={{_id, event}} label="Recurrence rule">{event.recurrence_rule}</:col>
+        <:col :let={{_id, event}} label="All day">{event.all_day}</:col>
+        <:action :let={{_id, event}}>
+          <div class="sr-only">
+            <.link navigate={~p"/calendars/#{@calendar}/events/#{event}"}>Show</.link>
+          </div>
+          <.link navigate={~p"/calendars/#{@calendar}/events/#{event}/edit"}>Edit</.link>
+        </:action>
+        <:action :let={{id, event}}>
+          <.link
+            phx-click={JS.push("delete", value: %{id: event.id}) |> hide("##{id}")}
+            data-confirm="Are you sure?"
+          >
+            Delete
+          </.link>
+        </:action>
+      </.table>
     </Layouts.app>
     """
   end
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    calendar = Calendars.get_calendar(id) |> SD.Repo.preload(tier: [:account])
+    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, tier: [:account]])
 
     {:ok,
      socket
      |> assign(:page_title, "Show Calendar")
-     |> stream(:events, [])
+     |> stream(:events, calendar.events)
      |> assign(:calendar, calendar)}
   end
 end

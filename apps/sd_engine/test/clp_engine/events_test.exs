@@ -1,4 +1,5 @@
 defmodule SD.EventsTest do
+  alias SD.CalendarsFixtures
   use SD.DataCase
 
   alias SD.Events
@@ -31,6 +32,8 @@ defmodule SD.EventsTest do
     end
 
     test "create_event/1 with valid data creates a event" do
+      calendar = CalendarsFixtures.calendar_fixture()
+
       valid_attrs = %{
         name: "some name",
         status: :scheduled,
@@ -41,7 +44,8 @@ defmodule SD.EventsTest do
         start_time: ~U[2025-06-09 17:09:00Z],
         end_time: ~U[2025-06-09 17:09:00Z],
         recurrence_rule: :monthly,
-        all_day: true
+        all_day: true,
+        calendar_id: calendar.id
       }
 
       assert {:ok, %Event{} = event} = Events.create_event(valid_attrs)

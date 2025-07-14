@@ -14,7 +14,7 @@ defmodule SDWeb.UserLiveTest do
   end
 
   describe "Index" do
-    setup [:create_user]
+    setup [:create_user, :log_in_admin]
 
     test "lists all users", %{conn: conn, user: user} do
       {:ok, _index_live, html} = live(conn, ~p"/users")
@@ -84,7 +84,7 @@ defmodule SDWeb.UserLiveTest do
   end
 
   describe "Show" do
-    setup [:create_user]
+    setup [:create_user, :log_in_admin]
 
     test "displays user", %{conn: conn, user: user} do
       {:ok, _show_live, html} = live(conn, ~p"/users/#{user}")

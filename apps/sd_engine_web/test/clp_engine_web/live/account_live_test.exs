@@ -9,12 +9,14 @@ defmodule SDWeb.AccountLiveTest do
   @invalid_attrs %{name: nil}
   defp create_account(_) do
     account = account_fixture()
+    _tier = SD.TiersFixtures.tier_fixture(%{account_id: account.id})
+    _tier = SD.TiersFixtures.tier_fixture(%{account_id: account.id})
 
     %{account: account}
   end
 
   describe "Index" do
-    setup [:create_account]
+    setup [:create_account, :log_in_admin]
 
     test "lists all accounts", %{conn: conn, account: account} do
       {:ok, _index_live, html} = live(conn, ~p"/accounts")
@@ -84,7 +86,7 @@ defmodule SDWeb.AccountLiveTest do
   end
 
   describe "Show" do
-    setup [:create_account]
+    setup [:create_account, :log_in_admin]
 
     test "displays account", %{conn: conn, account: account} do
       {:ok, _show_live, html} = live(conn, ~p"/accounts/#{account}")
@@ -98,7 +100,7 @@ defmodule SDWeb.AccountLiveTest do
 
       assert {:ok, form_live, _} =
                show_live
-               |> element("a", "Edit")
+               |> element("#edit-account-btn")
                |> render_click()
                |> follow_redirect(conn, ~p"/accounts/#{account}/edit?return_to=show")
 
@@ -117,6 +119,98 @@ defmodule SDWeb.AccountLiveTest do
       html = render(show_live)
       assert html =~ "Account updated successfully"
       assert html =~ "some updated name"
+    end
+  end
+
+  describe "Account tiers" do
+    setup [:create_account, :log_in_admin]
+
+    test "lists all tiers", %{conn: conn, account: account} do
+      account =
+        account
+        |> SD.Repo.preload(:tiers)
+
+      {:ok, _index_live, html} = live(conn, ~p"/accounts/#{account}")
+
+      assert html =~ "Tiers"
+
+      for tier <- account.tiers do
+        assert html =~ tier.name
+      end
+    end
+
+    test "saves new tier", %{conn: conn, account: account} do
+      {:ok, index_live, _html} = live(conn, ~p"/accounts/#{account.id}")
+
+      assert {:ok, form_live, _} =
+               index_live
+               |> element("a", "New Tier")
+               |> render_click()
+               |> follow_redirect(
+                 conn,
+                 ~p"/accounts/#{account.id}/tiers/new?return_to=show_account"
+               )
+
+      assert render(form_live) =~ "New Tier"
+
+      assert form_live
+             |> form("#tier-form", tier: %{account_id: nil, name: nil})
+             |> render_change() =~ "can&#39;t be blank"
+
+      assert {:ok, index_live, _html} =
+               form_live
+               |> form("#tier-form", tier: %{account_id: account.id, name: "some new tier name"})
+               |> render_submit()
+               |> follow_redirect(conn, ~p"/accounts/#{account.id}")
+
+      html = render(index_live)
+      assert html =~ "Tier created successfully"
+      assert html =~ "some new tier name"
+    end
+
+    test "deletes tier in listing", %{conn: conn, account: account} do
+      tier = SD.TiersFixtures.tier_fixture(%{account_id: account.id, name: "Tier to delete"})
+
+      {:ok, index_live, _html} = live(conn, ~p"/accounts/#{account}")
+
+      assert index_live |> element("#tiers-#{tier.id} a", "Delete") |> render_click()
+
+      refute has_element?(index_live, "#tiers-#{tier.id}")
+    end
+
+    test "updates tier", %{conn: conn, account: account} do
+      tier = SD.TiersFixtures.tier_fixture(%{account_id: account.id, name: "Edit me"})
+      {:ok, show_live, _html} = live(conn, ~p"/accounts/#{account}")
+
+      assert {:ok, form_live, _} =
+               show_live
+               |> element("#edit-tier-#{tier.id}")
+               |> render_click()
+               |> follow_redirect(
+                 conn,
+                 ~p"/accounts/#{account.id}/tiers/#{tier}/edit?return_to=show_account"
+               )
+
+      assert render(form_live) =~ "Edit Tier"
+
+      assert form_live
+             |> form("#tier-form", tier: %{account_id: nil, name: nil})
+             |> render_change() =~ "can&#39;t be blank"
+
+      assert {:ok, show_live, _html} =
+               form_live
+               |> form("#tier-form",
+                 tier: %{account_id: account.id, name: "some updated tier name"}
+               )
+               |> render_submit()
+               |> follow_redirect(
+                 conn,
+                 ~p"/accounts/#{account}"
+               )
+
+      html = render(show_live)
+      assert html =~ "Tier updated successfully"
+      assert html =~ "some updated tier name"
     end
   end
 end

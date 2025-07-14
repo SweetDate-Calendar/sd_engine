@@ -11,10 +11,13 @@ defmodule SDWeb.EventLive.Show do
         Event {@event.id}
         <:subtitle>This is a event record from your database.</:subtitle>
         <:actions>
-          <.button navigate={~p"/events"}>
+          <.button navigate={~p"/tiers/#{@event.calendar.tier_id}/calendars/#{@event.calendar_id}"}>
             <.icon name="hero-arrow-left" />
           </.button>
-          <.button variant="primary" navigate={~p"/events/#{@event}/edit?return_to=show"}>
+          <.button
+            variant="primary"
+            navigate={~p"/calendars/#{@event.calendar_id}/events/#{@event}/edit?return_to=show_event"}
+          >
             <.icon name="hero-pencil-square" /> Edit event
           </.button>
         </:actions>
@@ -37,9 +40,11 @@ defmodule SDWeb.EventLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    event = Events.get_event(id) |> SD.Repo.preload(:calendar)
+
     {:ok,
      socket
      |> assign(:page_title, "Show Event")
-     |> assign(:event, Events.get_event(id))}
+     |> assign(:event, event)}
   end
 end

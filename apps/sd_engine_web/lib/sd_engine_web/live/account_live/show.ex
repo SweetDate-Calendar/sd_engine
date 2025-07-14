@@ -15,7 +15,11 @@ defmodule SDWeb.AccountLive.Show do
           <.button navigate={~p"/accounts"}>
             <.icon name="hero-arrow-left" />
           </.button>
-          <.button variant="primary" navigate={~p"/accounts/#{@account}/edit?return_to=show"}>
+          <.button
+            variant="primary"
+            id="edit-account-btn"
+            navigate={~p"/accounts/#{@account}/edit?return_to=show"}
+          >
             <.icon name="hero-pencil-square" /> Edit account
           </.button>
 
@@ -42,7 +46,10 @@ defmodule SDWeb.AccountLive.Show do
           <div class="sr-only">
             <.link navigate={~p"/accounts/#{tier.account_id}/tiers/#{tier}"}>Show</.link>
           </div>
-          <.link navigate={~p"/accounts/#{tier.account_id}/tiers/#{tier}/edit?return_to=show_account"}>
+          <.link
+            id={"edit-tier-#{tier.id}"}
+            navigate={~p"/accounts/#{tier.account_id}/tiers/#{tier}/edit?return_to=show_account"}
+          >
             Edit
           </.link>
         </:action>

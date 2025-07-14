@@ -3,6 +3,6 @@ defmodule SDWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "SD - Headless Calendar"
+    assert html_response(conn, 200) =~ "SweetDate"
   end
 end
