@@ -10,7 +10,6 @@ defmodule SDWeb.AccountLive.Form do
     <Layouts.app flash={@flash}>
       <.header>
         {@page_title}
-        <:subtitle>Use this form to manage account records in your database.</:subtitle>
       </.header>
 
       <.form for={@form} id="account-form" phx-change="validate" phx-submit="save">

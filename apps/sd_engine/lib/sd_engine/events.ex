@@ -52,7 +52,6 @@ defmodule SD.Events do
   def create_event(attrs) do
     %Event{}
     |> Event.changeset(attrs)
-    |> IO.inspect()
     |> Repo.insert()
   end
 

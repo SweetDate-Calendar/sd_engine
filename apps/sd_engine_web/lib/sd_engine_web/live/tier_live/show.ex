@@ -14,6 +14,7 @@ defmodule SDWeb.TierLive.Show do
           </.button>
           <.button
             variant="primary"
+            id={"edit-tier-#{@tier.id}"}
             navigate={~p"/accounts/#{@tier.account}/tiers/#{@tier}/edit?return_to=show_tier"}
           >
             <.icon name="hero-pencil-square" /> Edit tier
@@ -43,9 +44,10 @@ defmodule SDWeb.TierLive.Show do
           <div class="sr-only">
             <.link navigate={~p"/tiers/#{calendar.tier_id}/calendars/#{calendar}"}>Show</.link>
           </div>
-          <.link navigate={
-            ~p"/tiers/#{calendar.tier_id}/calendars/#{calendar}/edit?return_to=show_tier"
-          }>
+          <.link
+            id={"edit-calendar-#{calendar.id}"}
+            navigate={~p"/tiers/#{calendar.tier_id}/calendars/#{calendar}/edit?return_to=show_tier"}
+          >
             Edit
           </.link>
         </:action>

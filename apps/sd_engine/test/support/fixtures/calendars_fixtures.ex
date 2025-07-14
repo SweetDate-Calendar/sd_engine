@@ -23,7 +23,7 @@ defmodule SD.CalendarsFixtures do
       attrs
       |> Enum.into(%{
         color_theme: "some color_theme",
-        name: "some name",
+        name: "some name#{System.unique_integer()}",
         visibility: :public
       })
 

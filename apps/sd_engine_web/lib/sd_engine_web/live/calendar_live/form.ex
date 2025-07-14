@@ -10,7 +10,6 @@ defmodule SDWeb.CalendarLive.Form do
     <Layouts.app flash={@flash}>
       <.header>
         {@page_title}
-        <:subtitle>Use this form to manage calendar records in your database.</:subtitle>
       </.header>
 
       <.form for={@form} id="calendar-form" phx-change="validate" phx-submit="save">

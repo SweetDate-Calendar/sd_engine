@@ -6,3 +6,6 @@ direnv = "2.34.0"
 [env]
 ADMIN_USERNAME = "sd_admin"
 ADMIN_PASSWORD = "sd_password"
+TCP_PORT = "5050"  
+SD_ACCESS_KEY_ID = "changeme"
+SD_SECRET_ACCESS_KEY = "changeme"

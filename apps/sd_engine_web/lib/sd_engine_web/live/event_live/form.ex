@@ -9,7 +9,6 @@ defmodule SDWeb.EventLive.Form do
     <Layouts.app flash={@flash}>
       <.header>
         {@page_title}
-        <:subtitle>Use this form to manage event records in your database.</:subtitle>
       </.header>
       <.form for={@form} id="event-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:name]} type="text" label="Name" />

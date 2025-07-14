@@ -10,7 +10,6 @@ defmodule SDWeb.TierLive.Form do
     <Layouts.app flash={@flash}>
       <.header>
         {@page_title}
-        <:subtitle>Use this form to manage tier records in your database.</:subtitle>
       </.header>
       <%= if @live_action in [:new, :edit] do %>
         <.form for={@form} id="tier-form" phx-change="validate" phx-submit="save">
