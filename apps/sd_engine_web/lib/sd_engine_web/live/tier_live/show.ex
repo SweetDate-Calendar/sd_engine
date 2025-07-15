@@ -7,7 +7,6 @@ defmodule SDWeb.TierLive.Show do
     <Layouts.app flash={@flash}>
       <.header>
         Tier {@tier.id}
-        <:subtitle>This is a tier record from your database.</:subtitle>
         <:actions>
           <.button navigate={~p"/accounts/#{@tier.account}"}>
             <.icon name="hero-arrow-left" />

@@ -4,8 +4,9 @@ erlang = "27.3.4"
 direnv = "2.34.0"
 
 [env]
+PORT = "4001"
 ADMIN_USERNAME = "sd_admin"
-ADMIN_PASSWORD = "sd_password"
+ADMIN_PASSWORD = "sd_admin"
 TCP_PORT = "5050"  
 SD_ACCESS_KEY_ID = "changeme"
 SD_SECRET_ACCESS_KEY = "changeme"

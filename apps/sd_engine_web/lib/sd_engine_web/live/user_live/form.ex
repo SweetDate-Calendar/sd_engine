@@ -10,7 +10,6 @@ defmodule SDWeb.UserLive.Form do
     <Layouts.app flash={@flash}>
       <.header>
         {@page_title}
-        <:subtitle>Use this form to manage user records in your database.</:subtitle>
       </.header>
 
       <.form for={@form} id="user-form" phx-change="validate" phx-submit="save">

@@ -9,7 +9,6 @@ defmodule SDWeb.CalendarLive.Show do
     <Layouts.app flash={@flash}>
       <.header>
         Calendar {@calendar.id}
-        <:subtitle>This is a calendar record from your database.</:subtitle>
         <:actions>
           <.button navigate={~p"/accounts/#{@calendar.tier.account}/tiers/#{@calendar.tier}"}>
             <.icon name="hero-arrow-left" />

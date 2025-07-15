@@ -9,7 +9,6 @@ defmodule SDWeb.UserLive.Show do
     <Layouts.app flash={@flash}>
       <.header>
         User {@user.id}
-        <:subtitle>This is a user record from your database.</:subtitle>
         <:actions>
           <.button navigate={~p"/users"}>
             <.icon name="hero-arrow-left" />
