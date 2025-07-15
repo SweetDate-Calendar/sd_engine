@@ -10,7 +10,6 @@ defmodule SDWeb.AccountLive.Show do
     <Layouts.app flash={@flash}>
       <.header>
         Account {@account.id}
-        <:subtitle>This is a account record from your database.</:subtitle>
         <:actions>
           <.button navigate={~p"/accounts"}>
             <.icon name="hero-arrow-left" />

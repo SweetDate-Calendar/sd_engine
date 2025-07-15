@@ -11,7 +11,7 @@ defmodule SD.Events.Event do
 
     field :name, :string
     field :description, :string
-    field :color_theme, :string
+    field :color_theme, :string, default: "default"
 
     field :visibility, Ecto.Enum,
       values: [:private, :public, :busy],
@@ -55,14 +55,9 @@ defmodule SD.Events.Event do
     |> validate_required([
       :status,
       :name,
-      :description,
-      :color_theme,
       :visibility,
-      :location,
       :start_time,
       :end_time,
-      :recurrence_rule,
-      :all_day,
       :calendar_id
     ])
   end

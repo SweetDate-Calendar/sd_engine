@@ -9,7 +9,6 @@ defmodule SDWeb.EventLive.Show do
     <Layouts.app flash={@flash}>
       <.header>
         Event {@event.id}
-        <:subtitle>This is a event record from your database.</:subtitle>
         <:actions>
           <.button navigate={~p"/tiers/#{@event.calendar.tier_id}/calendars/#{@event.calendar_id}"}>
             <.icon name="hero-arrow-left" />
