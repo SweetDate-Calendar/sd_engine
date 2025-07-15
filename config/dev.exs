@@ -89,5 +89,5 @@ config :phoenix, :stacktrace_depth, 20
 
 config :sd_engine, :tcp,
   port: String.to_integer(System.get_env("SD_TCP_PORT") || "5050"),
-  access_key_id: System.get_env("SD_ACCESS_KEY_ID") || "changeme",
-  secret_access_key: System.get_env("SD_SECRET_ACCESS_KEY") || "changeme"
+  sweet_date_account_id: System.get_env("SECRET_ACCESS_KEY") || "changeme",
+  sweet_access_api_key: System.get_env("SWEET_ACCESS_API_KEY") || "changeme"

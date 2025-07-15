@@ -69,9 +69,9 @@ defmodule SDTCP.Server do
     end
   end
 
-  defp authorized?(%{"access_key_id" => id, "access_key" => key}) do
+  defp authorized?(%{"sweet_date_account_id" => id, "access_key" => key}) do
     config = Application.get_env(:sd_engine, :tcp, %{})
-    id == config[:access_key_id] && key == config[:secret_access_key]
+    id == config[:sweet_date_account_id] && key == config[:sweet_access_api_key]
   end
 
   defp authorized?(_), do: false

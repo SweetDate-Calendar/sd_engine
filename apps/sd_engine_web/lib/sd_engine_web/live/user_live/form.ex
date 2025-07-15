@@ -14,6 +14,7 @@ defmodule SDWeb.UserLive.Form do
 
       <.form for={@form} id="user-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:name]} type="text" label="Name" />
+        <.input field={@form[:email]} type="text" label="Email" />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save User</.button>
           <.button navigate={return_path(@return_to, @user)}>Cancel</.button>

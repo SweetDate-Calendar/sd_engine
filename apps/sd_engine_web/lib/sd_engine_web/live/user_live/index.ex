@@ -22,6 +22,7 @@ defmodule SDWeb.UserLive.Index do
         row_click={fn {_id, user} -> JS.navigate(~p"/users/#{user}") end}
       >
         <:col :let={{_id, user}} label="Name">{user.name}</:col>
+        <:col :let={{_id, user}} label="Email">{user.email}</:col>
         <:action :let={{_id, user}}>
           <div class="sr-only">
             <.link navigate={~p"/users/#{user}"}>Show</.link>
