@@ -95,19 +95,19 @@ defmodule SD.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
     end
 
-    test "find_or_create_user/1 with valid data creates a user" do
+    test "get_or_create_user/1 with valid data creates a user" do
       valid_attrs = %{name: "some name", email: "some-email@example.com"}
 
-      assert {:ok, %User{} = user} = Accounts.find_or_create_user(valid_attrs)
+      assert {:ok, %User{} = user} = Accounts.get_or_create_user(valid_attrs)
       assert user.name == "some name"
       assert user.email == "some-email@example.com"
     end
 
-    test "find_or_create_user/1 finds a user if the user by email" do
+    test "get_or_create_user/1 finds a user if the user by email" do
       user = user_fixture()
       valid_attrs = %{email: user.email}
 
-      assert {:ok, %User{} = found_user} = Accounts.find_or_create_user(valid_attrs)
+      assert {:ok, %User{} = found_user} = Accounts.get_or_create_user(valid_attrs)
       assert user.email == found_user.email
     end
 

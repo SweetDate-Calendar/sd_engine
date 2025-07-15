@@ -174,14 +174,14 @@ defmodule SD.Accounts do
 
   ## Examples
 
-      iex> find_or_create_user(%{field: value})
+      iex> get_or_create_user(%{field: value})
       {:ok, %User{}}
 
       iex> find_or_create_create_user(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def find_or_create_user(attrs) do
+  def get_or_create_user(attrs) do
     case get_user_by_email(attrs[:email]) do
       nil ->
         %User{}

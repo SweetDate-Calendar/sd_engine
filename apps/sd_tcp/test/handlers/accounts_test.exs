@@ -50,7 +50,7 @@ defmodule SDTCP.Handlers.AccountsTest do
       %{
         "id" => account.id,
         "name" => "New Name",
-        "access_key_id" => "demo_access_key_id",
+        "sweet_date_account_id" => "demo_sweet_date_account_id",
         "access_key" => "demo_access_key"
       }
       |> authorize()
