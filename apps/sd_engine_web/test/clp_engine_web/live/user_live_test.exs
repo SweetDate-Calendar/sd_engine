@@ -4,9 +4,9 @@ defmodule SDWeb.UserLiveTest do
   import Phoenix.LiveViewTest
   import SD.AccountsFixtures
 
-  @create_attrs %{name: "some name"}
-  @update_attrs %{name: "some updated name"}
-  @invalid_attrs %{name: nil}
+  @create_attrs %{name: "some name", email: "some-email@example.com"}
+  @update_attrs %{name: "some updated name", email: "some-updated-email@example.com"}
+  @invalid_attrs %{name: nil, email: nil}
   defp create_user(_) do
     user = user_fixture()
 
@@ -47,6 +47,7 @@ defmodule SDWeb.UserLiveTest do
       html = render(index_live)
       assert html =~ "User created successfully"
       assert html =~ "some name"
+      assert html =~ "some-email@example.com"
     end
 
     test "updates user in listing", %{conn: conn, user: user} do
@@ -73,6 +74,7 @@ defmodule SDWeb.UserLiveTest do
       html = render(index_live)
       assert html =~ "User updated successfully"
       assert html =~ "some updated name"
+      assert html =~ "some-updated-email@example.com"
     end
 
     test "deletes user in listing", %{conn: conn, user: user} do

@@ -73,23 +73,51 @@ defmodule SD.AccountsTest do
       assert Accounts.get_user(user.id) == user
     end
 
+    test "get_user_by_email/1 returns the user with given email" do
+      user = user_fixture()
+      assert Accounts.get_user_by_email(user.email) == user
+    end
+
+    test "get_user_by_email/1 returns nil if there is no user with the given email " do
+      # user = user_fixture()
+      refute Accounts.get_user_by_email("not-in-system@example.com")
+    end
+
     test "create_user/1 with valid data creates a user" do
-      valid_attrs = %{name: "some name"}
+      valid_attrs = %{name: "some name", email: "some-email@example.com"}
 
       assert {:ok, %User{} = user} = Accounts.create_user(valid_attrs)
       assert user.name == "some name"
+      assert user.email == "some-email@example.com"
     end
 
     test "create_user/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
     end
 
+    test "find_or_create_user/1 with valid data creates a user" do
+      valid_attrs = %{name: "some name", email: "some-email@example.com"}
+
+      assert {:ok, %User{} = user} = Accounts.find_or_create_user(valid_attrs)
+      assert user.name == "some name"
+      assert user.email == "some-email@example.com"
+    end
+
+    test "find_or_create_user/1 finds a user if the user by email" do
+      user = user_fixture()
+      valid_attrs = %{email: user.email}
+
+      assert {:ok, %User{} = found_user} = Accounts.find_or_create_user(valid_attrs)
+      assert user.email == found_user.email
+    end
+
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
-      update_attrs = %{name: "some updated name"}
+      update_attrs = %{name: "some updated name", email: "some-updated-email@example.com"}
 
       assert {:ok, %User{} = user} = Accounts.update_user(user, update_attrs)
       assert user.name == "some updated name"
+      assert user.email == "some-updated-email@example.com"
     end
 
     test "update_user/2 with invalid data returns error changeset" do

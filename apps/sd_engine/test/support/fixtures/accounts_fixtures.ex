@@ -26,7 +26,7 @@ defmodule SD.AccountsFixtures do
       attrs
       |> Enum.into(%{
         name: "some name",
-        role: :admin
+        email: "some-email#{System.unique_integer()}@example.com"
       })
       |> SD.Accounts.create_user()
 

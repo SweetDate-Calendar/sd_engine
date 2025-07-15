@@ -21,6 +21,7 @@ defmodule SDWeb.UserLive.Show do
 
       <.list>
         <:item title="Name">{@user.name}</:item>
+        <:item title="Email">{@user.email}</:item>
       </.list>
     </Layouts.app>
     """

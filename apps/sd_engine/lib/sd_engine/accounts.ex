@@ -134,6 +134,24 @@ defmodule SD.Accounts do
   def get_user(id), do: Repo.get(User, id)
 
   @doc """
+  Gets a single user by email.
+
+  returns nil if the User does not exist.
+
+  ## Examples
+
+      iex> get_user_by_email("some-email@example.com")
+      %User{}
+
+      iex> get_user("some-not-in-system-email@example.com")
+      ** nil
+
+  """
+  def get_user_by_email(email) do
+    Repo.get_by(User, email: email)
+  end
+
+  @doc """
   Creates a user.
 
   ## Examples
@@ -149,6 +167,30 @@ defmodule SD.Accounts do
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Find or Create a user.
+
+  ## Examples
+
+      iex> find_or_create_user(%{field: value})
+      {:ok, %User{}}
+
+      iex> find_or_create_create_user(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def find_or_create_user(attrs) do
+    case get_user_by_email(attrs[:email]) do
+      nil ->
+        %User{}
+        |> User.changeset(attrs)
+        |> Repo.insert()
+
+      user ->
+        {:ok, user}
+    end
   end
 
   @doc """

@@ -5,8 +5,11 @@ defmodule SD.Repo.Migrations.CreateUsers do
     create table(:users, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :name, :string
+      add :email, :string, null: false
 
       timestamps()
     end
+
+    create unique_index(:users, [:email])
   end
 end

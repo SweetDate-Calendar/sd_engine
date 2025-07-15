@@ -6,6 +6,7 @@ defmodule SD.Accounts.User do
   @foreign_key_type :binary_id
   schema "users" do
     field :name, :string
+    field :email, :string
 
     many_to_many :accounts, SD.Accounts.Account,
       join_through: "account_users",
@@ -33,7 +34,9 @@ defmodule SD.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :email])
+    |> validate_required([:name, :email])
+    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> validate_length(:email, max: 160)
   end
 end
