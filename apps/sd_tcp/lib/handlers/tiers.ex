@@ -1,6 +1,14 @@
 defmodule SDTCP.Handlers.Tiers do
-  def dispatch("LIST", _json) do
-    %{status: "ok", tiers: SD.Tiers.list_tiers()}
+  def dispatch("LIST", payload) do
+    # account_id = payload["sweet_date_account_id"]
+
+    tiers =
+      case payload["sweet_date_account_id"] do
+        nil -> []
+        account_id -> SD.Tiers.list_tiers(account_id)
+      end
+
+    %{status: "ok", message: tiers}
   end
 
   def dispatch("CREATE", json) do

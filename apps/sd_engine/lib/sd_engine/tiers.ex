@@ -9,16 +9,23 @@ defmodule SD.Tiers do
   alias SD.Tiers.Tier
 
   @doc """
-  Returns the list of tiers.
+  Returns the list of tiers for a given account.
 
   ## Examples
 
-      iex> list_tiers()
+      iex> list_tiers(account_id)
       [%Tier{}, ...]
 
   """
-  def list_tiers do
-    Repo.all(Tier)
+  def list_tiers(account_id) do
+    from(t in Tier,
+      where: t.account_id == ^account_id,
+      select: %{
+        id: t.id,
+        name: t.name
+      }
+    )
+    |> Repo.all()
   end
 
   @doc """

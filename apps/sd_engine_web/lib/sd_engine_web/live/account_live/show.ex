@@ -9,7 +9,7 @@ defmodule SDWeb.AccountLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        Account {@account.id}
+        Name: {@account.name}
         <:actions>
           <.button navigate={~p"/accounts"}>
             <.icon name="hero-arrow-left" />
@@ -32,7 +32,8 @@ defmodule SDWeb.AccountLive.Show do
       </.header>
 
       <.list>
-        <:item title="Name">{@account.name}</:item>
+        <:item title="API ID">{@account.id}</:item>
+        <:item title="API Secret">{@account.api_secret}</:item>
       </.list>
       Tiers
       <.table

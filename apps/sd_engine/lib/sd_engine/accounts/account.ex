@@ -8,6 +8,7 @@ defmodule SD.Accounts.Account do
 
   schema "accounts" do
     field :name, :string
+    field :api_secret, :string
 
     has_many :tiers, SD.Tiers.Tier
 
@@ -22,7 +23,7 @@ defmodule SD.Accounts.Account do
   @doc false
   def changeset(account, attrs) do
     account
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :api_secret])
+    |> validate_required([:name, :api_secret])
   end
 end

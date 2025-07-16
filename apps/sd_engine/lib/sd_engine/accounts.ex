@@ -50,6 +50,16 @@ defmodule SD.Accounts do
 
   """
   def create_account(attrs) do
+    api_secret = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+
+    attrs =
+      attrs
+      |> Enum.into(%{}, fn
+        {k, v} when is_binary(k) -> {String.to_existing_atom(k), v}
+        pair -> pair
+      end)
+      |> Map.put(:api_secret, api_secret)
+
     %Account{}
     |> Account.changeset(attrs)
     |> Repo.insert()
