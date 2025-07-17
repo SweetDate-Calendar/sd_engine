@@ -3,80 +3,85 @@ defmodule SDTCP.Handlers.TiersTest do
   import SD.TiersFixtures
   import SDTCP.TestHelper
 
-  test "list all tiers" do
-    tier_fixture(%{name: "One"})
-    tier_fixture(%{name: "Two"})
+  describe "tiers" do
+    setup do
+      {:ok, account} = SD.AccountsFixtures.create_authorized_account()
 
-    response = sd_send("TIERS.LIST|" <> Jason.encode!(authorize(%{})))
-    assert response["status"] == "ok"
-    assert length(response["tiers"]) >= 2
-  end
+      Application.put_env(:sd_engine, :tcp,
+        sweet_date_account_id: account.id,
+        sweet_access_api_key: account.api_secret
+      )
 
-  test "TIERS.CREATE creates a new tier with just a title" do
-    account = SD.AccountsFixtures.account_fixture()
+      %{account: account}
+    end
 
-    payload =
-      %{"name" => "RubyConf", account_id: account.id}
-      |> authorize()
+    test "list all tiers", %{account: account} do
+      tier_fixture(%{account_id: account.id, name: "One"})
+      tier_fixture(%{account_id: account.id, name: "Two"})
 
-    raw = "TIERS.CREATE|#{Jason.encode!(payload)}"
-    response = sd_send(raw)
+      response = sd_send("TIERS.LIST|" <> Jason.encode!(authorize(%{})))
+      assert response["status"] == "ok"
+      assert length(response["tiers"]) >= 2
+    end
 
-    assert %{"status" => "ok", "id" => id} = response
-    assert is_binary(id)
-  end
+    test "TIERS.CREATE creates a new tier with just a title" do
+      payload =
+        %{"name" => "RubyConf"}
+        |> authorize()
 
-  test "fetch tier by id" do
-    tier = tier_fixture(%{name: "Fetch Me"})
+      raw = "TIERS.CREATE|#{Jason.encode!(payload)}"
+      response = sd_send(raw)
 
-    payload =
-      %{"id" => tier.id}
-      |> authorize()
+      assert %{"message" => tier_id, "status" => "ok"} = response
+      assert is_binary(tier_id)
+    end
 
-    get_resp = sd_send("TIERS.GET|" <> Jason.encode!(payload))
+    test "TIERS.GET get a tier by id" do
+      tier = tier_fixture(%{name: "Fetch Me"})
 
-    assert get_resp["status"] == "ok"
-    assert get_resp["tier"]["name"] == "Fetch Me"
-  end
+      payload = %{"id" => tier.id} |> authorize()
 
-  test "fetch tier with invalid id returns error" do
-    payload =
-      %{"id" => "00000000-0000-0000-0000-000000000000"}
-      |> authorize()
+      assert sd_send("TIERS.GET|" <> Jason.encode!(payload)) === %{
+               "message" => %{"name" => "Fetch Me"},
+               "status" => "ok"
+             }
+    end
 
-    response = sd_send("TIERS.GET|" <> Jason.encode!(payload))
+    test "get tier with invalid id returns error" do
+      payload =
+        %{"id" => "00000000-0000-0000-0000-000000000000"}
+        |> authorize()
 
-    assert response["status"] == "error"
-    assert response["message"] == "not found"
-  end
+      response = sd_send("TIERS.GET|" <> Jason.encode!(payload))
 
-  test "update tier name" do
-    tier = tier_fixture(%{name: "Old Name"})
+      assert response["status"] == "error"
+      assert response["message"] == "not found"
+    end
 
-    payload =
-      %{
-        "id" => tier.id,
-        "name" => "New Name"
-      }
-      |> authorize()
+    test "update tier name" do
+      tier = tier_fixture(%{name: "Old Name"})
 
-    response = sd_send("TIERS.UPDATE|" <> Jason.encode!(payload))
-    assert response["status"] == "ok"
-    assert response["tier"]["name"] == "New Name"
-  end
+      payload =
+        %{"id" => tier.id, "name" => "New Name"}
+        |> authorize()
 
-  test "delete tier" do
-    tier = tier_fixture()
+      assert sd_send("TIERS.UPDATE|" <> Jason.encode!(payload)) == %{
+               "status" => "ok",
+               "message" => "tier updated"
+             }
+    end
 
-    payload =
-      %{"id" => tier.id}
-      |> authorize()
+    test "delete tier" do
+      tier = tier_fixture()
 
-    response = sd_send("TIERS.DELETE|" <> Jason.encode!(payload))
-    assert response["status"] == "ok"
+      payload = %{"id" => tier.id} |> authorize()
 
-    # Ensure it's gone
-    get_resp = sd_send("TIERS.GET|" <> Jason.encode!(%{"id" => tier.id}))
-    assert get_resp["status"] == "error"
+      assert sd_send("TIERS.DELETE|" <> Jason.encode!(payload)) == %{
+               "message" => "tier deleted",
+               "status" => "ok"
+             }
+
+      refute SD.Tiers.get_tier(tier.id)
+    end
   end
 end

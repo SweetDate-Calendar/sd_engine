@@ -67,6 +67,7 @@ defmodule SDWeb.TierLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket), do: Phoenix.PubSub.subscribe(SD.PubSub, "tier:#{id}")
     tier = SD.Tiers.get_tier(id) |> SD.Repo.preload([:calendars, :account])
 
     {:ok,
@@ -81,6 +82,19 @@ defmodule SDWeb.TierLive.Show do
     calendar = SD.Calendars.get_calendar(calendar_id)
     {:ok, _} = SD.Calendars.delete_calendar(calendar)
 
+    {:noreply, stream_delete(socket, :calendars, calendar)}
+  end
+
+  @impl true
+  def handle_info({:calendar_created, %{calendar: calendar}}, socket) do
+    {:noreply, stream_insert(socket, :calendars, calendar)}
+  end
+
+  def handle_info({:calendar_updated, %{calendar: calendar}}, socket) do
+    {:noreply, stream_insert(socket, :calendars, calendar, at: -1)}
+  end
+
+  def handle_info({:calendar_deleted, %{calendar: calendar}}, socket) do
     {:noreply, stream_delete(socket, :calendars, calendar)}
   end
 end

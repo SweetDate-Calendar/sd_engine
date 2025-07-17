@@ -24,6 +24,9 @@ defmodule SD.Tiers.Tier do
     tier
     |> cast(attrs, [:name, :account_id])
     |> validate_required([:name, :account_id])
-    |> unique_constraint([:account_id, :name], name: :tiers_tier_id_name_index)
+    |> unique_constraint([:account_id, :name],
+      name: :tiers_tier_id_name_index,
+      message: "::Name already exists"
+    )
   end
 end

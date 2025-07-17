@@ -166,4 +166,26 @@ defmodule SD.Tiers do
   def change_tier_user(%TierUser{} = user, attrs \\ %{}) do
     TierUser.changeset(user, attrs)
   end
+
+  @doc """
+  Returns the list of calendars for a given calendar.
+
+  ## Examples
+
+      iex> list_calendars(accotier_idunt_id)
+      [%Tier{}, ...]
+
+  """
+  def list_calendars(tier_id) do
+    from(c in SD.Calendars.Calendar,
+      where: c.tier_id == ^tier_id,
+      select: %{
+        id: c.id,
+        name: c.name,
+        visibility: c.visibility,
+        color_theme: c.color_theme
+      }
+    )
+    |> Repo.all()
+  end
 end

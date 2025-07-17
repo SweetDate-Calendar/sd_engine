@@ -11,6 +11,7 @@ defmodule SD.Repo.Migrations.CreateTiers do
     end
 
     create index(:tiers, [:account_id])
-    create unique_index(:tiers, [:account_id, :name], name: :tiers_tier_id_name_index)
+    # create unique_index(:tiers, [:account_id, :name], name: :tiers_tier_id_name_index)
+    create unique_index(:tiers, [:name, :account_id], name: :tiers_tier_id_name_index)
   end
 end

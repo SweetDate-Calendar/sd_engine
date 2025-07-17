@@ -39,5 +39,7 @@ config :phoenix_live_view,
 
 config :sd_engine, :tcp,
   port: String.to_integer(System.get_env("CLP_TCP_PORT") || "5050"),
-  sweet_date_account_id: System.get_env("CLP_ACCESS_KEY_ID") || "changeme",
-  sweet_access_api_key: System.get_env("CLP_SECRET_ACCESS_KEY") || "changeme"
+  sweet_date_account_id:
+    System.get_env("CLP_ACCESS_KEY_ID") || "99eccb44-2b95-489e-8445-99f47aa45262",
+  sweet_access_api_key:
+    System.get_env("CLP_SECRET_ACCESS_KEY") || "7Xp6HIex5rcxRBELL9ZVhYVb_ZPQE_3lbxKweXpVJow"

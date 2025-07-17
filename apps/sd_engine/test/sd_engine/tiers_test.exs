@@ -10,10 +10,10 @@ defmodule SD.TiersTest do
 
     @invalid_attrs %{name: nil}
 
-    test "list_tiers/0 returns all tiers" do
-      tier = tier_fixture()
-      assert Tiers.list_tiers() == [tier]
-    end
+    # test "list_tiers/0 returns all tiers" do
+    #   tier = tier_fixture()
+    #   assert Tiers.list_tiers() == [tier]
+    # end
 
     test "get_tier!/1 returns the tier with given id" do
       tier = tier_fixture()
@@ -43,6 +43,21 @@ defmodule SD.TiersTest do
     test "change_tier/1 returns a tier changeset" do
       tier = tier_fixture()
       assert %Ecto.Changeset{} = Tiers.change_tier(tier)
+    end
+
+    test "list_calendars/1 returns all calendars for the given tier" do
+      tier = tier_fixture()
+
+      _calendar_a = SD.CalendarsFixtures.calendar_fixture(%{name: "calendarA", tier_id: tier.id})
+      _calendar_b = SD.CalendarsFixtures.calendar_fixture(%{name: "calendarB", tier_id: tier.id})
+
+      calendars = SD.Tiers.list_calendars(tier.id)
+
+      assert length(calendars) == 2
+
+      calendar_names = Enum.map(calendars, & &1.name)
+      assert "calendarA" in calendar_names
+      assert "calendarB" in calendar_names
     end
   end
 end

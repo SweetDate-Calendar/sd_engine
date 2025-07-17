@@ -23,7 +23,7 @@ defmodule SD.Accounts.Account do
   @doc false
   def changeset(account, attrs) do
     account
-    |> cast(attrs, [:name, :api_secret])
+    |> cast(attrs, [:id, :name, :api_secret])
     |> validate_required([:name, :api_secret])
   end
 end

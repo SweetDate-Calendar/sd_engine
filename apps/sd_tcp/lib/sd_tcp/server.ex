@@ -82,7 +82,6 @@ defmodule SDTCP.Server do
   defp authorized?(_), do: false
 
   defp dispatch("PING", json), do: SDTCP.Handlers.Ping.dispatch(json)
-  defp dispatch("ACCOUNTS." <> action, json), do: SDTCP.Handlers.Accounts.dispatch(action, json)
   defp dispatch("TIERS." <> action, json), do: SDTCP.Handlers.Tiers.dispatch(action, json)
 
   defp dispatch("CALENDARS." <> action, json),

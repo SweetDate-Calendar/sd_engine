@@ -1,63 +1,77 @@
 defmodule SDTCP.Handlers.Tiers do
   def dispatch("LIST", payload) do
-    # account_id = payload["sweet_date_account_id"]
-
     tiers =
       case payload["sweet_date_account_id"] do
         nil -> []
         account_id -> SD.Tiers.list_tiers(account_id)
       end
 
-    %{status: "ok", message: tiers}
+    %{status: "ok", tiers: tiers}
   end
 
-  def dispatch("CREATE", json) do
-    case Jason.decode(json) do
-      {:ok, attrs} ->
-        case SD.Accounts.create_tier(attrs) do
-          {:ok, cal} -> %{status: "ok", id: cal.id}
-          {:error, cs} -> %{status: "error", errors: cs.errors}
-        end
+  def dispatch("CREATE", %{"sweet_date_account_id" => account_id, "name" => name}) do
+    case SD.Accounts.create_tier(%{account_id: account_id, name: name}) do
+      {:ok, %SD.Tiers.Tier{} = tier} ->
+        Phoenix.PubSub.broadcast(
+          SD.PubSub,
+          "account:#{account_id}",
+          {:tier_created, %{tier: tier}}
+        )
 
-      _ ->
-        %{status: "error", message: "invalid json"}
+        %{status: "ok", message: tier.id}
+
+      {:error, ch} ->
+        %{status: "error", message: format_errors(ch.errors)}
     end
   end
 
-  def dispatch("GET", json) do
-    case Jason.decode(json) do
-      {:ok, %{"id" => id}} ->
-        case SD.Tiers.get_tier(id) do
-          %SD.Tiers.Tier{} = tier ->
-            %{status: "ok", tier: %{"id" => tier.id, "name" => tier.name}}
+  def dispatch("GET", %{"id" => id}) when is_binary(id) do
+    case SD.Tiers.get_tier(id) do
+      %SD.Tiers.Tier{} = tier ->
+        %{status: "ok", message: %{"name" => tier.name}}
 
-          nil ->
-            %{status: "error", message: "not found"}
-        end
-
-      _ ->
-        %{status: "error", message: "invalid json"}
+      nil ->
+        %{status: "error", message: "not found"}
     end
   end
 
-  def dispatch("UPDATE", json) do
-    with {:ok, %{"id" => id} = attrs} <- Jason.decode(json),
-         cal <- SD.Tiers.get_tier(id),
-         {:ok, updated} <- SD.Tiers.update_tier(cal, attrs) do
-      %{status: "ok", tier: updated}
+  def dispatch("UPDATE", %{"id" => id, "name" => name}) do
+    with %SD.Tiers.Tier{} = tier <- SD.Tiers.get_tier(id),
+         {:ok, tier} <- SD.Tiers.update_tier(tier, %{name: name}) do
+      Phoenix.PubSub.broadcast(
+        SD.PubSub,
+        "account:#{tier.account_id}",
+        {:tier_updated, %{tier: tier}}
+      )
+
+      %{status: "ok", message: "tier updated"}
     else
-      {:error, changeset} -> %{status: "error", errors: changeset.errors}
-      _ -> %{status: "error", message: "invalid input or not found"}
+      _ -> %{status: "error", message: "not found or failed to update"}
     end
   end
 
-  def dispatch("DELETE", json) do
-    with {:ok, %{"id" => id}} <- Jason.decode(json),
-         cal <- SD.Tiers.get_tier(id),
-         {:ok, _} <- SD.Tiers.delete_tier(cal) do
-      %{status: "ok"}
+  def dispatch("DELETE", %{"id" => id}) when is_binary(id) do
+    with %SD.Tiers.Tier{} = tier <- SD.Tiers.get_tier(id),
+         {:ok, tier} <- SD.Tiers.delete_tier(tier) do
+      Phoenix.PubSub.broadcast(
+        SD.PubSub,
+        "account:#{tier.account_id}",
+        {:tier_deleted, %{tier: tier}}
+      )
+
+      %{status: "ok", message: "tier deleted"}
     else
       _ -> %{status: "error", message: "not found or failed to delete"}
+    end
+  end
+
+  def dispatch(_, _) do
+    %{status: "error", message: "Invalid payload"}
+  end
+
+  defp format_errors(errors) do
+    for {field, {msg, _meta}} <- errors do
+      "#{field} #{msg}"
     end
   end
 end

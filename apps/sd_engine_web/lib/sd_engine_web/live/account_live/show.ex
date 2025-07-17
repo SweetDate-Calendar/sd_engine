@@ -32,8 +32,8 @@ defmodule SDWeb.AccountLive.Show do
       </.header>
 
       <.list>
-        <:item title="API ID">{@account.id}</:item>
-        <:item title="API Secret">{@account.api_secret}</:item>
+        <:item title="SWEETDATE_API_KEY_ID">{@account.id}</:item>
+        <:item title="SWEETDATE_API_SECRET">{@account.api_secret}</:item>
       </.list>
       Tiers
       <.table
@@ -68,6 +68,8 @@ defmodule SDWeb.AccountLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket), do: Phoenix.PubSub.subscribe(SD.PubSub, "account:#{id}")
+
     account = Accounts.get_account(id) |> Repo.preload(:tiers)
 
     {:ok,
@@ -82,6 +84,19 @@ defmodule SDWeb.AccountLive.Show do
     tier = SD.Tiers.get_tier(tier_id)
     {:ok, _} = SD.Tiers.delete_tier(tier)
 
+    {:noreply, stream_delete(socket, :tiers, tier)}
+  end
+
+  @impl true
+  def handle_info({:tier_created, %{tier: tier}}, socket) do
+    {:noreply, stream_insert(socket, :tiers, tier)}
+  end
+
+  def handle_info({:tier_updated, %{tier: tier}}, socket) do
+    {:noreply, stream_insert(socket, :tiers, tier, at: -1)}
+  end
+
+  def handle_info({:tier_deleted, %{tier: tier}}, socket) do
     {:noreply, stream_delete(socket, :tiers, tier)}
   end
 end
