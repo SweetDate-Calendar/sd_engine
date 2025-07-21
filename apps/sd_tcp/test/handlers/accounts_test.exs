@@ -74,13 +74,13 @@ defmodule SDTCP.Handlers.AccountsTest do
 
   test "list calendars" do
     account = account_fixture()
-    tier_a = SD.TiersFixtures.tier_fixture(%{account_id: account.id})
-    calendar_a = SD.CalendarsFixtures.calendar_fixture(%{tier_id: tier_a.id})
-    tier_b = SD.TiersFixtures.tier_fixture(%{account_id: account.id})
-    calendar_b = SD.CalendarsFixtures.calendar_fixture(%{tier_id: tier_b.id})
+    tenant_a = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
+    calendar_a = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_a.id})
+    tenant_b = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
+    calendar_b = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_b.id})
 
-    tier_c = SD.TiersFixtures.tier_fixture()
-    _calendar_c = SD.CalendarsFixtures.calendar_fixture(%{tier_id: tier_c.id})
+    tenant_c = SD.TenantsFixtures.tenant_fixture()
+    _calendar_c = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_c.id})
 
     payload = %{"id" => account.id} |> authorize()
 
@@ -91,14 +91,14 @@ defmodule SDTCP.Handlers.AccountsTest do
       %{
         "id" => calendar_a.id,
         "name" => calendar_a.name,
-        "tier_id" => calendar_a.tier_id,
+        "tenant_id" => calendar_a.tenant_id,
         "color_theme" => calendar_a.color_theme,
         "visibility" => to_string(calendar_a.visibility)
       },
       %{
         "id" => calendar_b.id,
         "name" => calendar_b.name,
-        "tier_id" => calendar_b.tier_id,
+        "tenant_id" => calendar_b.tenant_id,
         "color_theme" => calendar_b.color_theme,
         "visibility" => to_string(calendar_b.visibility)
       }

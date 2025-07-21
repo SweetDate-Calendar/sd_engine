@@ -21,11 +21,11 @@ defmodule SD.CalendarsTest do
     end
 
     test "create_calendar/1 with valid data creates a calendar" do
-      tier = SD.TiersFixtures.tier_fixture()
+      tenant = SD.TenantsFixtures.tenant_fixture()
 
       valid_attrs =
         %{
-          tier_id: tier.id,
+          tenant_id: tenant.id,
           name: "some name",
           color_theme: "some color_theme",
           visibility: :public

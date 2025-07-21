@@ -99,7 +99,7 @@ defmodule SDWeb.EventLive.Form do
 
   defp return_path("show_calendar", event) do
     event = SD.Repo.preload(event, :calendar)
-    ~p"/tiers/#{event.calendar.tier_id}/calendars/#{event.calendar_id}"
+    ~p"/tenants/#{event.calendar.tenant_id}/calendars/#{event.calendar_id}"
   end
 
   defp return_path("show_event", event) do

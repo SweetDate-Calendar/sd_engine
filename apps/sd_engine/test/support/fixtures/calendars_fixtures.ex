@@ -9,11 +9,11 @@ defmodule SD.CalendarsFixtures do
   """
   def calendar_fixture(attrs \\ %{}) do
     attrs =
-      case Map.get(attrs, :tier_id) do
+      case Map.get(attrs, :tenant_id) do
         nil ->
-          %{id: tier_id} = SD.TiersFixtures.tier_fixture()
+          %{id: tenant_id} = SD.TenantsFixtures.tenant_fixture()
 
-          Map.put(attrs, :tier_id, tier_id)
+          Map.put(attrs, :tenant_id, tenant_id)
 
         _ ->
           attrs

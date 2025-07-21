@@ -1,18 +1,18 @@
-defmodule SDTCP.Handlers.TiersTest do
+defmodule SDTCP.Handlers.TenantsTest do
   use SDTCP.DataCase, async: false
-  import SD.TiersFixtures
+  import SD.TenantsFixtures
   import SDTCP.TestHelper
 
-  test "list all tiers" do
-    tier_fixture(%{name: "One"})
-    tier_fixture(%{name: "Two"})
+  test "list all tenants" do
+    tenant_fixture(%{name: "One"})
+    tenant_fixture(%{name: "Two"})
 
     response = sd_send("TIERS.LIST|" <> Jason.encode!(authorize(%{})))
     assert response["status"] == "ok"
-    assert length(response["tiers"]) >= 2
+    assert length(response["tenants"]) >= 2
   end
 
-  test "TIERS.CREATE creates a new tier with just a title" do
+  test "TIERS.CREATE creates a new tenant with just a title" do
     account = SD.AccountsFixtures.account_fixture()
 
     payload =
@@ -26,20 +26,20 @@ defmodule SDTCP.Handlers.TiersTest do
     assert is_binary(id)
   end
 
-  test "fetch tier by id" do
-    tier = tier_fixture(%{name: "Fetch Me"})
+  test "fetch tenant by id" do
+    tenant = tenant_fixture(%{name: "Fetch Me"})
 
     payload =
-      %{"id" => tier.id}
+      %{"id" => tenant.id}
       |> authorize()
 
     get_resp = sd_send("TIERS.GET|" <> Jason.encode!(payload))
 
     assert get_resp["status"] == "ok"
-    assert get_resp["tier"]["name"] == "Fetch Me"
+    assert get_resp["tenant"]["name"] == "Fetch Me"
   end
 
-  test "fetch tier with invalid id returns error" do
+  test "fetch tenant with invalid id returns error" do
     payload =
       %{"id" => "00000000-0000-0000-0000-000000000000"}
       |> authorize()
@@ -50,33 +50,33 @@ defmodule SDTCP.Handlers.TiersTest do
     assert response["message"] == "not found"
   end
 
-  test "update tier name" do
-    tier = tier_fixture(%{name: "Old Name"})
+  test "update tenant name" do
+    tenant = tenant_fixture(%{name: "Old Name"})
 
     payload =
       %{
-        "id" => tier.id,
+        "id" => tenant.id,
         "name" => "New Name"
       }
       |> authorize()
 
     response = sd_send("TIERS.UPDATE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
-    assert response["tier"]["name"] == "New Name"
+    assert response["tenant"]["name"] == "New Name"
   end
 
-  test "delete tier" do
-    tier = tier_fixture()
+  test "delete tenant" do
+    tenant = tenant_fixture()
 
     payload =
-      %{"id" => tier.id}
+      %{"id" => tenant.id}
       |> authorize()
 
     response = sd_send("TIERS.DELETE|" <> Jason.encode!(payload))
     assert response["status"] == "ok"
 
     # Ensure it's gone
-    get_resp = sd_send("TIERS.GET|" <> Jason.encode!(%{"id" => tier.id}))
+    get_resp = sd_send("TIERS.GET|" <> Jason.encode!(%{"id" => tenant.id}))
     assert get_resp["status"] == "error"
   end
 end

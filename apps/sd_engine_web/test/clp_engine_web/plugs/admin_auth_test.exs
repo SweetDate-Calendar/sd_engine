@@ -41,7 +41,7 @@ defmodule SDWeb.Plugs.AdminAuthTest do
       refute conn.halted
     end
 
-    test "redirects to tiers when authenticated", %{conn: conn} do
+    test "redirects to tenants when authenticated", %{conn: conn} do
       conn =
         conn
         |> init_test_session(%{})

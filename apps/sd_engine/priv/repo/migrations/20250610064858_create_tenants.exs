@@ -1,8 +1,8 @@
-defmodule SD.Repo.Migrations.CreateTiers do
+defmodule SD.Repo.Migrations.CreateTenants do
   use Ecto.Migration
 
   def change do
-    create table(:tiers, primary_key: false) do
+    create table(:tenants, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :name, :string
       add :account_id, references(:accounts, on_delete: :delete_all, type: :binary_id)
@@ -10,7 +10,7 @@ defmodule SD.Repo.Migrations.CreateTiers do
       timestamps()
     end
 
-    create index(:tiers, [:account_id])
-    create unique_index(:tiers, [:account_id, :name], name: :tiers_tier_id_name_index)
+    create index(:tenants, [:account_id])
+    create unique_index(:tenants, [:account_id, :name], name: :tenants_tenant_id_name_index)
   end
 end

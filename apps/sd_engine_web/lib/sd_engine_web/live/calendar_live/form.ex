@@ -16,7 +16,7 @@ defmodule SDWeb.CalendarLive.Form do
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:color_theme]} type="text" label="Color theme" />
         <.input field={@form[:visibility]} type="text" label="Visibility" />
-        <.input field={@form[:tier_id]} type="text" class="hidden" />
+        <.input field={@form[:tenant_id]} type="text" class="hidden" />
 
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Calendar</.button>
@@ -28,15 +28,15 @@ defmodule SDWeb.CalendarLive.Form do
   end
 
   @impl true
-  def mount(%{"tier_id" => tier_id} = params, _session, socket) do
+  def mount(%{"tenant_id" => tenant_id} = params, _session, socket) do
     {:ok,
      socket
      |> assign(:return_to, return_to(params["return_to"]))
-     |> assign(:tier_id, tier_id)
+     |> assign(:tenant_id, tenant_id)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp return_to("show_tier"), do: "show_tier"
+  defp return_to("show_tenant"), do: "show_tenant"
   defp return_to(_), do: "show_calendar"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
@@ -48,8 +48,8 @@ defmodule SDWeb.CalendarLive.Form do
     |> assign(:form, to_form(Calendars.change_calendar(calendar)))
   end
 
-  defp apply_action(socket, :new, %{"tier_id" => tier_id}) do
-    calendar = %Calendar{tier_id: tier_id}
+  defp apply_action(socket, :new, %{"tenant_id" => tenant_id}) do
+    calendar = %Calendar{tenant_id: tenant_id}
 
     socket
     |> assign(:page_title, "New Calendar")
@@ -93,15 +93,15 @@ defmodule SDWeb.CalendarLive.Form do
     end
   end
 
-  defp return_path("show_tier", calendar) do
+  defp return_path("show_tenant", calendar) do
     calendar =
       calendar
-      |> SD.Repo.preload(:tier)
+      |> SD.Repo.preload(:tenant)
 
-    ~p"/accounts/#{calendar.tier.account_id}/tiers/#{calendar.tier_id}"
+    ~p"/accounts/#{calendar.tenant.account_id}/tenants/#{calendar.tenant_id}"
   end
 
   defp return_path("show_calendar", calendar) do
-    ~p"/tiers/#{calendar.tier_id}/calendars/#{calendar}"
+    ~p"/tenants/#{calendar.tenant_id}/calendars/#{calendar}"
   end
 end

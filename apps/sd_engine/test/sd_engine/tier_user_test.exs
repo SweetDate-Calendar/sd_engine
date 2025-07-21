@@ -1,64 +1,64 @@
-defmodule SD.Tiers.TierUserTest do
+defmodule SD.Tenants.TenantUserTest do
   use SD.DataCase, async: true
 
-  alias SD.Tiers
-  alias SD.Tiers.TierUser
+  alias SD.Tenants
+  alias SD.Tenants.TenantUser
   alias SD.Repo
 
-  import SD.TiersFixtures
+  import SD.TenantsFixtures
   import SD.AccountsFixtures
 
-  describe "tiers_users join" do
-    test "user can be added to tier two times" do
+  describe "tenants_users join" do
+    test "user can be added to tenant two times" do
       user = user_fixture()
-      tier = tier_fixture()
+      tenant = tenant_fixture()
 
-      Tiers.create_tier_user(tier.id, user.id, :guest)
+      Tenants.create_tenant_user(tenant.id, user.id, :guest)
 
       assert {:error, _} =
-               Tiers.create_tier_user(tier.id, user.id, :guest)
+               Tenants.create_tenant_user(tenant.id, user.id, :guest)
     end
 
-    test "user can be added to tier and accessed from both sides" do
+    test "user can be added to tenant and accessed from both sides" do
       user = user_fixture()
-      tier = tier_fixture()
+      tenant = tenant_fixture()
 
-      Tiers.create_tier_user(tier.id, user.id, :guest)
+      Tenants.create_tenant_user(tenant.id, user.id, :guest)
 
-      user = Repo.preload(user, :tiers)
+      user = Repo.preload(user, :tenants)
 
-      assert Enum.any?(user.tiers, &(&1.id == tier.id))
+      assert Enum.any?(user.tenants, &(&1.id == tenant.id))
 
-      tier = Repo.preload(tier, :users)
-      assert Enum.any?(tier.users, &(&1.id == user.id))
+      tenant = Repo.preload(tenant, :users)
+      assert Enum.any?(tenant.users, &(&1.id == user.id))
     end
 
-    test "deleting user removes tier_user row" do
+    test "deleting user removes tenant_user row" do
       user = user_fixture()
-      tier = tier_fixture()
+      tenant = tenant_fixture()
 
-      Tiers.create_tier_user(tier.id, user.id, :guest)
+      Tenants.create_tenant_user(tenant.id, user.id, :guest)
 
       Repo.delete!(user)
 
       refute Repo.exists?(
-               from(au in TierUser,
-                 where: au.tier_id == ^tier.id and au.user_id == ^user.id
+               from(au in TenantUser,
+                 where: au.tenant_id == ^tenant.id and au.user_id == ^user.id
                )
              )
     end
 
-    test "deleting tier removes tier_user row" do
+    test "deleting tenant removes tenant_user row" do
       user = user_fixture()
-      tier = tier_fixture()
+      tenant = tenant_fixture()
 
-      Tiers.create_tier_user(tier.id, user.id, :guest)
+      Tenants.create_tenant_user(tenant.id, user.id, :guest)
 
-      Repo.delete!(tier)
+      Repo.delete!(tenant)
 
       refute Repo.exists?(
-               from(au in TierUser,
-                 where: au.tier_id == ^tier.id and au.user_id == ^user.id
+               from(au in TenantUser,
+                 where: au.tenant_id == ^tenant.id and au.user_id == ^user.id
                )
              )
     end

@@ -24,9 +24,9 @@ defmodule SDWeb.AccountLive.Show do
 
           <.button
             variant="primary"
-            navigate={~p"/accounts/#{@account}/tiers/new?return_to=show_account"}
+            navigate={~p"/accounts/#{@account}/tenants/new?return_to=show_account"}
           >
-            <.icon name="hero-plus" /> New Tier
+            <.icon name="hero-plus" /> New Tenant
           </.button>
         </:actions>
       </.header>
@@ -34,27 +34,29 @@ defmodule SDWeb.AccountLive.Show do
       <.list>
         <:item title="Name">{@account.name}</:item>
       </.list>
-      Tiers
+      Tenants
       <.table
-        id="tiers"
-        rows={@streams.tiers}
-        row_click={fn {_id, tier} -> JS.navigate(~p"/accounts/#{@account}/tiers/#{tier}") end}
+        id="tenants"
+        rows={@streams.tenants}
+        row_click={fn {_id, tenant} -> JS.navigate(~p"/accounts/#{@account}/tenants/#{tenant}") end}
       >
-        <:col :let={{_id, tier}} label="Name">{tier.name}</:col>
-        <:action :let={{_id, tier}}>
+        <:col :let={{_id, tenant}} label="Name">{tenant.name}</:col>
+        <:action :let={{_id, tenant}}>
           <div class="sr-only">
-            <.link navigate={~p"/accounts/#{tier.account_id}/tiers/#{tier}"}>Show</.link>
+            <.link navigate={~p"/accounts/#{tenant.account_id}/tenants/#{tenant}"}>Show</.link>
           </div>
           <.link
-            id={"edit-tier-#{tier.id}"}
-            navigate={~p"/accounts/#{tier.account_id}/tiers/#{tier}/edit?return_to=show_account"}
+            id={"edit-tenant-#{tenant.id}"}
+            navigate={
+              ~p"/accounts/#{tenant.account_id}/tenants/#{tenant}/edit?return_to=show_account"
+            }
           >
             Edit
           </.link>
         </:action>
-        <:action :let={{id, tier}}>
+        <:action :let={{id, tenant}}>
           <.link
-            phx-click={JS.push("delete_tier", value: %{tier_id: tier.id}) |> hide("##{id}")}
+            phx-click={JS.push("delete_tenant", value: %{tenant_id: tenant.id}) |> hide("##{id}")}
             data-confirm="Are you sure?"
           >
             Delete
@@ -67,20 +69,20 @@ defmodule SDWeb.AccountLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    account = Accounts.get_account(id) |> Repo.preload(:tiers)
+    account = Accounts.get_account(id) |> Repo.preload(:tenants)
 
     {:ok,
      socket
      |> assign(:page_title, "Show Account")
-     |> stream(:tiers, account.tiers)
+     |> stream(:tenants, account.tenants)
      |> assign(:account, account)}
   end
 
   @impl true
-  def handle_event("delete_tier", %{"tier_id" => tier_id}, socket) do
-    tier = SD.Tiers.get_tier(tier_id)
-    {:ok, _} = SD.Tiers.delete_tier(tier)
+  def handle_event("delete_tenant", %{"tenant_id" => tenant_id}, socket) do
+    tenant = SD.Tenants.get_tenant(tenant_id)
+    {:ok, _} = SD.Tenants.delete_tenant(tenant)
 
-    {:noreply, stream_delete(socket, :tiers, tier)}
+    {:noreply, stream_delete(socket, :tenants, tenant)}
   end
 end
