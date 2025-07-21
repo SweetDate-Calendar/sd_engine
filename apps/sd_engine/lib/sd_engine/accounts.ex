@@ -316,23 +316,23 @@ defmodule SD.Accounts do
     AccountUser.changeset(user, attrs)
   end
 
-  alias SD.Tiers.Tier
+  alias SD.Tenants.Tenant
 
   @doc """
-  Creates a tier.
+  Creates a tenant.
 
   ## Examples
 
-      iex> create_tier(%{field: value})
-      {:ok, %Tier{}}
+      iex> create_tenant(%{field: value})
+      {:ok, %Tenant{}}
 
-      iex> create_tier(%{field: bad_value})
+      iex> create_tenant(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_tier(attrs) do
-    %Tier{}
-    |> Tier.changeset(attrs)
+  def create_tenant(attrs) do
+    %Tenant{}
+    |> Tenant.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -346,8 +346,8 @@ defmodule SD.Accounts do
   """
   def list_calendars(%SD.Accounts.Account{id: account_id}) do
     from(c in SD.Calendars.Calendar,
-      join: t in SD.Tiers.Tier,
-      on: c.tier_id == t.id,
+      join: t in SD.Tenants.Tenant,
+      on: c.tenant_id == t.id,
       where: t.account_id == ^account_id,
       select: c
     )

@@ -138,32 +138,38 @@ defmodule SD.AccountsTest do
     end
   end
 
-  describe "tiers" do
-    test "create_tier/1 with valid data creates a tier" do
+  describe "tenants" do
+    test "create_tenant/1 with valid data creates a tenant" do
       account = account_fixture()
 
       valid_attrs = %{name: "some name", account_id: account.id}
 
-      assert {:ok, %SD.Tiers.Tier{} = tier} = Accounts.create_tier(valid_attrs)
-      assert tier.name == "some name"
+      assert {:ok, %SD.Tenants.Tenant{} = tenant} = Accounts.create_tenant(valid_attrs)
+      assert tenant.name == "some name"
     end
 
-    test "create_tier/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Accounts.create_tier(%{name: nil, account_id: nil})
+    test "create_tenant/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_tenant(%{name: nil, account_id: nil})
     end
   end
 
   describe "calendars" do
     test "list_calendars/1 returns a list of calendars" do
       account = account_fixture()
-      tier_a = SD.TiersFixtures.tier_fixture(%{account_id: account.id})
-      calendar_a = SD.CalendarsFixtures.calendar_fixture(%{tier_id: tier_a.id})
-      tier_b = SD.TiersFixtures.tier_fixture(%{account_id: account.id})
-      calendar_b = SD.CalendarsFixtures.calendar_fixture(%{tier_id: tier_b.id})
+      tenant_a = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
+      calendar_a = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_a.id})
+      tenant_b = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
+      calendar_b = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_b.id})
 
-      tier_c = SD.TiersFixtures.tier_fixture()
-      _calendar_c = SD.CalendarsFixtures.calendar_fixture(%{tier_id: tier_c.id})
-      assert SD.Accounts.list_calendars(account) == [calendar_a, calendar_b]
+      tenant_c = SD.TenantsFixtures.tenant_fixture()
+      _calendar_c = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_c.id})
+
+      calendars = SD.Accounts.list_calendars(account)
+
+      calendar_ids = Enum.map(calendars, & &1.id)
+      expected_ids = [calendar_a.id, calendar_b.id]
+
+      assert MapSet.new(calendar_ids) == MapSet.new(expected_ids)
     end
   end
 end

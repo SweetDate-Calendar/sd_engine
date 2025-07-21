@@ -1,48 +1,48 @@
-defmodule SD.TiersTest do
+defmodule SD.TenantsTest do
   use SD.DataCase
 
-  alias SD.Tiers
+  alias SD.Tenants
 
-  describe "tiers" do
-    alias SD.Tiers.Tier
+  describe "tenants" do
+    alias SD.Tenants.Tenant
 
-    import SD.TiersFixtures
+    import SD.TenantsFixtures
 
     @invalid_attrs %{name: nil}
 
-    test "list_tiers/0 returns all tiers" do
-      tier = tier_fixture()
-      assert Tiers.list_tiers() == [tier]
+    test "list_tenants/0 returns all tenants" do
+      tenant = tenant_fixture()
+      assert Tenants.list_tenants() == [tenant]
     end
 
-    test "get_tier!/1 returns the tier with given id" do
-      tier = tier_fixture()
-      assert Tiers.get_tier(tier.id) == tier
+    test "get_tenant!/1 returns the tenant with given id" do
+      tenant = tenant_fixture()
+      assert Tenants.get_tenant(tenant.id) == tenant
     end
 
-    test "update_tier/2 with valid data updates the tier" do
-      tier = tier_fixture()
+    test "update_tenant/2 with valid data updates the tenant" do
+      tenant = tenant_fixture()
       update_attrs = %{name: "some updated name"}
 
-      assert {:ok, %Tier{} = tier} = Tiers.update_tier(tier, update_attrs)
-      assert tier.name == "some updated name"
+      assert {:ok, %Tenant{} = tenant} = Tenants.update_tenant(tenant, update_attrs)
+      assert tenant.name == "some updated name"
     end
 
-    test "update_tier/2 with invalid data returns error changeset" do
-      tier = tier_fixture()
-      assert {:error, %Ecto.Changeset{}} = Tiers.update_tier(tier, @invalid_attrs)
-      assert tier == Tiers.get_tier(tier.id)
+    test "update_tenant/2 with invalid data returns error changeset" do
+      tenant = tenant_fixture()
+      assert {:error, %Ecto.Changeset{}} = Tenants.update_tenant(tenant, @invalid_attrs)
+      assert tenant == Tenants.get_tenant(tenant.id)
     end
 
-    test "delete_tier/1 deletes the tier" do
-      tier = tier_fixture()
-      assert {:ok, %Tier{}} = Tiers.delete_tier(tier)
-      refute Tiers.get_tier(tier.id)
+    test "delete_tenant/1 deletes the tenant" do
+      tenant = tenant_fixture()
+      assert {:ok, %Tenant{}} = Tenants.delete_tenant(tenant)
+      refute Tenants.get_tenant(tenant.id)
     end
 
-    test "change_tier/1 returns a tier changeset" do
-      tier = tier_fixture()
-      assert %Ecto.Changeset{} = Tiers.change_tier(tier)
+    test "change_tenant/1 returns a tenant changeset" do
+      tenant = tenant_fixture()
+      assert %Ecto.Changeset{} = Tenants.change_tenant(tenant)
     end
   end
 end

@@ -1,4 +1,4 @@
-defmodule SDWeb.TierLive.Show do
+defmodule SDWeb.TenantLive.Show do
   use SDWeb, :live_view
 
   @impl true
@@ -6,34 +6,37 @@ defmodule SDWeb.TierLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        Tier {@tier.id}
+        Tenant {@tenant.id}
         <:actions>
-          <.button navigate={~p"/accounts/#{@tier.account}"}>
+          <.button navigate={~p"/accounts/#{@tenant.account}"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button
             variant="primary"
-            id={"edit-tier-#{@tier.id}"}
-            navigate={~p"/accounts/#{@tier.account}/tiers/#{@tier}/edit?return_to=show_tier"}
+            id={"edit-tenant-#{@tenant.id}"}
+            navigate={~p"/accounts/#{@tenant.account}/tenants/#{@tenant}/edit?return_to=show_tenant"}
           >
-            <.icon name="hero-pencil-square" /> Edit tier
+            <.icon name="hero-pencil-square" /> Edit tenant
           </.button>
 
-          <.button variant="primary" navigate={~p"/tiers/#{@tier}/calendars/new?return_to=show_tier"}>
+          <.button
+            variant="primary"
+            navigate={~p"/tenants/#{@tenant}/calendars/new?return_to=show_tenant"}
+          >
             <.icon name="hero-plus" /> New Calendar
           </.button>
         </:actions>
       </.header>
 
       <.list>
-        <:item title="Name">{@tier.name}</:item>
+        <:item title="Name">{@tenant.name}</:item>
       </.list>
       Calendars
       <.table
         id="calendars"
         rows={@streams.calendars}
         row_click={
-          fn {_id, calendar} -> JS.navigate(~p"/tiers/#{@tier.id}/calendars/#{calendar}") end
+          fn {_id, calendar} -> JS.navigate(~p"/tenants/#{@tenant.id}/calendars/#{calendar}") end
         }
       >
         <:col :let={{_id, calendar}} label="Name">{calendar.name}</:col>
@@ -41,11 +44,13 @@ defmodule SDWeb.TierLive.Show do
         <:col :let={{_id, calendar}} label="Visibility">{calendar.visibility}</:col>
         <:action :let={{_id, calendar}}>
           <div class="sr-only">
-            <.link navigate={~p"/tiers/#{calendar.tier_id}/calendars/#{calendar}"}>Show</.link>
+            <.link navigate={~p"/tenants/#{calendar.tenant_id}/calendars/#{calendar}"}>Show</.link>
           </div>
           <.link
             id={"edit-calendar-#{calendar.id}"}
-            navigate={~p"/tiers/#{calendar.tier_id}/calendars/#{calendar}/edit?return_to=show_tier"}
+            navigate={
+              ~p"/tenants/#{calendar.tenant_id}/calendars/#{calendar}/edit?return_to=show_tenant"
+            }
           >
             Edit
           </.link>
@@ -67,13 +72,13 @@ defmodule SDWeb.TierLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    tier = SD.Tiers.get_tier(id) |> SD.Repo.preload([:calendars, :account])
+    tenant = SD.Tenants.get_tenant(id) |> SD.Repo.preload([:calendars, :account])
 
     {:ok,
      socket
-     |> assign(:page_title, "Show Tier")
-     |> stream(:calendars, tier.calendars)
-     |> assign(:tier, tier)}
+     |> assign(:page_title, "Show Tenant")
+     |> stream(:calendars, tenant.calendars)
+     |> assign(:tenant, tenant)}
   end
 
   @impl true

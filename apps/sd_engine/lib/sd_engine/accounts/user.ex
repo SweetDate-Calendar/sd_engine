@@ -13,10 +13,10 @@ defmodule SD.Accounts.User do
       on_replace: :delete,
       join_keys: [user_id: :id, account_id: :id]
 
-    many_to_many :tiers, SD.Tiers.Tier,
-      join_through: "tier_users",
+    many_to_many :tenants, SD.Tenants.Tenant,
+      join_through: "tenant_users",
       on_replace: :delete,
-      join_keys: [user_id: :id, tier_id: :id]
+      join_keys: [user_id: :id, tenant_id: :id]
 
     many_to_many :calendars, SD.Calendars.Calendar,
       join_through: "calendar_users",

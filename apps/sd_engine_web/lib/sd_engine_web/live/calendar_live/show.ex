@@ -10,13 +10,13 @@ defmodule SDWeb.CalendarLive.Show do
       <.header>
         Calendar {@calendar.id}
         <:actions>
-          <.button navigate={~p"/accounts/#{@calendar.tier.account}/tiers/#{@calendar.tier}"}>
+          <.button navigate={~p"/accounts/#{@calendar.tenant.account}/tenants/#{@calendar.tenant}"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button
             variant="primary"
             navigate={
-              ~p"/tiers/#{@calendar.tier_id}/calendars/#{@calendar}/edit?return_to=show_calendar"
+              ~p"/tenants/#{@calendar.tenant_id}/calendars/#{@calendar}/edit?return_to=show_calendar"
             }
           >
             <.icon name="hero-pencil-square" /> Edit calendar
@@ -72,7 +72,7 @@ defmodule SDWeb.CalendarLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, tier: [:account]])
+    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, tenant: [:account]])
 
     {:ok,
      socket

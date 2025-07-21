@@ -9,8 +9,8 @@ defmodule SDWeb.AccountLiveTest do
   @invalid_attrs %{name: nil}
   defp create_account(_) do
     account = account_fixture()
-    _tier = SD.TiersFixtures.tier_fixture(%{account_id: account.id})
-    _tier = SD.TiersFixtures.tier_fixture(%{account_id: account.id})
+    _tenant = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
+    _tenant = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
 
     %{account: account}
   end
@@ -122,85 +122,88 @@ defmodule SDWeb.AccountLiveTest do
     end
   end
 
-  describe "Account tiers" do
+  describe "Account tenants" do
     setup [:create_account, :log_in_admin]
 
-    test "lists all tiers", %{conn: conn, account: account} do
+    test "lists all tenants", %{conn: conn, account: account} do
       account =
         account
-        |> SD.Repo.preload(:tiers)
+        |> SD.Repo.preload(:tenants)
 
       {:ok, _index_live, html} = live(conn, ~p"/accounts/#{account}")
 
-      assert html =~ "Tiers"
+      assert html =~ "Tenants"
 
-      for tier <- account.tiers do
-        assert html =~ tier.name
+      for tenant <- account.tenants do
+        assert html =~ tenant.name
       end
     end
 
-    test "saves new tier", %{conn: conn, account: account} do
+    test "saves new tenant", %{conn: conn, account: account} do
       {:ok, index_live, _html} = live(conn, ~p"/accounts/#{account.id}")
 
       assert {:ok, form_live, _} =
                index_live
-               |> element("a", "New Tier")
+               |> element("a", "New Tenant")
                |> render_click()
                |> follow_redirect(
                  conn,
-                 ~p"/accounts/#{account.id}/tiers/new?return_to=show_account"
+                 ~p"/accounts/#{account.id}/tenants/new?return_to=show_account"
                )
 
-      assert render(form_live) =~ "New Tier"
+      assert render(form_live) =~ "New Tenant"
 
       assert form_live
-             |> form("#tier-form", tier: %{account_id: nil, name: nil})
+             |> form("#tenant-form", tenant: %{account_id: nil, name: nil})
              |> render_change() =~ "can&#39;t be blank"
 
       assert {:ok, index_live, _html} =
                form_live
-               |> form("#tier-form", tier: %{account_id: account.id, name: "some new tier name"})
+               |> form("#tenant-form",
+                 tenant: %{account_id: account.id, name: "some new tenant name"}
+               )
                |> render_submit()
                |> follow_redirect(conn, ~p"/accounts/#{account.id}")
 
       html = render(index_live)
-      assert html =~ "Tier created successfully"
-      assert html =~ "some new tier name"
+      assert html =~ "Tenant created successfully"
+      assert html =~ "some new tenant name"
     end
 
-    test "deletes tier in listing", %{conn: conn, account: account} do
-      tier = SD.TiersFixtures.tier_fixture(%{account_id: account.id, name: "Tier to delete"})
+    test "deletes tenant in listing", %{conn: conn, account: account} do
+      tenant =
+        SD.TenantsFixtures.tenant_fixture(%{account_id: account.id, name: "Tenant to delete"})
 
       {:ok, index_live, _html} = live(conn, ~p"/accounts/#{account}")
 
-      assert index_live |> element("#tiers-#{tier.id} a", "Delete") |> render_click()
+      assert index_live |> element("#tenants-#{tenant.id} a", "Delete") |> render_click()
 
-      refute has_element?(index_live, "#tiers-#{tier.id}")
+      refute has_element?(index_live, "#tenants-#{tenant.id}")
     end
 
-    test "updates tier", %{conn: conn, account: account} do
-      tier = SD.TiersFixtures.tier_fixture(%{account_id: account.id, name: "Edit me"})
+    test "updates tenant", %{conn: conn, account: account} do
+      tenant = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id, name: "Edit me"})
       {:ok, show_live, _html} = live(conn, ~p"/accounts/#{account}")
 
       assert {:ok, form_live, _} =
                show_live
-               |> element("#edit-tier-#{tier.id}")
+               |> element("#edit-tenant-#{tenant.id}")
                |> render_click()
                |> follow_redirect(
                  conn,
-                 ~p"/accounts/#{account.id}/tiers/#{tier}/edit?return_to=show_account"
+                 ~p"/accounts/#{account.id}/tenants/#{tenant}/edit?return_to=show_account"
                )
 
-      assert render(form_live) =~ "Edit Tier"
+      assert render(form_live) =~ "Edit Tenant"
 
       assert form_live
-             |> form("#tier-form", tier: %{account_id: nil, name: nil})
+             |> form("#tenant-form", tenant: %{account_id: nil, name: nil})
              |> render_change() =~ "can&#39;t be blank"
 
       assert {:ok, show_live, _html} =
                form_live
-               |> form("#tier-form",
-                 tier: %{account_id: account.id, name: "some updated tier name"}
+               |> form("#tenant-form",
+                 tenant: %{account_id: account.id, name: "some updated tenant name"}
                )
                |> render_submit()
                |> follow_redirect(
@@ -209,8 +212,8 @@ defmodule SDWeb.AccountLiveTest do
                )
 
       html = render(show_live)
-      assert html =~ "Tier updated successfully"
-      assert html =~ "some updated tier name"
+      assert html =~ "Tenant updated successfully"
+      assert html =~ "some updated tenant name"
     end
   end
 end

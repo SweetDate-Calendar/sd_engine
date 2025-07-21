@@ -9,7 +9,7 @@ defmodule SD.Accounts.Account do
   schema "accounts" do
     field :name, :string
 
-    has_many :tiers, SD.Tiers.Tier
+    has_many :tenants, SD.Tenants.Tenant
 
     many_to_many :users, SD.Accounts.User,
       join_through: "account_users",

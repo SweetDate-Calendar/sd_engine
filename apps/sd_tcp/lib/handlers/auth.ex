@@ -67,7 +67,7 @@ defmodule SDTCP.Handlers.Auth do
   #   %{
   #     id: auth.id,
   #     secret_key_id: auth.secret_key_id,
-  #     tier: to_string(auth.tier),
+  #     tenant: to_string(auth.tenant),
   #     active: auth.active,
   #     metadata: auth.metadata,
   #     account_id: auth.account_id

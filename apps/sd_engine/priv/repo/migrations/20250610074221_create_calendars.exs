@@ -7,11 +7,11 @@ defmodule SD.Repo.Migrations.CreateCalendars do
       add :name, :string
       add :color_theme, :string, default: "default"
       add :visibility, :string, default: "public"
-      add :tier_id, references(:tiers, on_delete: :delete_all, type: :binary_id), null: false
+      add :tenant_id, references(:tenants, on_delete: :delete_all, type: :binary_id), null: false
 
       timestamps()
     end
 
-    create index(:calendars, [:tier_id])
+    create index(:calendars, [:tenant_id])
   end
 end

@@ -10,7 +10,9 @@ defmodule SDWeb.EventLive.Show do
       <.header>
         Event {@event.id}
         <:actions>
-          <.button navigate={~p"/tiers/#{@event.calendar.tier_id}/calendars/#{@event.calendar_id}"}>
+          <.button navigate={
+            ~p"/tenants/#{@event.calendar.tenant_id}/calendars/#{@event.calendar_id}"
+          }>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button

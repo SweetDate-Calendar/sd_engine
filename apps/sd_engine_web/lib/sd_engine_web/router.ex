@@ -31,19 +31,19 @@ defmodule SDWeb.Router do
     live "/accounts/new", AccountLive.Form, :new
     live "/accounts/:id", AccountLive.Show, :show
     live "/accounts/:id/edit", AccountLive.Form, :edit
-    live "/accounts/:account_id/tiers/new", TierLive.Form, :new
-    live "/accounts/:account_id/tiers/:id", TierLive.Show, :show
-    live "/accounts/:account_id/tiers/:id/edit", TierLive.Form, :edit
+    live "/accounts/:account_id/tenants/new", TenantLive.Form, :new
+    live "/accounts/:account_id/tenants/:id", TenantLive.Show, :show
+    live "/accounts/:account_id/tenants/:id/edit", TenantLive.Form, :edit
 
     live "/users", UserLive.Index, :index
     live "/users/new", UserLive.Form, :new
     live "/users/:id", UserLive.Show, :show
     live "/users/:id/edit", UserLive.Form, :edit
 
-    # live "/tiers/:tier_id/calendars", CalendarLive.Index, :index
-    live "/tiers/:tier_id/calendars/new", CalendarLive.Form, :new
-    live "/tiers/:tier_id/calendars/:id", CalendarLive.Show, :show
-    live "/tiers/:tier_id/calendars/:id/edit", CalendarLive.Form, :edit
+    # live "/tenants/:tenant_id/calendars", CalendarLive.Index, :index
+    live "/tenants/:tenant_id/calendars/new", CalendarLive.Form, :new
+    live "/tenants/:tenant_id/calendars/:id", CalendarLive.Show, :show
+    live "/tenants/:tenant_id/calendars/:id/edit", CalendarLive.Form, :edit
 
     # live "/calendars/:calendar_id/events", EventLive.Index, :index
     live "/calendars/:calendar_id/events/new", EventLive.Form, :new

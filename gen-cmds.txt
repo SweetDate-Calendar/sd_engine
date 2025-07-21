@@ -8,12 +8,12 @@ mix phx.gen.schema Accounts.AccountUser account_users \
   user_id:references:users account_id:references:accounts role:string
 
 
-Tiers
-mix phx.gen.live Tiers Tier tiers name:string \
+Tenants
+mix phx.gen.live Tenants Tenant tenants name:string \
 account_id:references:accounts
 
-mix phx.gen.schema Tiers.TierUser tier_users \
-  tier_id:references:tier \
+mix phx.gen.schema Tenants.TenantUser tenant_users \
+  tenant_id:references:tenant \
   user_id:references:users  role:string 
 
 Calendar

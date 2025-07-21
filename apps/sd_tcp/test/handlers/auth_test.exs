@@ -6,7 +6,7 @@ defmodule SDTCP.Handlers.AuthTest do
   #   "provisioning_key" => System.get_env("CLP_PROVISIONING_KEY"),
   #   "secret_key_id" => "test-client-123",
   #   "secret_key" => "supersecretkey",
-  #   "tier" => "pro",
+  #   "tenant" => "pro",
   #   "active" => "true",
   #   "account_id" => "6ccd5251-8b8e-4fd9-ac42-2452e66100c2",
   #   "metadata" => %{"role" => "test"}
@@ -17,7 +17,7 @@ defmodule SDTCP.Handlers.AuthTest do
   #   assert response["status"] == "ok"
 
   #   auth = CP.Auth.get_by_key("test-client-123", "supersecretkey")
-  #   assert auth.tier == :pro
+  #   assert auth.tenant == :pro
   #   assert auth.active
   #   assert auth.metadata["role"] == "test"
   # end
