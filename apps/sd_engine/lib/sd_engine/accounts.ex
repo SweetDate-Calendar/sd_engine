@@ -335,22 +335,4 @@ defmodule SD.Accounts do
     |> Tenant.changeset(attrs)
     |> Repo.insert()
   end
-
-  @doc """
-  List calendars
-
-  ## Example
-      iex> list_calendars(account)
-      [%Calendar{}, ...]
-
-  """
-  def list_calendars(%SD.Accounts.Account{id: account_id}) do
-    from(c in SD.Calendars.Calendar,
-      join: t in SD.Tenants.Tenant,
-      on: c.tenant_id == t.id,
-      where: t.account_id == ^account_id,
-      select: c
-    )
-    |> Repo.all()
-  end
 end

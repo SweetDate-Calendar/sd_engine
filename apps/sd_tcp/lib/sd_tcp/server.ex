@@ -69,16 +69,22 @@ defmodule SDTCP.Server do
     end
   end
 
-  defp authorized?(%{"sweet_date_account_id" => id, "access_key" => key}) do
-    config = Application.get_env(:sd_engine, :tcp, %{})
-    id == config[:sweet_date_account_id] && key == config[:sweet_access_api_key]
+  defp authorized?(%{"account_id" => id, "api_secret" => api_secret}) do
+    case SD.Accounts.get_account(id) do
+      %SD.Accounts.Account{api_secret: ^api_secret} -> true
+      _ -> false
+    end
   end
 
-  defp authorized?(_), do: false
+  defp authorized?(_) do
+    false
+  end
+
+  # defp authorized?(_), do: false
 
   defp dispatch("PING", json), do: SDTCP.Handlers.Ping.dispatch(json)
   defp dispatch("ACCOUNTS." <> action, json), do: SDTCP.Handlers.Accounts.dispatch(action, json)
-  defp dispatch("TIERS." <> action, json), do: SDTCP.Handlers.Tenants.dispatch(action, json)
+  defp dispatch("TENANTS." <> action, json), do: SDTCP.Handlers.Tenants.dispatch(action, json)
 
   defp dispatch("CALENDARS." <> action, json),
     do: SDTCP.Handlers.Calendars.dispatch(action, json)

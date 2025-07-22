@@ -5,6 +5,7 @@ defmodule SD.Repo.Migrations.CreateAccounts do
     create table(:accounts, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :name, :string
+      add :api_secret, :string, null: false
 
       timestamps()
     end

@@ -1,11 +1,19 @@
 defmodule SDTCP.Handlers.PingTest do
-  use ExUnit.Case, async: false
-
+  use SDTCP.DataCase, async: false
   import SDTCP.TestHelper
+  import SD.AccountsFixtures
 
-  test "responds with pong on PING" do
-    assert %{"status" => "ok", "message" => "pong"} =
-             sd_send("PING|" <> Jason.encode!(authorize(%{})))
+  describe "authorized" do
+    setup do
+      account = authorized_account_fixture()
+
+      %{account: account}
+    end
+
+    test "responds with pong on PING" do
+      assert %{"status" => "ok", "message" => "pong"} =
+               sd_send("PING|" <> Jason.encode!(authorize(%{})))
+    end
   end
 
   test "responds with unauthorized" do
