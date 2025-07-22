@@ -7,7 +7,7 @@ defmodule SDTCP.Handlers.Tenants do
     case Jason.decode(json) do
       {:ok, attrs} ->
         case SD.Accounts.create_tenant(attrs) do
-          {:ok, cal} -> %{status: "ok", id: cal.id}
+          {:ok, tenant} -> %{status: "ok", tenant: tenant}
           {:error, cs} -> %{status: "error", errors: cs.errors}
         end
 

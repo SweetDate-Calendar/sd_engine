@@ -8,7 +8,8 @@ defmodule SDWeb.AccountLiveTest do
   @update_attrs %{name: "some updated name"}
   @invalid_attrs %{name: nil}
   defp create_account(_) do
-    account = account_fixture()
+    account = authorized_account_fixture()
+
     _tenant = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
     _tenant = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
 

@@ -18,6 +18,25 @@ defmodule SD.AccountsFixtures do
     account
   end
 
+  def authorized_account_fixture do
+    account_id = Application.get_env(:sd_engine, :tcp)[:sweet_date_account_id]
+    api_secret = Application.get_env(:sd_engine, :tcp)[:sweet_date_api_secret]
+
+    attrs =
+      %{
+        id: account_id,
+        api_secret: api_secret,
+        name: "Authorized account"
+      }
+
+    {:ok, account} =
+      %SD.Accounts.Account{}
+      |> SD.Accounts.Account.changeset(attrs)
+      |> SD.Repo.insert()
+
+    account
+  end
+
   @doc """
   Generate a user.
   """

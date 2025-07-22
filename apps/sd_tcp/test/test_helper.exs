@@ -7,7 +7,7 @@ Path.wildcard(Path.expand("support/**/*.exs", __DIR__))
 defmodule SDTCP.TestHelper do
   @moduledoc false
   @sweet_date_account_id Application.compile_env(:sd_engine, :tcp)[:sweet_date_account_id]
-  @sweet_access_api_key Application.compile_env(:sd_engine, :tcp)[:sweet_access_api_key]
+  @sweet_date_api_secret Application.compile_env(:sd_engine, :tcp)[:sweet_date_api_secret]
 
   def sd_send(message) do
     port = System.get_env("TCP_PORT") |> String.to_integer()
@@ -20,8 +20,8 @@ defmodule SDTCP.TestHelper do
 
   def authorize(data) when is_map(data) do
     Map.merge(data, %{
-      "sweet_date_account_id" => @sweet_date_account_id,
-      "access_key" => @sweet_access_api_key
+      "account_id" => @sweet_date_account_id,
+      "api_secret" => @sweet_date_api_secret
     })
   end
 end

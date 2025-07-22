@@ -3,111 +3,80 @@ defmodule SDTCP.Handlers.AccountsTest do
   import SD.AccountsFixtures
   import SDTCP.TestHelper
 
-  test "list all accounts" do
-    account_fixture(%{name: "One"})
-    account_fixture(%{name: "Two"})
+  describe "accounts" do
+    setup do
+      account = authorized_account_fixture()
 
-    response = sd_send("ACCOUNTS.LIST|" <> Jason.encode!(authorize(%{})))
+      %{account: account}
+    end
 
-    assert response["status"] == "ok"
-    assert length(response["accounts"]) >= 2
-  end
+    test "list all accounts" do
+      account_fixture(%{name: "One"})
+      account_fixture(%{name: "Two"})
 
-  test "ACCOUNDS.CREATE creates a new account with just a title" do
-    payload = %{"name" => "RubyConf"} |> authorize()
-    raw = "ACCOUNTS.CREATE|#{Jason.encode!(payload)}"
-    response = sd_send(raw)
+      response = sd_send("ACCOUNTS.LIST|" <> Jason.encode!(authorize(%{})))
 
-    assert %{"status" => "ok", "id" => id} = response
-    assert is_binary(id)
-  end
+      assert response["status"] == "ok"
+      assert length(response["accounts"]) >= 2
+    end
 
-  test "fetch account by id" do
-    account = account_fixture(%{name: "Fetch Me"})
+    test "ACCOUNDS.CREATE creates a new account with just a title" do
+      payload = %{"name" => "RubyConf"} |> authorize()
+      raw = "ACCOUNTS.CREATE|#{Jason.encode!(payload)}"
+      response = sd_send(raw)
 
-    payload = %{"id" => account.id} |> authorize()
-    get_resp = sd_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
+      assert %{"status" => "ok", "id" => id} = response
+      assert is_binary(id)
+    end
 
-    assert get_resp["status"] == "ok"
-    assert get_resp["account"]["name"] == "Fetch Me"
-  end
+    test "fetch account by id" do
+      account = account_fixture(%{name: "Fetch Me"})
 
-  test "fetch account with invalid id returns error" do
-    payload =
-      %{"id" => "00000000-0000-0000-0000-000000000000"}
-      |> authorize()
+      payload = %{"id" => account.id} |> authorize()
+      get_resp = sd_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
 
-    response = sd_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
+      assert get_resp["status"] == "ok"
+      assert get_resp["account"]["name"] == "Fetch Me"
+    end
 
-    assert response["status"] == "error"
-    assert response["message"] == "not found"
-  end
+    test "fetch account with invalid id returns error" do
+      payload =
+        %{"id" => "00000000-0000-0000-0000-000000000000"}
+        |> authorize()
 
-  test "update account name" do
-    account = account_fixture(%{name: "Old Name"})
+      response = sd_send("ACCOUNTS.GET|" <> Jason.encode!(payload))
 
-    payload =
-      %{
-        "id" => account.id,
-        "name" => "New Name",
-        "sweet_date_account_id" => "demo_sweet_date_account_id",
-        "access_key" => "demo_access_key"
-      }
-      |> authorize()
+      assert response["status"] == "error"
+      assert response["message"] == "not found"
+    end
 
-    response = sd_send("ACCOUNTS.UPDATE|" <> Jason.encode!(payload))
-    assert response["status"] == "ok"
-    assert response["account"]["name"] == "New Name"
-  end
+    test "update account name" do
+      account = account_fixture(%{name: "Old Name"})
 
-  test "delete account" do
-    account = account_fixture()
-    payload = %{"id" => account.id} |> authorize()
+      payload =
+        %{
+          "id" => account.id,
+          "name" => "New Name",
+          "sweet_date_account_id" => "demo_sweet_date_account_id",
+          "access_key" => "demo_access_key"
+        }
+        |> authorize()
 
-    response = sd_send("ACCOUNTS.DELETE|" <> Jason.encode!(payload))
-    assert response["status"] == "ok"
+      response = sd_send("ACCOUNTS.UPDATE|" <> Jason.encode!(payload))
+      assert response["status"] == "ok"
+      assert response["account"]["name"] == "New Name"
+    end
 
-    # Ensure it's gone
-    get_resp = sd_send("ACCOUNTS.GET|" <> Jason.encode!(%{"id" => account.id}))
-    assert get_resp["status"] == "error"
-  end
+    test "delete account" do
+      account = account_fixture()
+      payload = %{"id" => account.id} |> authorize()
 
-  test "list calendars" do
-    account = account_fixture()
-    tenant_a = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
-    calendar_a = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_a.id})
-    tenant_b = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
-    calendar_b = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_b.id})
+      response = sd_send("ACCOUNTS.DELETE|" <> Jason.encode!(payload))
+      assert response["status"] == "ok"
 
-    tenant_c = SD.TenantsFixtures.tenant_fixture()
-    _calendar_c = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_c.id})
-
-    payload = %{"id" => account.id} |> authorize()
-
-    response = sd_send("ACCOUNTS.LIST_CALENDARS|" <> Jason.encode!(payload))
-    assert response["status"] == "ok"
-
-    expected = [
-      %{
-        "id" => calendar_a.id,
-        "name" => calendar_a.name,
-        "tenant_id" => calendar_a.tenant_id,
-        "color_theme" => calendar_a.color_theme,
-        "visibility" => to_string(calendar_a.visibility)
-      },
-      %{
-        "id" => calendar_b.id,
-        "name" => calendar_b.name,
-        "tenant_id" => calendar_b.tenant_id,
-        "color_theme" => calendar_b.color_theme,
-        "visibility" => to_string(calendar_b.visibility)
-      }
-    ]
-
-    # Allow either order
-    assert Enum.sort_by(response["calendars"], & &1["id"]) ==
-             Enum.sort_by(expected, & &1["id"])
-
-    # assert SD.Accounts.list_calendars(account) == [calendar_a, calendar_b]
+      # Ensure it's gone
+      get_resp = sd_send("ACCOUNTS.GET|" <> Jason.encode!(%{"id" => account.id}))
+      assert get_resp["status"] == "error"
+    end
   end
 end

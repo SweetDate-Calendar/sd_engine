@@ -8,6 +8,7 @@ defmodule SD.Accounts.Account do
 
   schema "accounts" do
     field :name, :string
+    field :api_secret, :string
 
     has_many :tenants, SD.Tenants.Tenant
 
@@ -22,7 +23,23 @@ defmodule SD.Accounts.Account do
   @doc false
   def changeset(account, attrs) do
     account
-    |> cast(attrs, [:name])
+    |> cast(attrs, [:id, :name, :api_secret])
     |> validate_required([:name])
+    |> maybe_put_api_secret()
+  end
+
+  defp maybe_put_api_secret(changeset) do
+    case get_field(changeset, :api_secret) do
+      nil ->
+        put_change(changeset, :api_secret, generate_secret())
+
+      _ ->
+        changeset
+    end
+  end
+
+  defp generate_secret do
+    :crypto.strong_rand_bytes(32)
+    |> Base.encode64(padding: false)
   end
 end

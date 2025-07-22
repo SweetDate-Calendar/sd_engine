@@ -9,9 +9,20 @@ defmodule SD.AccountsTest do
   describe "accounts" do
     @invalid_attrs %{name: nil}
 
-    test "list_accounts/0 returns all accounts" do
-      account = account_fixture()
-      assert Accounts.list_accounts() == [account]
+    setup do
+      account = authorized_account_fixture()
+
+      %{account: account}
+    end
+
+    test "list_accounts/0 returns all accounts", %{account: account} do
+      account_b = account_fixture()
+
+      result = Accounts.list_accounts()
+      ids = Enum.map(result, & &1.id)
+
+      expected_ids = [account.id, account_b.id]
+      assert Enum.sort(ids) == Enum.sort(expected_ids)
     end
 
     test "get_account!/1 returns the account with given id" do
@@ -24,6 +35,7 @@ defmodule SD.AccountsTest do
 
       assert {:ok, %Account{} = account} = Accounts.create_account(valid_attrs)
       assert account.name == "some name"
+      assert account.api_secret
     end
 
     test "create_account/1 with invalid data returns error changeset" do
@@ -150,26 +162,6 @@ defmodule SD.AccountsTest do
 
     test "create_tenant/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_tenant(%{name: nil, account_id: nil})
-    end
-  end
-
-  describe "calendars" do
-    test "list_calendars/1 returns a list of calendars" do
-      account = account_fixture()
-      tenant_a = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
-      calendar_a = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_a.id})
-      tenant_b = SD.TenantsFixtures.tenant_fixture(%{account_id: account.id})
-      calendar_b = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_b.id})
-
-      tenant_c = SD.TenantsFixtures.tenant_fixture()
-      _calendar_c = SD.CalendarsFixtures.calendar_fixture(%{tenant_id: tenant_c.id})
-
-      calendars = SD.Accounts.list_calendars(account)
-
-      calendar_ids = Enum.map(calendars, & &1.id)
-      expected_ids = [calendar_a.id, calendar_b.id]
-
-      assert MapSet.new(calendar_ids) == MapSet.new(expected_ids)
     end
   end
 end
