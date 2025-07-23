@@ -10,9 +10,18 @@ defmodule SD.TenantsTest do
 
     @invalid_attrs %{name: nil}
 
-    test "list_tenants/0 returns all tenants" do
-      tenant = tenant_fixture()
-      assert Tenants.list_tenants() == [tenant]
+    setup do
+      account = SD.AccountsFixtures.authorized_account_fixture()
+      %{account: account}
+    end
+
+    test "list_tenants/0 returns all tenants", %{account: account} do
+      tenant = tenant_fixture(%{acclunt_id: account.id})
+      results = Tenants.list_tenants(tenant.account_id)
+
+      assert Enum.any?(results, fn t ->
+               t.id == tenant.id and t.name == tenant.name
+             end)
     end
 
     test "get_tenant!/1 returns the tenant with given id" do

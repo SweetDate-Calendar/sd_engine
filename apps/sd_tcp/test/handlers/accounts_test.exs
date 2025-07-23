@@ -25,7 +25,14 @@ defmodule SDTCP.Handlers.AccountsTest do
       raw = "ACCOUNTS.CREATE|#{Jason.encode!(payload)}"
       response = sd_send(raw)
 
-      assert %{"status" => "ok", "id" => id} = response
+      assert %{
+               "status" => "ok",
+               "account" => %{
+                 "id" => id,
+                 "name" => "RubyConf"
+               }
+             } = response
+
       assert is_binary(id)
     end
 

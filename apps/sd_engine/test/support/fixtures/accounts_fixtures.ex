@@ -19,7 +19,7 @@ defmodule SD.AccountsFixtures do
   end
 
   def authorized_account_fixture do
-    account_id = Application.get_env(:sd_engine, :tcp)[:sweet_date_account_id]
+    account_id = Application.get_env(:sd_engine, :tcp)[:sweet_date_api_key_id]
     api_secret = Application.get_env(:sd_engine, :tcp)[:sweet_date_api_secret]
 
     attrs =

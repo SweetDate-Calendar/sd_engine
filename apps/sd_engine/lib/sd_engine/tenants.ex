@@ -17,8 +17,15 @@ defmodule SD.Tenants do
       [%Tenant{}, ...]
 
   """
-  def list_tenants do
-    Repo.all(Tenant)
+  def list_tenants(account_id) do
+    from(t in Tenant,
+      where: t.account_id == ^account_id,
+      select: %{
+        id: t.id,
+        name: t.name
+      }
+    )
+    |> Repo.all()
   end
 
   @doc """

@@ -46,7 +46,7 @@ defmodule SDTCP.Server do
         case Jason.decode(json) do
           {:ok, payload} ->
             if authorized?(payload) do
-              response = dispatch(command, json)
+              response = dispatch(command, payload)
               :gen_tcp.send(socket, Jason.encode!(response) <> "\n")
             else
               :gen_tcp.send(
@@ -69,9 +69,12 @@ defmodule SDTCP.Server do
     end
   end
 
-  defp authorized?(%{"account_id" => id, "api_secret" => api_secret}) do
+  defp authorized?(%{
+         "sweet_date_api_key_id" => id,
+         "sweet_date_api_secret" => sweet_date_api_secret
+       }) do
     case SD.Accounts.get_account(id) do
-      %SD.Accounts.Account{api_secret: ^api_secret} -> true
+      %SD.Accounts.Account{api_secret: ^sweet_date_api_secret} -> true
       _ -> false
     end
   end

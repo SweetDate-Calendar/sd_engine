@@ -39,8 +39,8 @@ config :phoenix_live_view,
 
 config :sd_engine, :tcp,
   port: String.to_integer(System.get_env("TCP_PORT") || "5050"),
-  sweet_date_account_id:
-    System.get_env("SWEET_DATE_ACCOUNT_ID") || "99eccb44-2b95-489e-8445-99f47aa45262",
+  sweet_date_api_key_id:
+    System.get_env("SWEET_DATE_API_KEY_ID") || "99eccb44-2b95-489e-8445-99f47aa45262",
   sweet_date_api_secret:
     System.get_env("SWEET_DATE_API_SECRET") ||
       "7Xp6HIex5rcxRBELL9ZVhYVb_ZPQE_3lbxKweXpVJow"

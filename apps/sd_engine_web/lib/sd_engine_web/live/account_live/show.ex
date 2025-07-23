@@ -33,6 +33,8 @@ defmodule SDWeb.AccountLive.Show do
 
       <.list>
         <:item title="Name">{@account.name}</:item>
+        <:item title="SWEETDATE_API_KEY_ID">{@account.id}</:item>
+        <:item title="SWEETDATE_API_SECRET">{@account.api_secret}</:item>
       </.list>
       Tenants
       <.table
@@ -69,6 +71,7 @@ defmodule SDWeb.AccountLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket), do: Phoenix.PubSub.subscribe(SD.PubSub, "account:#{id}")
     account = Accounts.get_account(id) |> Repo.preload(:tenants)
 
     {:ok,
@@ -83,6 +86,19 @@ defmodule SDWeb.AccountLive.Show do
     tenant = SD.Tenants.get_tenant(tenant_id)
     {:ok, _} = SD.Tenants.delete_tenant(tenant)
 
+    {:noreply, stream_delete(socket, :tenants, tenant)}
+  end
+
+  @impl true
+  def handle_info({:tenant_created, %{tenant: tenant}}, socket) do
+    {:noreply, stream_insert(socket, :tenants, tenant)}
+  end
+
+  def handle_info({:tenant_updated, %{tenant: tenant}}, socket) do
+    {:noreply, stream_insert(socket, :tenants, tenant)}
+  end
+
+  def handle_info({:tenant_deleted, %{tenant: tenant}}, socket) do
     {:noreply, stream_delete(socket, :tenants, tenant)}
   end
 end

@@ -1,55 +1,73 @@
 defmodule SDTCP.Handlers.Tenants do
-  def dispatch("LIST", _json) do
-    %{status: "ok", tenants: SD.Tenants.list_tenants()}
+  import SDTCP.Handlers.Helpers, only: [format_errors: 1]
+
+  def dispatch("LIST", payload) do
+    tenants =
+      case payload["sweet_date_account_id"] do
+        nil -> []
+        account_id -> SD.Tenants.list_tenants(account_id)
+      end
+
+    %{status: "ok", tenants: tenants}
   end
 
-  def dispatch("CREATE", json) do
-    case Jason.decode(json) do
-      {:ok, attrs} ->
-        case SD.Accounts.create_tenant(attrs) do
-          {:ok, tenant} -> %{status: "ok", tenant: tenant}
-          {:error, cs} -> %{status: "error", errors: cs.errors}
-        end
+  def dispatch("CREATE", %{"sweet_date_api_key_id" => account_id, "name" => name}) do
+    case SD.Accounts.create_tenant(%{account_id: account_id, name: name}) do
+      {:ok, %SD.Tenants.Tenant{} = tenant} ->
+        Phoenix.PubSub.broadcast(
+          SD.PubSub,
+          "account:#{account_id}",
+          {:tenant_created, %{tenant: tenant}}
+        )
 
-      _ ->
-        %{status: "error", message: "invalid json"}
+        %{status: "ok", tenant: tenant}
+
+      {:error, ch} ->
+        %{status: "error", message: format_errors(ch.errors)}
     end
   end
 
-  def dispatch("GET", json) do
-    case Jason.decode(json) do
-      {:ok, %{"id" => id}} ->
-        case SD.Tenants.get_tenant(id) do
-          %SD.Tenants.Tenant{} = tenant ->
-            %{status: "ok", tenant: %{"id" => tenant.id, "name" => tenant.name}}
+  def dispatch("GET", %{"id" => id}) when is_binary(id) do
+    case SD.Tenants.get_tenant(id) do
+      %SD.Tenants.Tenant{} = tenant ->
+        %{status: "ok", tenant: tenant}
 
-          nil ->
-            %{status: "error", message: "not found"}
-        end
-
-      _ ->
-        %{status: "error", message: "invalid json"}
+      nil ->
+        %{status: "error", message: "not found"}
     end
   end
 
-  def dispatch("UPDATE", json) do
-    with {:ok, %{"id" => id} = attrs} <- Jason.decode(json),
-         cal <- SD.Tenants.get_tenant(id),
-         {:ok, updated} <- SD.Tenants.update_tenant(cal, attrs) do
-      %{status: "ok", tenant: updated}
+  def dispatch("UPDATE", %{"id" => id, "name" => name}) do
+    with %SD.Tenants.Tenant{} = tenant <- SD.Tenants.get_tenant(id),
+         {:ok, tenant} <- SD.Tenants.update_tenant(tenant, %{name: name}) do
+      Phoenix.PubSub.broadcast(
+        SD.PubSub,
+        "account:#{tenant.account_id}",
+        {:tenant_updated, %{tenant: tenant}}
+      )
+
+      %{status: "ok", tenant: tenant}
     else
-      {:error, changeset} -> %{status: "error", errors: changeset.errors}
-      _ -> %{status: "error", message: "invalid input or not found"}
+      _ -> %{status: "error", message: "not found or failed to update"}
     end
   end
 
-  def dispatch("DELETE", json) do
-    with {:ok, %{"id" => id}} <- Jason.decode(json),
-         cal <- SD.Tenants.get_tenant(id),
-         {:ok, _} <- SD.Tenants.delete_tenant(cal) do
-      %{status: "ok"}
+  def dispatch("DELETE", %{"id" => id}) when is_binary(id) do
+    with %SD.Tenants.Tenant{} = tenant <- SD.Tenants.get_tenant(id),
+         {:ok, tenant} <- SD.Tenants.delete_tenant(tenant) do
+      Phoenix.PubSub.broadcast(
+        SD.PubSub,
+        "account:#{tenant.account_id}",
+        {:tenant_deleted, %{tenant: tenant}}
+      )
+
+      %{status: "ok", tenant: tenant}
     else
       _ -> %{status: "error", message: "not found or failed to delete"}
     end
+  end
+
+  def dispatch(_, _) do
+    %{status: "error", message: "Invalid payload"}
   end
 end
