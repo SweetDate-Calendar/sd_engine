@@ -16,6 +16,8 @@ defmodule SDTCP.Handlers.CalendarsTest do
       calendar_fixture(%{name: "One", account_id: account_id})
       calendar_fixture(%{name: "Two", account_id: account_id})
 
+      authorize(%{})
+
       response = sd_send("CALENDARS.LIST|" <> Jason.encode!(authorize(%{})))
 
       assert response["status"] == "ok"
@@ -28,8 +30,19 @@ defmodule SDTCP.Handlers.CalendarsTest do
       raw = "CALENDARS.CREATE|#{Jason.encode!(payload)}"
       response = sd_send(raw)
 
-      assert %{"status" => "ok", "id" => id} = response
+      assert %{
+               "status" => "ok",
+               "calendar" => %{
+                 "color_theme" => nil,
+                 "id" => id,
+                 "name" => "RubyConf",
+                 "tenant_id" => tenant_id,
+                 "visibility" => "public"
+               }
+             } = response
+
       assert is_binary(id)
+      assert tenant_id == tenant.id
     end
 
     test "fetch calendar by id" do
@@ -62,8 +75,21 @@ defmodule SDTCP.Handlers.CalendarsTest do
         |> authorize()
 
       response = sd_send("CALENDARS.UPDATE|" <> Jason.encode!(payload))
-      assert response["status"] == "ok"
-      assert response["calendar"]["name"] == "New Name"
+
+      assert %{
+               "calendar" => %{
+                 "color_theme" => "some color_theme",
+                 "id" => id,
+                 "name" => "New Name",
+                 "tenant_id" => tenant_id,
+                 "visibility" => "public"
+               },
+               "status" => "ok"
+             } = response
+
+      assert is_binary(id)
+      assert is_binary(tenant_id)
+      assert calendar.tenant_id == tenant_id
     end
 
     test "delete calendar" do
@@ -71,6 +97,7 @@ defmodule SDTCP.Handlers.CalendarsTest do
       payload = %{"id" => calendar.id} |> authorize()
 
       response = sd_send("CALENDARS.DELETE|" <> Jason.encode!(payload))
+
       assert response["status"] == "ok"
 
       # Ensure it's gone

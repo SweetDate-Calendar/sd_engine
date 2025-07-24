@@ -11,11 +11,13 @@ defmodule SDTCP.Handlers.TenantsTest do
       %{account: account}
     end
 
-    test "list all tenants" do
-      tenant_fixture(%{name: "One"})
-      tenant_fixture(%{name: "Two"})
+    test "list all tenants", %{account: account} do
+      tenant_fixture(%{account_id: account.id, name: "One"})
+      tenant_fixture(%{account_id: account.id, name: "Two"})
 
-      response = sd_send("TENANTS.LIST|" <> Jason.encode!(authorize(%{})))
+      response =
+        sd_send("TENANTS.LIST|" <> Jason.encode!(authorize(%{sweet_date_account_id: account.id})))
+
       assert response["status"] == "ok"
       assert length(response["tenants"]) >= 2
     end
@@ -48,10 +50,10 @@ defmodule SDTCP.Handlers.TenantsTest do
         %{"id" => tenant.id}
         |> authorize()
 
-      get_resp = sd_send("TENANTS.GET|" <> Jason.encode!(payload))
+      response = sd_send("TENANTS.GET|" <> Jason.encode!(payload))
 
-      assert get_resp["status"] == "ok"
-      assert get_resp["tenant"]["name"] == "Fetch Me"
+      assert response["status"] == "ok"
+      assert response["tenant"]["name"] == "Fetch Me"
     end
 
     test "fetch tenant with invalid id returns error" do
@@ -65,8 +67,8 @@ defmodule SDTCP.Handlers.TenantsTest do
       assert response["message"] == "not found"
     end
 
-    test "update tenant name" do
-      tenant = tenant_fixture(%{name: "Old Name"})
+    test "update tenant name", %{account: account} do
+      tenant = tenant_fixture(%{account_id: account.id, name: "Old Name"})
 
       payload =
         %{
