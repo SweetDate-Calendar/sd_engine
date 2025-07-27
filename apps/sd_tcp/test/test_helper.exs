@@ -18,7 +18,7 @@ defmodule SDTCP.TestHelper do
     Jason.decode!(response)
   end
 
-  def authorize(data) when is_map(data) do
+  def authorize(data) do
     Map.merge(data, %{
       "sweet_date_api_key_id" => @sweet_date_api_key_id,
       "sweet_date_api_secret" => @sweet_date_api_secret

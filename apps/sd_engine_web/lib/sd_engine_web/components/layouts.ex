@@ -41,11 +41,6 @@ defmodule SDWeb.Layouts do
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <li>
-            <.link href={~p"/accounts"} class="btn btn-ghost">
-              Accounts
-            </.link>
-          </li>
-          <li>
             <.link href={~p"/users"} class="btn btn-ghost">
               Users
             </.link>

@@ -1,20 +1,12 @@
 defmodule SDTCP.Handlers.CalendarsTest do
   use SDTCP.DataCase, async: false
   import SD.CalendarsFixtures
-  import SD.AccountsFixtures
   import SDTCP.TestHelper
 
   describe "calendars" do
-    setup do
-      account = authorized_account_fixture()
-
-      %{account: account}
-    end
-
     test "list all calendars" do
-      account_id = account_fixture().id
-      calendar_fixture(%{name: "One", account_id: account_id})
-      calendar_fixture(%{name: "Two", account_id: account_id})
+      calendar_fixture(%{name: "One"})
+      calendar_fixture(%{name: "Two"})
 
       authorize(%{})
 

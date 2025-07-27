@@ -50,7 +50,7 @@ defmodule SDWeb.Plugs.AdminAuthTest do
         |> put_session(:current_admin_id, "admin")
         |> AdminAuth.redirect_if_admin_is_authenticated([])
 
-      assert redirected_to(conn) == ~p"/accounts"
+      assert redirected_to(conn) == ~p"/tenants"
       assert conn.halted
     end
   end

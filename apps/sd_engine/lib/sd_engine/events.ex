@@ -122,7 +122,7 @@ defmodule SD.Events do
   end
 
   @doc """
-  Get an account user by ID.
+  Get an event_user by ID.
 
   ## Examples
 
@@ -135,7 +135,7 @@ defmodule SD.Events do
   def get_event_user!(id), do: Repo.get(EventUser, id)
 
   @doc """
-  List all account users.
+  List all event_users.
 
   ## Examples
 
@@ -145,7 +145,7 @@ defmodule SD.Events do
   def list_event_users, do: Repo.all(EventUser)
 
   @doc """
-  Update an account user.
+  Update an update_event_user.
 
   ## Examples
 
@@ -162,7 +162,7 @@ defmodule SD.Events do
   end
 
   @doc """
-  Delete an account user.
+  Delete an event user.
 
   ## Examples
 
@@ -172,7 +172,7 @@ defmodule SD.Events do
   def delete_event_user(%EventUser{} = user), do: Repo.delete(user)
 
   @doc """
-  Return an `%Ecto.Changeset{}` for tracking account user changes.
+  Return an `%Ecto.Changeset{}` for tracking event user changes.
   """
   def change_event_user(%EventUser{} = user, attrs \\ %{}) do
     EventUser.changeset(user, attrs)

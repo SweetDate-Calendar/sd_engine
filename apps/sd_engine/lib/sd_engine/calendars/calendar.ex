@@ -16,7 +16,7 @@ defmodule SD.Calendars.Calendar do
 
     belongs_to :tenant, SD.Tenants.Tenant, type: :binary_id
 
-    many_to_many :users, SD.Accounts.User,
+    many_to_many :users, SD.Users.User,
       join_through: "calendar_users",
       on_replace: :delete,
       join_keys: [calendar_id: :id, user_id: :id]

@@ -6,7 +6,7 @@ defmodule SD.Tenants.TenantUserTest do
   alias SD.Repo
 
   import SD.TenantsFixtures
-  import SD.AccountsFixtures
+  import SD.UsersFixtures
 
   describe "tenants_users join" do
     test "user can be added to tenant two times" do

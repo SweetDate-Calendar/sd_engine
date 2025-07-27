@@ -8,13 +8,10 @@ defmodule SDWeb.TenantLive.Show do
       <.header>
         Tenant {@tenant.id}
         <:actions>
-          <.button navigate={~p"/accounts/#{@tenant.account}"}>
-            <.icon name="hero-arrow-left" />
-          </.button>
           <.button
             variant="primary"
             id={"edit-tenant-#{@tenant.id}"}
-            navigate={~p"/accounts/#{@tenant.account}/tenants/#{@tenant}/edit?return_to=show_tenant"}
+            navigate={~p"/tenants/#{@tenant}/edit?return_to=show"}
           >
             <.icon name="hero-pencil-square" /> Edit tenant
           </.button>
@@ -72,7 +69,7 @@ defmodule SDWeb.TenantLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    tenant = SD.Tenants.get_tenant(id) |> SD.Repo.preload([:calendars, :account])
+    tenant = SD.Tenants.get_tenant(id) |> SD.Repo.preload([:calendars])
 
     {:ok,
      socket

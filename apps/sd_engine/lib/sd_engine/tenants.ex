@@ -17,15 +17,8 @@ defmodule SD.Tenants do
       [%Tenant{}, ...]
 
   """
-  def list_tenants(account_id) do
-    from(t in Tenant,
-      where: t.account_id == ^account_id,
-      select: %{
-        id: t.id,
-        name: t.name
-      }
-    )
-    |> Repo.all()
+  def list_tenants() do
+    Repo.all(Tenant)
   end
 
   @doc """
@@ -60,6 +53,24 @@ defmodule SD.Tenants do
     tenant
     |> Tenant.changeset(attrs)
     |> Repo.update()
+  end
+
+  @doc """
+  Creates a tenant.
+
+  ## Examples
+
+      iex> create_tenant(%{field: value})
+      {:ok, %Tenant{}}
+
+      iex> create_tenant(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_tenant(attrs) do
+    %Tenant{}
+    |> Tenant.changeset(attrs)
+    |> Repo.insert()
   end
 
   @doc """

@@ -5,8 +5,8 @@ defmodule SD.Events.EventUserTest do
   alias SD.Events
   alias SD.Repo
 
-  import SD.AccountsFixtures
   import SD.EventsFixtures
+  import SD.UsersFixtures
 
   describe "event_users join" do
     setup do

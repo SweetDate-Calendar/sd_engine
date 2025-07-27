@@ -6,10 +6,10 @@ defmodule SD.Calendars.CalendarUserTest do
   alias SD.Repo
 
   import SD.CalendarsFixtures
-  import SD.AccountsFixtures
+  import SD.UsersFixtures
 
-  describe "accounts_users join" do
-    test "user can be added to account two times" do
+  describe "calendar_users join" do
+    test "user can be added to calendar two times" do
       user = user_fixture()
       calendar = calendar_fixture()
 
@@ -19,7 +19,7 @@ defmodule SD.Calendars.CalendarUserTest do
                Calendars.create_calendar_user(calendar.id, user.id, :guest)
     end
 
-    test "user can be added to account and accessed from both sides" do
+    test "user can be added to calendar and accessed from both sides" do
       user = user_fixture()
       calendar = calendar_fixture()
 
@@ -47,7 +47,7 @@ defmodule SD.Calendars.CalendarUserTest do
              )
     end
 
-    test "deleting account removes account_user row" do
+    test "deleting calendar removes calendar_user row" do
       user = user_fixture()
       calendar = calendar_fixture()
 

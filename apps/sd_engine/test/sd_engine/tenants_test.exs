@@ -10,14 +10,9 @@ defmodule SD.TenantsTest do
 
     @invalid_attrs %{name: nil}
 
-    setup do
-      account = SD.AccountsFixtures.authorized_account_fixture()
-      %{account: account}
-    end
-
-    test "list_tenants/0 returns all tenants", %{account: account} do
-      tenant = tenant_fixture(%{acclunt_id: account.id})
-      results = Tenants.list_tenants(tenant.account_id)
+    test "list_tenants/0 returns all tenants" do
+      tenant = tenant_fixture()
+      results = Tenants.list_tenants()
 
       assert Enum.any?(results, fn t ->
                t.id == tenant.id and t.name == tenant.name
@@ -27,6 +22,17 @@ defmodule SD.TenantsTest do
     test "get_tenant!/1 returns the tenant with given id" do
       tenant = tenant_fixture()
       assert Tenants.get_tenant(tenant.id) == tenant
+    end
+
+    test "create_tenant/1 with valid data creates a tenant" do
+      valid_attrs = %{name: "some name"}
+
+      assert {:ok, %SD.Tenants.Tenant{} = tenant} = Tenants.create_tenant(valid_attrs)
+      assert tenant.name == "some name"
+    end
+
+    test "create_tenant/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Tenants.create_tenant(%{name: nil})
     end
 
     test "update_tenant/2 with valid data updates the tenant" do

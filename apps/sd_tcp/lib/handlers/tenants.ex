@@ -1,29 +1,19 @@
 defmodule SDTCP.Handlers.Tenants do
   import SDTCP.Handlers.Helpers, only: [format_errors: 1]
 
-  def dispatch("LIST", payload) do
-    tenants =
-      case payload["sweet_date_account_id"] do
-        nil -> []
-        account_id -> SD.Tenants.list_tenants(account_id)
-      end
+  def dispatch("LIST", %{}) do
+    tenants = SD.Tenants.list_tenants()
 
     %{status: "ok", tenants: tenants}
   end
 
-  def dispatch("CREATE", %{"sweet_date_api_key_id" => account_id, "name" => name}) do
-    case SD.Accounts.create_tenant(%{account_id: account_id, name: name}) do
+  def dispatch("CREATE", attrs) do
+    case SD.Tenants.create_tenant(attrs) do
       {:ok, %SD.Tenants.Tenant{} = tenant} ->
-        Phoenix.PubSub.broadcast(
-          SD.PubSub,
-          "account:#{account_id}",
-          {:tenant_created, %{tenant: tenant}}
-        )
-
         %{status: "ok", tenant: tenant}
 
-      {:error, ch} ->
-        %{status: "error", message: format_errors(ch.errors)}
+      {:error, tenant} ->
+        %{status: "error", message: format_errors(tenant.errors)}
     end
   end
 
@@ -40,12 +30,6 @@ defmodule SDTCP.Handlers.Tenants do
   def dispatch("UPDATE", %{"id" => id, "name" => name}) do
     with %SD.Tenants.Tenant{} = tenant <- SD.Tenants.get_tenant(id),
          {:ok, tenant} <- SD.Tenants.update_tenant(tenant, %{name: name}) do
-      Phoenix.PubSub.broadcast(
-        SD.PubSub,
-        "account:#{tenant.account_id}",
-        {:tenant_updated, %{tenant: tenant}}
-      )
-
       %{status: "ok", tenant: tenant}
     else
       _ -> %{status: "error", message: "not found or failed to update"}
@@ -55,12 +39,6 @@ defmodule SDTCP.Handlers.Tenants do
   def dispatch("DELETE", %{"id" => id}) when is_binary(id) do
     with %SD.Tenants.Tenant{} = tenant <- SD.Tenants.get_tenant(id),
          {:ok, tenant} <- SD.Tenants.delete_tenant(tenant) do
-      Phoenix.PubSub.broadcast(
-        SD.PubSub,
-        "account:#{tenant.account_id}",
-        {:tenant_deleted, %{tenant: tenant}}
-      )
-
       %{status: "ok", tenant: tenant}
     else
       _ -> %{status: "error", message: "not found or failed to delete"}
