@@ -9,7 +9,7 @@ defmodule SDWeb.SessionController do
       conn
       |> put_session(:current_admin_id, "admin")
       |> put_flash(:info, "Welcome back!")
-      |> redirect(to: ~p"/accounts")
+      |> redirect(to: ~p"/tenants")
     else
       conn
       |> put_flash(:error, "Invalid username or password")

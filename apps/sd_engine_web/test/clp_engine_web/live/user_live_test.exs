@@ -2,7 +2,7 @@ defmodule SDWeb.UserLiveTest do
   use SDWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import SD.AccountsFixtures
+  import SD.UsersFixtures
 
   @create_attrs %{name: "some name", email: "some-email@example.com"}
   @update_attrs %{name: "some updated name", email: "some-updated-email@example.com"}

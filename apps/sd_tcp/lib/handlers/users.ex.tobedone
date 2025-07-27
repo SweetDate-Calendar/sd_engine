@@ -1,12 +1,12 @@
-defmodule SDTCP.Handlers.Accounts do
+defmodule SDTCP.Handlers.Users do
   def dispatch("LIST", _json) do
-    %{status: "ok", accounts: SD.Accounts.list_accounts()}
+    %{status: "ok", accounts: SD.Users.list_accounts()}
   end
 
   def dispatch("CREATE", json) do
     case Jason.decode(json) do
       {:ok, attrs} ->
-        case SD.Accounts.create_account(attrs) do
+        case SD.Users.create_account(attrs) do
           {:ok, cal} -> %{status: "ok", id: cal.id}
           {:error, cs} -> %{status: "error", errors: cs.errors}
         end
@@ -19,8 +19,8 @@ defmodule SDTCP.Handlers.Accounts do
   def dispatch("GET", json) do
     case Jason.decode(json) do
       {:ok, %{"id" => id}} ->
-        case SD.Accounts.get_account(id) do
-          %SD.Accounts.Account{} = account ->
+        case SD.Users.get_account(id) do
+          %SD.Users.Account{} = account ->
             %{status: "ok", account: %{"id" => account.id, "name" => account.name}}
 
           nil ->
@@ -34,8 +34,8 @@ defmodule SDTCP.Handlers.Accounts do
 
   def dispatch("UPDATE", json) do
     with {:ok, %{"id" => id} = attrs} <- Jason.decode(json),
-         cal <- SD.Accounts.get_account(id),
-         {:ok, updated} <- SD.Accounts.update_account(cal, attrs) do
+         cal <- SD.Users.get_account(id),
+         {:ok, updated} <- SD.Users.update_account(cal, attrs) do
       %{status: "ok", account: updated}
     else
       {:error, changeset} -> %{status: "error", errors: changeset.errors}
@@ -45,8 +45,8 @@ defmodule SDTCP.Handlers.Accounts do
 
   def dispatch("DELETE", json) do
     with {:ok, %{"id" => id}} <- Jason.decode(json),
-         cal <- SD.Accounts.get_account(id),
-         {:ok, _} <- SD.Accounts.delete_account(cal) do
+         cal <- SD.Users.get_account(id),
+         {:ok, _} <- SD.Users.delete_account(cal) do
       %{status: "ok"}
     else
       _ -> %{status: "error", message: "not found or failed to delete"}
@@ -56,9 +56,9 @@ defmodule SDTCP.Handlers.Accounts do
   def dispatch("LIST_CALENDARS", json) do
     case Jason.decode(json) do
       {:ok, %{"id" => id}} ->
-        case SD.Accounts.get_account(id) do
-          %SD.Accounts.Account{} = account ->
-            %{status: "ok", calendars: SD.Accounts.list_calendars(account)}
+        case SD.Users.get_account(id) do
+          %SD.Users.Account{} = account ->
+            %{status: "ok", calendars: SD.Users.list_calendars(account)}
 
           nil ->
             %{status: "error", message: "not found"}

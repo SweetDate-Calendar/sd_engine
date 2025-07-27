@@ -2,29 +2,22 @@ defmodule SDTCP.Handlers.TenantsTest do
   use SDTCP.DataCase, async: false
   import SD.TenantsFixtures
   import SDTCP.TestHelper
-  import SD.AccountsFixtures
 
   describe "tenants" do
-    setup do
-      account = authorized_account_fixture()
-
-      %{account: account}
-    end
-
-    test "list all tenants", %{account: account} do
-      tenant_fixture(%{account_id: account.id, name: "One"})
-      tenant_fixture(%{account_id: account.id, name: "Two"})
+    test "list all tenants" do
+      tenant_fixture(%{name: "One"})
+      tenant_fixture(%{name: "Two"})
 
       response =
-        sd_send("TENANTS.LIST|" <> Jason.encode!(authorize(%{sweet_date_account_id: account.id})))
+        sd_send("TENANTS.LIST|" <> Jason.encode!(authorize(%{})))
 
       assert response["status"] == "ok"
       assert length(response["tenants"]) >= 2
     end
 
-    test "TENANTS.CREATE creates a new tenant with just a title", %{account: account} do
+    test "TENANTS.CREATE creates a new tenant with just a title" do
       payload =
-        %{"name" => "RubyConf", "account_id" => account.id}
+        %{"name" => "RubyConf"}
         |> authorize()
 
       raw = "TENANTS.CREATE|#{Jason.encode!(payload)}"
@@ -34,13 +27,11 @@ defmodule SDTCP.Handlers.TenantsTest do
                "status" => "ok",
                "tenant" => %{
                  "id" => id,
-                 "name" => "RubyConf",
-                 "account_id" => account_id
+                 "name" => "RubyConf"
                }
              } = response
 
       assert is_binary(id)
-      assert account_id == account.id
     end
 
     test "fetch tenant by id" do
@@ -67,8 +58,8 @@ defmodule SDTCP.Handlers.TenantsTest do
       assert response["message"] == "not found"
     end
 
-    test "update tenant name", %{account: account} do
-      tenant = tenant_fixture(%{account_id: account.id, name: "Old Name"})
+    test "update tenant name" do
+      tenant = tenant_fixture(%{name: "Old Name"})
 
       payload =
         %{

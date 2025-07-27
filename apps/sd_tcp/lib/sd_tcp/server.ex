@@ -2,6 +2,8 @@ defmodule SDTCP.Server do
   @moduledoc "TCP server"
 
   require Logger
+  @sweet_date_api_key_id Application.compile_env(:sd_engine, :tcp)[:sweet_date_api_key_id]
+  @sweet_date_api_secret Application.compile_env(:sd_engine, :tcp)[:sweet_date_api_secret]
 
   def child_spec(port) do
     %{
@@ -70,13 +72,11 @@ defmodule SDTCP.Server do
   end
 
   defp authorized?(%{
-         "sweet_date_api_key_id" => id,
+         "sweet_date_api_key_id" => sweet_date_api_key_id,
          "sweet_date_api_secret" => sweet_date_api_secret
        }) do
-    case SD.Accounts.get_account(id) do
-      %SD.Accounts.Account{api_secret: ^sweet_date_api_secret} -> true
-      _ -> false
-    end
+    @sweet_date_api_key_id == sweet_date_api_key_id &&
+      @sweet_date_api_secret == sweet_date_api_secret
   end
 
   defp authorized?(_) do
@@ -86,7 +86,6 @@ defmodule SDTCP.Server do
   # defp authorized?(_), do: false
 
   defp dispatch("PING", json), do: SDTCP.Handlers.Ping.dispatch(json)
-  defp dispatch("ACCOUNTS." <> action, json), do: SDTCP.Handlers.Accounts.dispatch(action, json)
   defp dispatch("TENANTS." <> action, json), do: SDTCP.Handlers.Tenants.dispatch(action, json)
 
   defp dispatch("CALENDARS." <> action, json),

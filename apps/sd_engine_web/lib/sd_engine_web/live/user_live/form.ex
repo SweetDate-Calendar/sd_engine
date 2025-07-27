@@ -1,8 +1,7 @@
 defmodule SDWeb.UserLive.Form do
   use SDWeb, :live_view
 
-  alias SD.Accounts
-  alias SD.Accounts.User
+  alias SD.Users
 
   @impl true
   def render(assigns) do
@@ -36,26 +35,26 @@ defmodule SDWeb.UserLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    user = Accounts.get_user(id)
+    user = Users.get_user(id)
 
     socket
     |> assign(:page_title, "Edit User")
     |> assign(:user, user)
-    |> assign(:form, to_form(Accounts.change_user(user)))
+    |> assign(:form, to_form(Users.change_user(user)))
   end
 
   defp apply_action(socket, :new, _params) do
-    user = %User{}
+    user = %SD.Users.User{}
 
     socket
     |> assign(:page_title, "New User")
     |> assign(:user, user)
-    |> assign(:form, to_form(Accounts.change_user(user)))
+    |> assign(:form, to_form(Users.change_user(user)))
   end
 
   @impl true
   def handle_event("validate", %{"user" => user_params}, socket) do
-    changeset = Accounts.change_user(socket.assigns.user, user_params)
+    changeset = Users.change_user(socket.assigns.user, user_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -64,7 +63,7 @@ defmodule SDWeb.UserLive.Form do
   end
 
   defp save_user(socket, :edit, user_params) do
-    case Accounts.update_user(socket.assigns.user, user_params) do
+    case Users.update_user(socket.assigns.user, user_params) do
       {:ok, user} ->
         {:noreply,
          socket
@@ -77,7 +76,7 @@ defmodule SDWeb.UserLive.Form do
   end
 
   defp save_user(socket, :new, user_params) do
-    case Accounts.create_user(user_params) do
+    case Users.create_user(user_params) do
       {:ok, user} ->
         {:noreply,
          socket

@@ -1,7 +1,7 @@
 defmodule SDWeb.UserLive.Show do
   use SDWeb, :live_view
 
-  alias SD.Accounts
+  alias SD.Users
 
   @impl true
   def render(assigns) do
@@ -32,6 +32,6 @@ defmodule SDWeb.UserLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show User")
-     |> assign(:user, Accounts.get_user(id))}
+     |> assign(:user, Users.get_user(id))}
   end
 end

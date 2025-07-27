@@ -10,7 +10,7 @@ defmodule SDWeb.CalendarLive.Show do
       <.header>
         Calendar {@calendar.id}
         <:actions>
-          <.button navigate={~p"/accounts/#{@calendar.tenant.account}/tenants/#{@calendar.tenant}"}>
+          <.button navigate={~p"/tenants/#{@calendar.tenant}"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button
@@ -72,12 +72,20 @@ defmodule SDWeb.CalendarLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, tenant: [:account]])
+    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, :tenant])
 
     {:ok,
      socket
      |> assign(:page_title, "Show Calendar")
      |> stream(:events, calendar.events)
      |> assign(:calendar, calendar)}
+  end
+
+  @impl true
+  def handle_event("delete", %{"id" => id}, socket) do
+    event = SD.Events.get_event(id)
+    {:ok, _} = SD.Events.delete_event(event)
+
+    {:noreply, stream_delete(socket, :events, event)}
   end
 end

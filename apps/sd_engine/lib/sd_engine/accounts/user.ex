@@ -1,4 +1,4 @@
-defmodule SD.Accounts.User do
+defmodule SD.Users.User do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -7,11 +7,6 @@ defmodule SD.Accounts.User do
   schema "users" do
     field :name, :string
     field :email, :string
-
-    many_to_many :accounts, SD.Accounts.Account,
-      join_through: "account_users",
-      on_replace: :delete,
-      join_keys: [user_id: :id, account_id: :id]
 
     many_to_many :tenants, SD.Tenants.Tenant,
       join_through: "tenant_users",

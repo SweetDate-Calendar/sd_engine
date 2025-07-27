@@ -10,7 +10,7 @@ defmodule SD.Tenants.TenantUser do
       default: :admin
 
     belongs_to :tenant, SD.Tenants.Tenant, type: :binary_id
-    belongs_to :user, SD.Accounts.User, type: :binary_id
+    belongs_to :user, SD.Users.User, type: :binary_id
 
     timestamps()
   end

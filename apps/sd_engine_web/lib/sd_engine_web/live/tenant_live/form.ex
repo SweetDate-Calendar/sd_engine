@@ -10,35 +10,33 @@ defmodule SDWeb.TenantLive.Form do
     <Layouts.app flash={@flash}>
       <.header>
         {@page_title}
+        <:subtitle>Use this form to manage tenant records in your database.</:subtitle>
       </.header>
-      <%= if @live_action in [:new, :edit] do %>
-        <.form for={@form} id="tenant-form" phx-change="validate" phx-submit="save">
-          <.input field={@form[:name]} type="text" label="Name" />
-          <.input field={@form[:account_id]} type="text" class="hidden" />
-          <footer>
-            <.button phx-disable-with="Saving..." variant="primary">Save Tenant</.button>
-            <.button navigate={return_path(@return_to, @tenant)}>Cancel</.button>
-          </footer>
-        </.form>
-      <% end %>
+
+      <.form for={@form} id="tenant-form" phx-change="validate" phx-submit="save">
+        <.input field={@form[:name]} type="text" label="Name" />
+        <footer>
+          <.button phx-disable-with="Saving..." variant="primary">Save Tenant</.button>
+          <.button navigate={return_path(@return_to, @tenant)}>Cancel</.button>
+        </footer>
+      </.form>
     </Layouts.app>
     """
   end
 
   @impl true
-  def mount(%{"account_id" => account_id} = params, _session, socket) do
+  def mount(params, _session, socket) do
     {:ok,
      socket
      |> assign(:return_to, return_to(params["return_to"]))
-     |> assign(:account_id, account_id)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp return_to("show_account"), do: "show_account"
-  defp return_to(_), do: "show_tenant"
+  defp return_to("show"), do: "show"
+  defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    tenant = Tenants.get_tenant(id) |> SD.Repo.preload(:account)
+    tenant = Tenants.get_tenant(id)
 
     socket
     |> assign(:page_title, "Edit Tenant")
@@ -46,8 +44,8 @@ defmodule SDWeb.TenantLive.Form do
     |> assign(:form, to_form(Tenants.change_tenant(tenant)))
   end
 
-  defp apply_action(socket, :new, %{"account_id" => account_id}) do
-    tenant = %Tenant{account_id: account_id}
+  defp apply_action(socket, :new, _params) do
+    tenant = %Tenant{}
 
     socket
     |> assign(:page_title, "New Tenant")
@@ -58,7 +56,6 @@ defmodule SDWeb.TenantLive.Form do
   @impl true
   def handle_event("validate", %{"tenant" => tenant_params}, socket) do
     changeset = Tenants.change_tenant(socket.assigns.tenant, tenant_params)
-
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -80,7 +77,7 @@ defmodule SDWeb.TenantLive.Form do
   end
 
   defp save_tenant(socket, :new, tenant_params) do
-    case SD.Accounts.create_tenant(tenant_params) do
+    case Tenants.create_tenant(tenant_params) do
       {:ok, tenant} ->
         {:noreply,
          socket
@@ -92,11 +89,6 @@ defmodule SDWeb.TenantLive.Form do
     end
   end
 
-  defp return_path("show_account", tenant) do
-    ~p"/accounts/#{tenant.account_id}"
-  end
-
-  defp return_path("show_tenant", tenant) do
-    ~p"/accounts/#{tenant.account_id}/tenants/#{tenant}"
-  end
+  defp return_path("index", _tenant), do: ~p"/tenants"
+  defp return_path("show", tenant), do: ~p"/tenants/#{tenant}"
 end

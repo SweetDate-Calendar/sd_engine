@@ -27,18 +27,15 @@ defmodule SDWeb.Router do
 
     delete "/logout", SessionController, :delete
 
-    live "/accounts", AccountLive.Index, :index
-    live "/accounts/new", AccountLive.Form, :new
-    live "/accounts/:id", AccountLive.Show, :show
-    live "/accounts/:id/edit", AccountLive.Form, :edit
-    live "/accounts/:account_id/tenants/new", TenantLive.Form, :new
-    live "/accounts/:account_id/tenants/:id", TenantLive.Show, :show
-    live "/accounts/:account_id/tenants/:id/edit", TenantLive.Form, :edit
-
     live "/users", UserLive.Index, :index
     live "/users/new", UserLive.Form, :new
     live "/users/:id", UserLive.Show, :show
     live "/users/:id/edit", UserLive.Form, :edit
+
+    live "/tenants", TenantLive.Index, :index
+    live "/tenants/new", TenantLive.Form, :new
+    live "/tenants/:id", TenantLive.Show, :show
+    live "/tenants/:id/edit", TenantLive.Form, :edit
 
     # live "/tenants/:tenant_id/calendars", CalendarLive.Index, :index
     live "/tenants/:tenant_id/calendars/new", CalendarLive.Form, :new
