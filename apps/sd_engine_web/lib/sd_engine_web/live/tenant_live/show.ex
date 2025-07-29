@@ -6,7 +6,7 @@ defmodule SDWeb.TenantLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        Tenant {@tenant.id}
+        Tenant ID: {@tenant.id}
         <:actions>
           <.button
             variant="primary"
@@ -41,13 +41,11 @@ defmodule SDWeb.TenantLive.Show do
         <:col :let={{_id, calendar}} label="Visibility">{calendar.visibility}</:col>
         <:action :let={{_id, calendar}}>
           <div class="sr-only">
-            <.link navigate={~p"/tenants/#{calendar.tenant_id}/calendars/#{calendar}"}>Show</.link>
+            <.link navigate={~p"/tenants/#{@tenant.id}/calendars/#{calendar}"}>Show</.link>
           </div>
           <.link
             id={"edit-calendar-#{calendar.id}"}
-            navigate={
-              ~p"/tenants/#{calendar.tenant_id}/calendars/#{calendar}/edit?return_to=show_tenant"
-            }
+            navigate={~p"/tenants/#{@tenant.id}/calendars/#{calendar}/edit?return_to=show_tenant"}
           >
             Edit
           </.link>
@@ -69,7 +67,9 @@ defmodule SDWeb.TenantLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    tenant = SD.Tenants.get_tenant(id) |> SD.Repo.preload([:calendars])
+    tenant =
+      SD.Tenants.get_tenant(id)
+      |> SD.Repo.preload([:calendars])
 
     {:ok,
      socket

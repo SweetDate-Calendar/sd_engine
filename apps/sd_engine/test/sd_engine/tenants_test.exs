@@ -3,10 +3,49 @@ defmodule SD.TenantsTest do
 
   alias SD.Tenants
 
+  alias SD.{Tenants, Calendars}
+  alias SD.Calendars.Calendar
+  alias SD.Tenants.TenantCalendar
+  import SD.TenantsFixtures
+
+  describe "add_calendar/2" do
+    test "creates a calendar and associates it with the tenant" do
+      # Create a tenant using your fixture or factory
+      tenant = tenant_fixture()
+
+      # Params for the new calendar
+      params = %{
+        name: "Team Calendar",
+        color_theme: "blue",
+        visibility: "public"
+      }
+
+      assert {:ok, %{calendar: %Calendar{} = calendar, tenant_calendar: %TenantCalendar{} = tc}} =
+               Tenants.add_calendar(tenant.id, params)
+
+      # # Calendar is persisted
+      db_calendar = Calendars.get_calendar(calendar.id)
+      assert db_calendar.name == "Team Calendar"
+      assert db_calendar.color_theme == "blue"
+
+      # # Join table is persisted
+      assert tc.tenant_id == tenant.id
+      assert tc.calendar_id == calendar.id
+    end
+
+    test "returns an error when calendar params are invalid" do
+      tenant = tenant_fixture()
+
+      # Missing required fields
+      params = %{name: nil}
+
+      assert {:error, :calendar, %Ecto.Changeset{}, _changes_so_far} =
+               Tenants.add_calendar(tenant.id, params)
+    end
+  end
+
   describe "tenants" do
     alias SD.Tenants.Tenant
-
-    import SD.TenantsFixtures
 
     @invalid_attrs %{name: nil}
 

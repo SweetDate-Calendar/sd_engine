@@ -27,6 +27,18 @@ defmodule SDWeb.Router do
 
     delete "/logout", SessionController, :delete
 
+    live "/calendars/new", Global.CalendarLive.Form, :new
+    live "/calendars/:id", Global.CalendarLive.Show, :show
+    live "/calendars/:id/edit", Tenants.CalendarLive.Form, :edit
+
+    live "/tenants/:tenant_id/calendars/new", Tenants.CalendarLive.Form, :new
+    live "/tenants/:tenant_id/calendars/:id", Tenants.CalendarLive.Show, :show
+    live "/tenants/:tenant_id/calendars/:id/edit", Tenants.CalendarLive.Form, :edit
+
+    live "/users/:user_id/calendars/new", Users.CalendarLive.Form, :new
+    live "/users/:user_id/calendars/:id", Users.CalendarLive.Show, :show
+    live "/users/:user_id/calendars/:id/edit", Tenants.CalendarLive.Form, :edit
+
     live "/users", UserLive.Index, :index
     live "/users/new", UserLive.Form, :new
     live "/users/:id", UserLive.Show, :show
@@ -36,11 +48,6 @@ defmodule SDWeb.Router do
     live "/tenants/new", TenantLive.Form, :new
     live "/tenants/:id", TenantLive.Show, :show
     live "/tenants/:id/edit", TenantLive.Form, :edit
-
-    # live "/tenants/:tenant_id/calendars", CalendarLive.Index, :index
-    live "/tenants/:tenant_id/calendars/new", CalendarLive.Form, :new
-    live "/tenants/:tenant_id/calendars/:id", CalendarLive.Show, :show
-    live "/tenants/:tenant_id/calendars/:id/edit", CalendarLive.Form, :edit
 
     # live "/calendars/:calendar_id/events", EventLive.Index, :index
     live "/calendars/:calendar_id/events/new", EventLive.Form, :new

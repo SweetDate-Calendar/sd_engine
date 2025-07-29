@@ -2,7 +2,7 @@ defmodule SD.Calendars.Calendar do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @derive {Jason.Encoder, only: [:id, :name, :tenant_id, :color_theme, :visibility]}
+  @derive {Jason.Encoder, only: [:id, :name, :color_theme, :visibility]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -11,10 +11,12 @@ defmodule SD.Calendars.Calendar do
     field :color_theme, :string
 
     field :visibility, Ecto.Enum,
-      values: [:private, :shared, :public, :unlisted, :tenanted],
+      values: [:private, :shared, :public, :unlisted, :tenanted, :global],
       default: :public
 
-    belongs_to :tenant, SD.Tenants.Tenant, type: :binary_id
+    many_to_many :tenants, SD.Tenants.Tenant,
+      join_through: "tenant_calendars",
+      on_replace: :delete
 
     many_to_many :users, SD.Users.User,
       join_through: "calendar_users",
@@ -31,7 +33,7 @@ defmodule SD.Calendars.Calendar do
   @doc false
   def changeset(calendar, attrs) do
     calendar
-    |> cast(attrs, [:name, :color_theme, :visibility, :tenant_id])
-    |> validate_required([:name, :visibility, :tenant_id])
+    |> cast(attrs, [:name, :color_theme, :visibility])
+    |> validate_required([:name, :visibility])
   end
 end

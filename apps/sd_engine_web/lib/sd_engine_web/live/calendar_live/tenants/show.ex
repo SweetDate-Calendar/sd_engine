@@ -1,4 +1,4 @@
-defmodule SDWeb.CalendarLive.Show do
+defmodule SDWeb.Tenants.CalendarLive.Show do
   use SDWeb, :live_view
 
   alias SD.Calendars
@@ -8,16 +8,14 @@ defmodule SDWeb.CalendarLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        Calendar {@calendar.id}
+        Calendar ID: {@calendar.id}
         <:actions>
-          <.button navigate={~p"/tenants/#{@calendar.tenant}"}>
+          <.button navigate={~p"/tenants/#{@tenant_id}"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button
             variant="primary"
-            navigate={
-              ~p"/tenants/#{@calendar.tenant_id}/calendars/#{@calendar}/edit?return_to=show_calendar"
-            }
+            navigate={~p"/tenants/#{@tenant_id}/calendars/#{@calendar}/edit?return_to=show_calendar"}
           >
             <.icon name="hero-pencil-square" /> Edit calendar
           </.button>
@@ -40,7 +38,11 @@ defmodule SDWeb.CalendarLive.Show do
       <.table
         id="events"
         rows={@streams.events}
-        row_click={fn {_id, event} -> JS.navigate(~p"/calendars/#{@calendar}/events/#{event}") end}
+        row_click={
+          fn {_id, event} ->
+            JS.navigate(~p"/calendars/#{@calendar.id}/events/#{event.id}?return_to=show_calendar")
+          end
+        }
       >
         <:col :let={{_id, event}} label="Name">{event.name}</:col>
         <:col :let={{_id, event}} label="Description">{event.description}</:col>
@@ -53,9 +55,17 @@ defmodule SDWeb.CalendarLive.Show do
         <:col :let={{_id, event}} label="All day">{event.all_day}</:col>
         <:action :let={{_id, event}}>
           <div class="sr-only">
-            <.link navigate={~p"/calendars/#{@calendar}/events/#{event}"}>Show</.link>
+            <.link navigate={
+              ~p"/calendars/#{@calendar}/events/#{event}?return_to=#show_tenant_calendar"
+            }>
+              Show
+            </.link>
           </div>
-          <.link navigate={~p"/calendars/#{@calendar}/events/#{event}/edit"}>Edit</.link>
+          <.link navigate={
+            ~p"/calendars/#{@calendar}/events/#{event}/edit?return_to=show_tenant_calendar"
+          }>
+            Edit
+          </.link>
         </:action>
         <:action :let={{id, event}}>
           <.link
@@ -71,12 +81,14 @@ defmodule SDWeb.CalendarLive.Show do
   end
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
-    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, :tenant])
+  def mount(%{"tenant_id" => tenant_id, "id" => id}, _session, socket) do
+    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, :tenants])
 
     {:ok,
      socket
      |> assign(:page_title, "Show Calendar")
+     |> assign(:calendar_path, calendar_path)
+     |> assign(:tenant_id, tenant_id)
      |> stream(:events, calendar.events)
      |> assign(:calendar, calendar)}
   end
