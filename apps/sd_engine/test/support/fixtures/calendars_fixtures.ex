@@ -9,17 +9,6 @@ defmodule SD.CalendarsFixtures do
   """
   def calendar_fixture(attrs \\ %{}) do
     attrs =
-      case Map.get(attrs, :tenant_id) do
-        nil ->
-          %{id: tenant_id} = SD.TenantsFixtures.tenant_fixture()
-
-          Map.put(attrs, :tenant_id, tenant_id)
-
-        _ ->
-          attrs
-      end
-
-    attrs =
       attrs
       |> Enum.into(%{
         color_theme: "some color_theme",

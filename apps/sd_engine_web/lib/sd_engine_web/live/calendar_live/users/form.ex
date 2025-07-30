@@ -1,4 +1,5 @@
-defmodule SDWeb.CalendarLive.Form do
+defmodule SDWeb.Users.CalendarLive.Form do
+  alias SD.Tenants
   use SDWeb, :live_view
 
   alias SD.Calendars
@@ -16,11 +17,10 @@ defmodule SDWeb.CalendarLive.Form do
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:color_theme]} type="text" label="Color theme" />
         <.input field={@form[:visibility]} type="text" label="Visibility" />
-        <.input field={@form[:tenant_id]} class="hidden" value={@calendar.tenant_id} />
 
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Calendar</.button>
-          <.button navigate={return_path(@return_to, @return_to_id)}>Cancel</.button>
+          <.button navigate={return_path(@return_to, @tenant_id, @return_to_id)}>Cancel</.button>
         </footer>
       </.form>
     </Layouts.app>
@@ -47,7 +47,6 @@ defmodule SDWeb.CalendarLive.Form do
     end
   end
 
-  # Normalize return_to flag
   defp return_to("show_tenant"), do: "show_tenant"
   defp return_to(_), do: "show_calendar"
 
@@ -63,12 +62,54 @@ defmodule SDWeb.CalendarLive.Form do
 
   # New mode: prepare a blank calendar struct with tenant_id
   defp apply_action(socket, :new, %{"tenant_id" => tenant_id}) do
-    calendar = %Calendar{tenant_id: tenant_id}
+    calendar = %Calendar{}
 
     socket
     |> assign(:page_title, "New Calendar")
     |> assign(:calendar, calendar)
-    |> assign(:form, to_form(Calendars.change_calendar(calendar)))
+    |> assign(:form, to_form(Calendars.change_calendar(calendar, %{tenant_id: tenant_id})))
+  end
+
+  # Save new
+  defp save_calendar(socket, :new, calendar_params) do
+    case Tenants.add_calendar(socket.assigns.tenant_id, calendar_params) do
+      {:ok, %{calendar: _calendar}} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Calendar created successfully")
+         |> push_navigate(
+           to:
+             return_path(
+               socket.assigns.return_to,
+               nil,
+               socket.assigns.tenant_id
+             )
+         )}
+
+      {:error, _failed_op, %Ecto.Changeset{} = changeset, _changes_so_far} ->
+        {:noreply, assign(socket, form: to_form(changeset))}
+    end
+  end
+
+  # Save updates
+  defp save_calendar(socket, :edit, calendar_params) do
+    case Calendars.update_calendar(socket.assigns.calendar, calendar_params) do
+      {:ok, _calendar} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Calendar updated successfully")
+         |> push_navigate(
+           to:
+             return_path(
+               socket.assigns.return_to,
+               socket.assigns.tenant_id,
+               socket.assigns.return_to_id
+             )
+         )}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, form: to_form(changeset))}
+    end
   end
 
   @impl true
@@ -82,42 +123,14 @@ defmodule SDWeb.CalendarLive.Form do
     save_calendar(socket, socket.assigns.live_action, calendar_params)
   end
 
-  # Save updates
-  defp save_calendar(socket, :edit, calendar_params) do
-    case Calendars.update_calendar(socket.assigns.calendar, calendar_params) do
-      {:ok, _calendar} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Calendar updated successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, socket.assigns.return_to_id))}
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, form: to_form(changeset))}
-    end
-  end
-
   # Save new
-  defp save_calendar(socket, :new, calendar_params) do
-    case Calendars.create_calendar(calendar_params) do
-      {:ok, calendar} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Calendar created successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, calendar.tenant_id))}
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, form: to_form(changeset))}
-    end
-  end
 
   # Return paths
-  defp return_path("show_tenant", tenant_id) do
+  defp return_path("show_tenant", _, tenant_id) do
     ~p"/tenants/#{tenant_id}"
   end
 
-  defp return_path("show_calendar", calendar_id) do
-    calendar = SD.Calendars.get_calendar(calendar_id)
-
-    ~p"/tenants/#{calendar.tenant_id}/calendars/#{calendar_id}"
+  defp return_path("show_calendar", tenant_id, calendar_id) do
+    ~p"/tenants/#{tenant_id}/calendars/#{calendar_id}"
   end
 end

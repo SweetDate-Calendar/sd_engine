@@ -143,4 +143,40 @@ defmodule SD.Users do
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end
+
+  # alias SD.Calendars.Calendar
+
+  @doc """
+  Creates a calendar associated with a user.
+
+  This function ensures that the new calendar is linked to the given user
+  by inserting a record in the `user_calendars` join table.
+
+  ## Examples
+
+      iex> add_calendar(user_id, %{name: "Personal calendar"})
+      {:ok, %{calendar: %Calendar{}, user_calendar: %UserCalendar{}}}
+
+      iex> add_calendar(user_id, %{name: nil})
+      {:error, :calendar, %Ecto.Changeset{}, _changes_so_far}
+
+  ## Notes
+
+  This function:
+
+    * Inserts a new calendar with the given attributes.
+    * Creates a join entry between the calendar and the user.
+    * Runs inside a transaction (`Ecto.Multi`).
+  """
+  # def add_calendar(tenant_id, calendar_params) do
+  #   Ecto.Multi.new()
+  #   |> Ecto.Multi.insert(
+  #     :calendar,
+  #     Calendar.changeset(%Calendar{}, Map.put(calendar_params, :tenant_id, tenant_id))
+  #   )
+  #   |> Ecto.Multi.insert(:tenant_calendar, fn %{calendar: calendar} ->
+  #     %TenantCalendar{tenant_id: tenant_id, calendar_id: calendar.id}
+  #   end)
+  #   |> Repo.transaction()
+  # end
 end

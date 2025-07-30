@@ -8,7 +8,10 @@ defmodule SD.Tenants.Tenant do
   @foreign_key_type :binary_id
   schema "tenants" do
     field :name, :string
-    has_many :calendars, SD.Calendars.Calendar
+
+    many_to_many :calendars, SD.Calendars.Calendar,
+      join_through: "tenant_calendars",
+      on_replace: :delete
 
     many_to_many :users, SD.Users.User,
       join_through: "tenant_users",

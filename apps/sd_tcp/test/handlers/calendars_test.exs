@@ -17,8 +17,7 @@ defmodule SDTCP.Handlers.CalendarsTest do
     end
 
     test "CALENDARS.CREATE creates a new calendar with just a title" do
-      tenant = SD.TenantsFixtures.tenant_fixture()
-      payload = %{"name" => "RubyConf", "tenant_id" => tenant.id} |> authorize()
+      payload = %{"name" => "RubyConf"} |> authorize()
       raw = "CALENDARS.CREATE|#{Jason.encode!(payload)}"
       response = sd_send(raw)
 
@@ -28,13 +27,11 @@ defmodule SDTCP.Handlers.CalendarsTest do
                  "color_theme" => nil,
                  "id" => id,
                  "name" => "RubyConf",
-                 "tenant_id" => tenant_id,
                  "visibility" => "public"
                }
              } = response
 
       assert is_binary(id)
-      assert tenant_id == tenant.id
     end
 
     test "fetch calendar by id" do
@@ -73,15 +70,13 @@ defmodule SDTCP.Handlers.CalendarsTest do
                  "color_theme" => "some color_theme",
                  "id" => id,
                  "name" => "New Name",
-                 "tenant_id" => tenant_id,
                  "visibility" => "public"
                },
                "status" => "ok"
              } = response
 
       assert is_binary(id)
-      assert is_binary(tenant_id)
-      assert calendar.tenant_id == tenant_id
+      # assert is_binary(tenant_id)
     end
 
     test "delete calendar" do

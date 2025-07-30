@@ -1,4 +1,4 @@
-defmodule SDWeb.CalendarLive.Show do
+defmodule SDWeb.Global.CalendarLive.Show do
   use SDWeb, :live_view
 
   alias SD.Calendars
@@ -10,14 +10,12 @@ defmodule SDWeb.CalendarLive.Show do
       <.header>
         Calendar {@calendar.id}
         <:actions>
-          <.button navigate={~p"/tenants/#{@calendar.tenant}"}>
+          <.button navigate={~p"/tenants/#{@tenant_id}"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button
             variant="primary"
-            navigate={
-              ~p"/tenants/#{@calendar.tenant_id}/calendars/#{@calendar}/edit?return_to=show_calendar"
-            }
+            navigate={~p"/tenants/#{@tenant_id}/calendars/#{@calendar}/edit?return_to=show_calendar"}
           >
             <.icon name="hero-pencil-square" /> Edit calendar
           </.button>
@@ -71,12 +69,13 @@ defmodule SDWeb.CalendarLive.Show do
   end
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
-    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, :tenant])
+  def mount(%{"tenant_id" => tenant_id, "id" => id}, _session, socket) do
+    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, :tenants])
 
     {:ok,
      socket
      |> assign(:page_title, "Show Calendar")
+     |> assign(:tenant_id, tenant_id)
      |> stream(:events, calendar.events)
      |> assign(:calendar, calendar)}
   end

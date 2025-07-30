@@ -8,16 +8,16 @@ defmodule SDWeb.EventLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        Event {@event.id}
+        Event ID: {@event.id}
         <:actions>
-          <.button navigate={
-            ~p"/tenants/#{@event.calendar.tenant_id}/calendars/#{@event.calendar_id}"
-          }>
+          <.button navigate={@return_back}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button
             variant="primary"
-            navigate={~p"/calendars/#{@event.calendar_id}/events/#{@event}/edit?return_to=show_event"}
+            navigate={
+              ~p"/calendars/#{@event.calendar_id}/events/#{@event.id}/edit?return_to=#{@return_to}"
+            }
           >
             <.icon name="hero-pencil-square" /> Edit event
           </.button>
@@ -40,12 +40,19 @@ defmodule SDWeb.EventLive.Show do
   end
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
+
+  def mount(%{"id" => id, "return_to" => return_to}, _session, socket) do
     event = Events.get_event(id) |> SD.Repo.preload(:calendar)
 
     {:ok,
      socket
+     |> assign(:return_back, return_to)
      |> assign(:page_title, "Show Event")
      |> assign(:event, event)}
+  end
+
+  @impl true
+  def handle_params(_params, url, socket) do
+    {:noreply, assign(socket, return_to: url)}
   end
 end

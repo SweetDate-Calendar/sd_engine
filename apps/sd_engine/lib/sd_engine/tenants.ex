@@ -177,4 +177,41 @@ defmodule SD.Tenants do
   def change_tenant_user(%TenantUser{} = user, attrs \\ %{}) do
     TenantUser.changeset(user, attrs)
   end
+
+  alias SD.Calendars.Calendar
+  alias SD.Tenants.TenantCalendar
+
+  @doc """
+  Creates a calendar associated with a tenant.
+
+  This function ensures that the new calendar is linked to the given tenant
+  by inserting a record in the `tenant_calendars` join table.
+
+  ## Examples
+
+      iex> add_calendar(tenant_id, %{name: "Team calendar"})
+      {:ok, %{calendar: %Calendar{}, tenant_calendar: %TenantCalendar{}}}
+
+      iex> add_calendar(tenant_id, %{name: nil})
+      {:error, :calendar, %Ecto.Changeset{}, _changes_so_far}
+
+  ## Notes
+
+  This function:
+
+    * Inserts a new calendar with the given attributes.
+    * Creates a join entry between the calendar and the tenant.
+    * Runs inside a transaction (`Ecto.Multi`).
+  """
+  def add_calendar(tenant_id, calendar_params) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(
+      :calendar,
+      Calendar.changeset(%Calendar{}, calendar_params)
+    )
+    |> Ecto.Multi.insert(:tenant_calendar, fn %{calendar: calendar} ->
+      %TenantCalendar{tenant_id: tenant_id, calendar_id: calendar.id}
+    end)
+    |> Repo.transaction()
+  end
 end
