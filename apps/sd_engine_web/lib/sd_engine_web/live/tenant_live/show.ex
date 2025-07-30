@@ -8,6 +8,9 @@ defmodule SDWeb.TenantLive.Show do
       <.header>
         Tenant ID: {@tenant.id}
         <:actions>
+          <.button navigate={~p"/"}>
+            <.icon name="hero-arrow-left" />
+          </.button>
           <.button
             variant="primary"
             id={"edit-tenant-#{@tenant.id}"}
@@ -15,7 +18,6 @@ defmodule SDWeb.TenantLive.Show do
           >
             <.icon name="hero-pencil-square" /> Edit tenant
           </.button>
-
           <.button
             variant="primary"
             navigate={~p"/tenants/#{@tenant}/calendars/new?return_to=show_tenant"}

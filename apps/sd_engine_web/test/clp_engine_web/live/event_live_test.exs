@@ -120,14 +120,19 @@ defmodule SDWeb.EventLiveTest do
     setup [:create_event, :log_in_admin]
 
     test "displays event", %{conn: conn, event: event} do
-      {:ok, _show_live, html} = live(conn, ~p"/calendars/#{event.calendar_id}/events/#{event}")
+      {:ok, _show_live, html} =
+        live(conn, ~p"/calendars/#{event.calendar_id}/events/#{event}?return_to=some-calendar")
 
-      # assert html =~ "Show Event"
-      # assert html =~ event.name
+      assert html =~ "Event ID: #{event.id}"
     end
 
     test "updates event and returns to show", %{conn: conn, event: event} do
-      {:ok, show_live, _html} = live(conn, ~p"/calendars/#{event.calendar_id}/events/#{event}")
+      {:ok, show_live, _html} =
+        live(conn, ~p"/calendars/#{event.calendar_id}/events/#{event}?return_to=some-calendar")
+
+      return_to =
+        "http://www.example.com/calendars/#{event.calendar_id}/events/#{event.id}?return_to=some-calendar"
+        |> URI.encode()
 
       assert {:ok, form_live, _} =
                show_live
@@ -135,7 +140,7 @@ defmodule SDWeb.EventLiveTest do
                |> render_click()
                |> follow_redirect(
                  conn,
-                 ~p"/calendars/#{event.calendar_id}/events/#{event}/edit?return_to=show_event"
+                 ~p"/calendars/#{event.calendar_id}/events/#{event}/edit?return_to=#{return_to}"
                )
 
       assert render(form_live) =~ "Edit Event"
@@ -148,7 +153,10 @@ defmodule SDWeb.EventLiveTest do
                form_live
                |> form("#event-form", event: @update_attrs)
                |> render_submit()
-               |> follow_redirect(conn, ~p"/calendars/#{event.calendar_id}/events/#{event}")
+               |> follow_redirect(
+                 conn,
+                 ~p"/calendars/#{event.calendar_id}/events/#{event}?return_to=some-calendar"
+               )
 
       html = render(show_live)
       assert html =~ "Event updated successfully"

@@ -32,6 +32,13 @@ defmodule SDWeb.EventLive.Form do
     """
   end
 
+  defp return_path(return_to) do
+    case URI.parse(return_to) do
+      %URI{path: path, query: nil} -> path
+      %URI{path: path, query: query} -> "#{path}?#{query}"
+    end
+  end
+
   @impl true
   def mount(
         %{"calendar_id" => calendar_id, "return_to" => return_to} = params,
@@ -40,23 +47,10 @@ defmodule SDWeb.EventLive.Form do
       ) do
     {:ok,
      socket
-     |> assign(:return_to, return_to)
+     |> assign(:return_to, return_path(return_to))
      |> assign(:calendar_id, calendar_id)
      |> apply_action(socket.assigns.live_action, params)}
   end
-
-  # defp return_to_id(params) do
-  #   case params["return_to"] do
-  #     "show_event" ->
-  #       params["id"]
-
-  #     _ ->
-  #       params["calendar_id"]
-  #   end
-  # end
-
-  # defp return_to("show_calendar"), do: "show_calendar"
-  # defp return_to(_), do: "show_event"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     event = Events.get_event(id)
@@ -101,7 +95,7 @@ defmodule SDWeb.EventLive.Form do
 
   defp save_event(socket, :new, event_params) do
     case Events.create_event(event_params) do
-      {:ok, event} ->
+      {:ok, _event} ->
         {:noreply,
          socket
          |> put_flash(:info, "Event created successfully")
@@ -111,26 +105,4 @@ defmodule SDWeb.EventLive.Form do
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
-
-  # defp return_path("show_tenant_calendar", tenant_id, calendar_id) do
-  #   calendar = SD.Calendars.get_calendar(calendar_id)
-  #   ~p"/tenants/#{calendar.tenant_id}/calendars/#{calendar_id}"
-  # end
-
-  # defp return_path("show_user_calendar", user_id, calendar_id) do
-  #   calendar = SD.Calendars.get_calendar(calendar_id)
-  #   ~p"/tenants/#{calendar.tenant_id}/calendars/#{calendar_id}"
-  # end
-
-  # defp return_path("show_global_calendar", _, calendar_id) do
-  #   calendar = SD.Calendars.get_calendar(calendar_id)
-  #   ~p"/tenants/#{calendar.tenant_id}/calendars/#{calendar_id}"
-  # end
-
-  # defp return_path("show_event", _, event_id) do
-  #   event =
-  #     SD.Events.get_event(event_id)
-
-  #   ~p"/calendars/#{event.calendar_id}/events/#{event_id}"
-  # end
 end

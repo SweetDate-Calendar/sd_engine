@@ -8,15 +8,15 @@ defmodule SDWeb.EventLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        Event {@event.id}
+        Event ID: {@event.id}
         <:actions>
-          <.button navigate={@return_to}>
+          <.button navigate={@return_back}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button
             variant="primary"
             navigate={
-              ~p"/calendars/#{@event.calendar_id}/events/#{@event}/edit?return_to=#{@return_to}"
+              ~p"/calendars/#{@event.calendar_id}/events/#{@event.id}/edit?return_to=#{@return_to}"
             }
           >
             <.icon name="hero-pencil-square" /> Edit event
@@ -44,15 +44,15 @@ defmodule SDWeb.EventLive.Show do
   def mount(%{"id" => id, "return_to" => return_to}, _session, socket) do
     event = Events.get_event(id) |> SD.Repo.preload(:calendar)
 
-    IO.inspect(return_to)
-
-    return_to =
-      ~p"/calendars/16c0b051-00fe-43ad-a757-490d5d82e258/events/9e5058b1-3b22-4fb1-9b61-cf5b23a8039e?return_to=%2Ftenants%2Fd179f765-a6c4-49de-a4b5-785d0512f269%2Fcalendars%2F16c0b051-00fe-43ad-a757-490d5d82e258%2F"
-
     {:ok,
      socket
-     |> assign(:return_to, return_to)
+     |> assign(:return_back, return_to)
      |> assign(:page_title, "Show Event")
      |> assign(:event, event)}
+  end
+
+  @impl true
+  def handle_params(_params, url, socket) do
+    {:noreply, assign(socket, return_to: url)}
   end
 end

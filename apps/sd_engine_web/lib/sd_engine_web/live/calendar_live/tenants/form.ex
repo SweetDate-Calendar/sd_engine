@@ -20,7 +20,7 @@ defmodule SDWeb.Tenants.CalendarLive.Form do
 
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Calendar</.button>
-          <.button navigate={@return_to}>Cancel</.button>
+          <.button navigate={return_path(@return_to, @tenant_id, @calendar)}>Cancel</.button>
         </footer>
       </.form>
     </Layouts.app>
@@ -32,13 +32,13 @@ defmodule SDWeb.Tenants.CalendarLive.Form do
     {:ok,
      socket
      |> assign(return_to_id: return_to)
-     |> assign(:return_to, return_to)
+     |> assign(:return_to, return_to(params["return_to"]))
      |> assign(:tenant_id, tenant_id)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp return_to("show_tenant"), do: "show_tenant"
-  defp return_to(_), do: "show_calendar"
+  defp return_to("show_calendar"), do: "show_calendar"
+  defp return_to(_), do: "show_tenant"
 
   # Edit mode: load an existing calendar
   defp apply_action(socket, :edit, %{"id" => id}) do
@@ -76,12 +76,14 @@ defmodule SDWeb.Tenants.CalendarLive.Form do
 
   # Save updates
   defp save_calendar(socket, :edit, calendar_params) do
+    tenant_id = socket.assigns.tenant_id
+
     case Calendars.update_calendar(socket.assigns.calendar, calendar_params) do
-      {:ok, _calendar} ->
+      {:ok, calendar} ->
         {:noreply,
          socket
          |> put_flash(:info, "Calendar updated successfully")
-         |> push_navigate(to: socket.assigns.return_to)}
+         |> push_navigate(to: return_path(socket.assigns.return_to, tenant_id, calendar))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -99,5 +101,8 @@ defmodule SDWeb.Tenants.CalendarLive.Form do
     save_calendar(socket, socket.assigns.live_action, calendar_params)
   end
 
-  # Save new
+  defp return_path("show_tenant", tenant_id, _), do: ~p"/tenants/#{tenant_id}"
+
+  defp return_path("show_calendar", tenant_id, calendar),
+    do: ~p"/tenants/#{tenant_id}/calendars/#{calendar}"
 end

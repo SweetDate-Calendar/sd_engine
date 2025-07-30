@@ -8,13 +8,16 @@ defmodule SDWeb.UserLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        User {@user.id}
+        User ID: {@user.id}
         <:actions>
           <.button navigate={~p"/users"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button variant="primary" navigate={~p"/users/#{@user}/edit?return_to=show"}>
             <.icon name="hero-pencil-square" /> Edit user
+          </.button>
+          <.button variant="primary" navigate={~p"/users/#{@user}/calendars/new?return_to=show_user"}>
+            <.icon name="hero-plus" /> New Calendar
           </.button>
         </:actions>
       </.header>
@@ -23,15 +26,53 @@ defmodule SDWeb.UserLive.Show do
         <:item title="Name">{@user.name}</:item>
         <:item title="Email">{@user.email}</:item>
       </.list>
+      Calendars
+      <.table
+        id="calendars"
+        rows={@streams.calendars}
+        row_click={
+          fn {_id, calendar} -> JS.navigate(~p"/tenants/#{@tenant.id}/calendars/#{calendar}") end
+        }
+      >
+        <:col :let={{_id, calendar}} label="Name">{calendar.name}</:col>
+        <:col :let={{_id, calendar}} label="Color theme">{calendar.color_theme}</:col>
+        <:col :let={{_id, calendar}} label="Visibility">{calendar.visibility}</:col>
+        <:action :let={{_id, calendar}}>
+          <div class="sr-only">
+            <.link navigate={~p"/tenants/#{@tenant.id}/calendars/#{calendar}"}>Show</.link>
+          </div>
+          <.link
+            id={"edit-calendar-#{calendar.id}"}
+            navigate={~p"/tenants/#{@tenant.id}/calendars/#{calendar}/edit?return_to=show_tenant"}
+          >
+            Edit
+          </.link>
+        </:action>
+        <:action :let={{id, calendar}}>
+          <.link
+            phx-click={
+              JS.push("delete_calendar", value: %{calendar_id: calendar.id}) |> hide("##{id}")
+            }
+            data-confirm="Are you sure?"
+          >
+            Delete
+          </.link>
+        </:action>
+      </.table>
     </Layouts.app>
     """
   end
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    user =
+      Users.get_user(id)
+      |> SD.Repo.preload([:calendars])
+
     {:ok,
      socket
      |> assign(:page_title, "Show User")
-     |> assign(:user, Users.get_user(id))}
+     |> stream(:calendars, user.calendars)
+     |> assign(:user, user)}
   end
 end
