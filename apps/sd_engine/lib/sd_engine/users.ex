@@ -144,7 +144,7 @@ defmodule SD.Users do
     User.changeset(user, attrs)
   end
 
-  alias SD.Calendars.Calendar
+  # alias SD.Calendars.Calendar
 
   @doc """
   Creates a calendar associated with a user.
@@ -168,7 +168,6 @@ defmodule SD.Users do
     * Creates a join entry between the calendar and the user.
     * Runs inside a transaction (`Ecto.Multi`).
   """
-
   # def add_calendar(tenant_id, calendar_params) do
   #   Ecto.Multi.new()
   #   |> Ecto.Multi.insert(

@@ -17,7 +17,6 @@ defmodule SDTCP.Handlers.CalendarsTest do
     end
 
     test "CALENDARS.CREATE creates a new calendar with just a title" do
-      tenant = SD.TenantsFixtures.tenant_fixture()
       payload = %{"name" => "RubyConf"} |> authorize()
       raw = "CALENDARS.CREATE|#{Jason.encode!(payload)}"
       response = sd_send(raw)

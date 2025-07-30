@@ -2,16 +2,8 @@ defmodule SDWeb.Tenants.CalendarLiveTest do
   use SDWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  # import SD.CalendarsFixtures
   import SD.TenantsFixtures
 
-  # @create_attrs %{name: "some name", color_theme: "some color_theme", visibility: :private}
-  @update_attrs %{
-    name: "some updated name",
-    color_theme: "some updated color_theme",
-    visibility: :public
-  }
-  @invalid_attrs %{name: nil, color_theme: nil, visibility: nil}
   defp create_calendar(_) do
     tenant = tenant_fixture()
 

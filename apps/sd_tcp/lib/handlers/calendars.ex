@@ -5,7 +5,7 @@ defmodule SDTCP.Handlers.Calendars do
     %{status: "ok", calendars: SD.Calendars.list_calendars()}
   end
 
-  def dispatch("CREATE", %{"name" => _name, "tenant_id" => _tenant_id} = attrs) do
+  def dispatch("CREATE", %{"name" => _name} = attrs) do
     case SD.Calendars.create_calendar(attrs) do
       {:ok, %SD.Calendars.Calendar{} = calendar} ->
         %{status: "ok", calendar: calendar}
