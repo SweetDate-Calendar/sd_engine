@@ -60,21 +60,21 @@ defmodule SDWeb.Tenants.CalendarLive.Form do
     |> assign(:form, to_form(Calendars.change_calendar(calendar, %{tenant_id: tenant_id})))
   end
 
-  # Save new
   defp save_calendar(socket, :new, calendar_params) do
     case Tenants.add_calendar(socket.assigns.tenant_id, calendar_params) do
-      {:ok, %{calendar: _calendar}} ->
+      {:ok, %{calendar: calendar}} ->
         {:noreply,
          socket
          |> put_flash(:info, "Calendar created successfully")
-         |> push_navigate(to: socket.assigns.return_to)}
+         |> push_navigate(
+           to: return_path(socket.assigns.return_to, socket.assigns.tenant_id, calendar)
+         )}
 
       {:error, _failed_op, %Ecto.Changeset{} = changeset, _changes_so_far} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
 
-  # Save updates
   defp save_calendar(socket, :edit, calendar_params) do
     tenant_id = socket.assigns.tenant_id
 
