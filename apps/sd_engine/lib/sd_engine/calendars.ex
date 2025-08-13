@@ -177,4 +177,20 @@ defmodule SD.Calendars do
   def change_calendar_user(%CalendarUser{} = user, attrs \\ %{}) do
     CalendarUser.changeset(user, attrs)
   end
+
+  def add_calendar_for(entity_id, calendar_params, join_struct, join_key) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(
+      :calendar,
+      Calendar.changeset(%Calendar{}, calendar_params)
+    )
+    |> Ecto.Multi.insert(:join, fn %{calendar: calendar} ->
+      struct(join_struct, %{join_key => entity_id, calendar_id: calendar.id})
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{calendar: calendar}} -> {:ok, calendar}
+      {:error, step, value, changes} -> {:error, step, value, changes}
+    end
+  end
 end

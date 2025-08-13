@@ -142,7 +142,9 @@ defmodule SD.Tenants do
       iex> list_tenant_users()
       [%TenantUser{}, ...]
   """
-  def list_tenant_users, do: Repo.all(TenantUser)
+  def list_tenant_users do
+    Repo.all(TenantUser)
+  end
 
   @doc """
   Update a tenant user.
@@ -178,9 +180,6 @@ defmodule SD.Tenants do
     TenantUser.changeset(user, attrs)
   end
 
-  alias SD.Calendars.Calendar
-  alias SD.Tenants.TenantCalendar
-
   @doc """
   Creates a calendar associated with a tenant.
 
@@ -203,15 +202,20 @@ defmodule SD.Tenants do
     * Creates a join entry between the calendar and the tenant.
     * Runs inside a transaction (`Ecto.Multi`).
   """
-  def add_calendar(tenant_id, calendar_params) do
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(
-      :calendar,
-      Calendar.changeset(%Calendar{}, calendar_params)
+  def add_calendar(tenant_id, params) do
+    SD.Calendars.add_calendar_for(
+      tenant_id,
+      params,
+      SD.Tenants.TenantCalendar,
+      :tenant_id
     )
-    |> Ecto.Multi.insert(:tenant_calendar, fn %{calendar: calendar} ->
-      %TenantCalendar{tenant_id: tenant_id, calendar_id: calendar.id}
-    end)
-    |> Repo.transaction()
+  end
+
+  def list_calendars(tenant_id) do
+    tenant =
+      get_tenant(tenant_id)
+      |> Repo.preload(:calendars)
+
+    tenant.calendars
   end
 end
