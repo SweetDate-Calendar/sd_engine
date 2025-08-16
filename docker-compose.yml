@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16
+    container_name: SweetDate-postgres 
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: Europe/Copenhagen
+    ports:
+      - "5432:5432"
+    volumes:
+      - sweet_date_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  sweet_date_postgres_data:

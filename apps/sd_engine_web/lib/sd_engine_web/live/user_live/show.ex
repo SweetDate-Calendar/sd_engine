@@ -31,7 +31,7 @@ defmodule SDWeb.UserLive.Show do
         id="calendars"
         rows={@streams.calendars}
         row_click={
-          fn {_id, calendar} -> JS.navigate(~p"/tenants/#{@tenant.id}/calendars/#{calendar}") end
+          fn {_id, calendar} -> JS.navigate(~p"/users/#{@user.id}/calendars/#{calendar}") end
         }
       >
         <:col :let={{_id, calendar}} label="Name">{calendar.name}</:col>
@@ -39,11 +39,11 @@ defmodule SDWeb.UserLive.Show do
         <:col :let={{_id, calendar}} label="Visibility">{calendar.visibility}</:col>
         <:action :let={{_id, calendar}}>
           <div class="sr-only">
-            <.link navigate={~p"/tenants/#{@tenant.id}/calendars/#{calendar}"}>Show</.link>
+            <.link navigate={~p"/users/#{@user.id}/calendars/#{calendar}"}>Show</.link>
           </div>
           <.link
             id={"edit-calendar-#{calendar.id}"}
-            navigate={~p"/tenants/#{@tenant.id}/calendars/#{calendar}/edit?return_to=show_tenant"}
+            navigate={~p"/users/#{@user.id}/calendars/#{calendar}/edit?return_to=show_user"}
           >
             Edit
           </.link>

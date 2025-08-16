@@ -1,5 +1,5 @@
 defmodule SDWeb.Users.CalendarLive.Form do
-  alias SD.Tenants
+  alias SD.Users
   use SDWeb, :live_view
 
   alias SD.Calendars
@@ -20,7 +20,7 @@ defmodule SDWeb.Users.CalendarLive.Form do
 
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Calendar</.button>
-          <.button navigate={return_path(@return_to, @tenant_id, @return_to_id)}>Cancel</.button>
+          <.button navigate={return_path(@return_to, @user_id, @return_to_id)}>Cancel</.button>
         </footer>
       </.form>
     </Layouts.app>
@@ -28,12 +28,12 @@ defmodule SDWeb.Users.CalendarLive.Form do
   end
 
   @impl true
-  def mount(%{"tenant_id" => tenant_id} = params, _session, socket) do
+  def mount(%{"user_id" => user_id} = params, _session, socket) do
     {:ok,
      socket
      |> assign(return_to_id: return_to_id(params))
      |> assign(:return_to, return_to(params["return_to"]))
-     |> assign(:tenant_id, tenant_id)
+     |> assign(:user_id, user_id)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
@@ -43,11 +43,11 @@ defmodule SDWeb.Users.CalendarLive.Form do
         params["id"]
 
       _ ->
-        params["tenant_id"]
+        params["user_id"]
     end
   end
 
-  defp return_to("show_tenant"), do: "show_tenant"
+  defp return_to("show_user"), do: "show_user"
   defp return_to(_), do: "show_calendar"
 
   # Edit mode: load an existing calendar
@@ -60,19 +60,19 @@ defmodule SDWeb.Users.CalendarLive.Form do
     |> assign(:form, to_form(Calendars.change_calendar(calendar)))
   end
 
-  # New mode: prepare a blank calendar struct with tenant_id
-  defp apply_action(socket, :new, %{"tenant_id" => tenant_id}) do
+  # New mode: prepare a blank calendar struct with user_id
+  defp apply_action(socket, :new, %{"user_id" => user_id}) do
     calendar = %Calendar{}
 
     socket
     |> assign(:page_title, "New Calendar")
     |> assign(:calendar, calendar)
-    |> assign(:form, to_form(Calendars.change_calendar(calendar, %{tenant_id: tenant_id})))
+    |> assign(:form, to_form(Calendars.change_calendar(calendar, %{user_id: user_id})))
   end
 
   # Save new
   defp save_calendar(socket, :new, calendar_params) do
-    case Tenants.add_calendar(socket.assigns.tenant_id, calendar_params) do
+    case Users.add_calendar(socket.assigns.user_id, calendar_params) do
       {:ok, %{calendar: _calendar}} ->
         {:noreply,
          socket
@@ -82,7 +82,7 @@ defmodule SDWeb.Users.CalendarLive.Form do
              return_path(
                socket.assigns.return_to,
                nil,
-               socket.assigns.tenant_id
+               socket.assigns.user_id
              )
          )}
 
@@ -102,7 +102,7 @@ defmodule SDWeb.Users.CalendarLive.Form do
            to:
              return_path(
                socket.assigns.return_to,
-               socket.assigns.tenant_id,
+               socket.assigns.user_id,
                socket.assigns.return_to_id
              )
          )}
@@ -126,11 +126,11 @@ defmodule SDWeb.Users.CalendarLive.Form do
   # Save new
 
   # Return paths
-  defp return_path("show_tenant", _, tenant_id) do
-    ~p"/tenants/#{tenant_id}"
+  defp return_path("show_user", _, user_id) do
+    ~p"/users/#{user_id}"
   end
 
-  defp return_path("show_calendar", tenant_id, calendar_id) do
-    ~p"/tenants/#{tenant_id}/calendars/#{calendar_id}"
+  defp return_path("show_calendar", user_id, calendar_id) do
+    ~p"/users/#{user_id}/calendars/#{calendar_id}"
   end
 end

@@ -10,35 +10,52 @@ defmodule SD.UsersTest do
 
   describe "add_calendar/2" do
     test "creates a calendar and associates it with the user" do
-      # Create a user using your fixture or factory
       user = user_fixture()
 
-      # Params for the new calendar
       params = %{
         name: "Personal Calendar",
         color_theme: "green",
         visibility: "public"
       }
 
-      Users.add_calendar(user.id, params) |> IO.inspect()
+      # Call once and keep the result
+      result = Users.add_calendar(user.id, params)
 
-      assert {:ok, %{calendar: %Calendar{} = calendar, user_calendar: %CalendarUser{} = cu}} =
-               Users.add_calendar(user.id, params)
+      # Accept either {:ok, %Calendar{}} or {:ok, %{calendar: ..., user_calendar: ...}}
+      {calendar, cu} =
+        case result do
+          {:ok, %Calendar{} = calendar} ->
+            # Look up the join row explicitly
+            cu =
+              Repo.one!(
+                from c in CalendarUser,
+                  where: c.user_id == ^user.id and c.calendar_id == ^calendar.id
+              )
 
+            {calendar, cu}
+
+          {:ok, %{calendar: %Calendar{} = calendar, user_calendar: %CalendarUser{} = cu}} ->
+            {calendar, cu}
+
+          other ->
+            flunk("Unexpected return value from Users.add_calendar/2: #{inspect(other)}")
+        end
+
+      # Verify persisted calendar
       db_calendar = Calendars.get_calendar(calendar.id)
       assert db_calendar.name == "Personal Calendar"
+      assert db_calendar.visibility == :public
 
+      # Verify association
       assert cu.user_id == user.id
       assert cu.calendar_id == calendar.id
     end
 
     test "returns an error when calendar params are invalid" do
       user = user_fixture()
-
-      # Missing required fields
       params = %{name: nil}
 
-      assert {:error, :calendar, %Ecto.Changeset{}, _changes_so_far} =
+      assert {:error, :calendar, %Ecto.Changeset{}, _so_far} =
                Users.add_calendar(user.id, params)
     end
   end
