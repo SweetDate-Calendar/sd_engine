@@ -75,4 +75,12 @@ defmodule SDWeb.UserLive.Show do
      |> stream(:calendars, user.calendars)
      |> assign(:user, user)}
   end
+
+  @impl true
+  def handle_event("delete_calendar", %{"calendar_id" => calendar_id}, socket) do
+    calendar = SD.Calendars.get_calendar(calendar_id)
+    {:ok, _} = SD.Calendars.delete_calendar(calendar)
+
+    {:noreply, stream_delete(socket, :calendars, calendar)}
+  end
 end

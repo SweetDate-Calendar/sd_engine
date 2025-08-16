@@ -73,7 +73,8 @@ defmodule SDWeb.Users.CalendarLive.Form do
   # Save new
   defp save_calendar(socket, :new, calendar_params) do
     case Users.add_calendar(socket.assigns.user_id, calendar_params) do
-      {:ok, %{calendar: _calendar}} ->
+      # NEW simpler shape from add_calendar_for/4:
+      {:ok, %SD.Calendars.Calendar{} = _calendar} ->
         {:noreply,
          socket
          |> put_flash(:info, "Calendar created successfully")
