@@ -19,10 +19,9 @@ defmodule SDWeb.Users.CalendarLive.Show do
           >
             <.icon name="hero-pencil-square" /> Edit calendar
           </.button>
-
           <.button
             variant="primary"
-            navigate={~p"/calendars/#{@calendar}/events/new?return_to=show_calendar"}
+            navigate={~p"/calendars/#{@calendar}/events/new?return_to=#{URI.encode(@return_to)}"}
           >
             <.icon name="hero-plus" /> New event
           </.button>
@@ -38,7 +37,11 @@ defmodule SDWeb.Users.CalendarLive.Show do
       <.table
         id="events"
         rows={@streams.events}
-        row_click={fn {_id, event} -> JS.navigate(~p"/calendars/#{@calendar}/events/#{event}") end}
+        row_click={
+          fn {_id, event} ->
+            JS.navigate(~p"/calendars/#{@calendar.id}/events/#{event.id}?return_to=#{@return_to}")
+          end
+        }
       >
         <:col :let={{_id, event}} label="Name">{event.name}</:col>
         <:col :let={{_id, event}} label="Description">{event.description}</:col>
@@ -51,9 +54,13 @@ defmodule SDWeb.Users.CalendarLive.Show do
         <:col :let={{_id, event}} label="All day">{event.all_day}</:col>
         <:action :let={{_id, event}}>
           <div class="sr-only">
-            <.link navigate={~p"/calendars/#{@calendar}/events/#{event}"}>Show</.link>
+            <.link navigate={~p"/calendars/#{@calendar}/events/#{event}?return_to=#{@return_to}"}>
+              Show
+            </.link>
           </div>
-          <.link navigate={~p"/calendars/#{@calendar}/events/#{event}/edit"}>Edit</.link>
+          <.link navigate={~p"/calendars/#{@calendar}/events/#{event}/edit?return_to=#{@return_to}"}>
+            Edit
+          </.link>
         </:action>
         <:action :let={{id, event}}>
           <.link
@@ -72,10 +79,13 @@ defmodule SDWeb.Users.CalendarLive.Show do
   def mount(%{"user_id" => user_id, "id" => id}, _session, socket) do
     calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, :users])
 
+    return_to = ~p"/users/#{user_id}/calendars/#{id}"
+
     {:ok,
      socket
      |> assign(:page_title, "Show Calendar")
      |> assign(:user_id, user_id)
+     |> assign(:return_to, return_to)
      |> stream(:events, calendar.events)
      |> assign(:calendar, calendar)}
   end

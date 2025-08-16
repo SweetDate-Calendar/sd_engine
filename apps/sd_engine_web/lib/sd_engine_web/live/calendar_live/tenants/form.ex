@@ -62,7 +62,17 @@ defmodule SDWeb.Tenants.CalendarLive.Form do
 
   defp save_calendar(socket, :new, calendar_params) do
     case Tenants.add_calendar(socket.assigns.tenant_id, calendar_params) do
-      {:ok, %{calendar: calendar}} ->
+      # New shape
+      {:ok, %SD.Calendars.Calendar{} = calendar} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Calendar created successfully")
+         |> push_navigate(
+           to: return_path(socket.assigns.return_to, socket.assigns.tenant_id, calendar)
+         )}
+
+      # Legacy shape (accept during transition)
+      {:ok, %{calendar: %SD.Calendars.Calendar{} = calendar}} ->
         {:noreply,
          socket
          |> put_flash(:info, "Calendar created successfully")

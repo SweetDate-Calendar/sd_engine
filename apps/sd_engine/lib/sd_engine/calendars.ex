@@ -179,18 +179,19 @@ defmodule SD.Calendars do
   end
 
   def add_calendar_for(entity_id, calendar_params, join_struct, join_key) do
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(
-      :calendar,
-      Calendar.changeset(%Calendar{}, calendar_params)
-    )
-    |> Ecto.Multi.insert(:join, fn %{calendar: calendar} ->
-      struct(join_struct, %{join_key => entity_id, calendar_id: calendar.id})
-    end)
-    |> Repo.transaction()
-    |> case do
-      {:ok, %{calendar: calendar}} -> {:ok, calendar}
-      {:error, step, value, changes} -> {:error, step, value, changes}
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(:calendar, Calendar.changeset(%Calendar{}, calendar_params))
+      |> Ecto.Multi.insert(:join, fn %{calendar: calendar} ->
+        struct(join_struct, %{join_key => entity_id, calendar_id: calendar.id})
+      end)
+
+    case Repo.transaction(multi) do
+      {:ok, %{calendar: %SD.Calendars.Calendar{} = calendar}} ->
+        {:ok, calendar}
+
+      {:error, step, value, changes} ->
+        {:error, step, value, changes}
     end
   end
 end

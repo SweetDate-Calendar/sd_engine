@@ -153,7 +153,7 @@ defmodule SD.Users do
   ## Examples
 
       iex> add_calendar(user_id, %{name: "Personal calendar"})
-      {:ok, %{calendar: %Calendar{}, user_calendar: %UserCalendar{}}}
+      {:ok, %SD.Calendars.Calendar{}}
 
       iex> add_calendar(user_id, %{name: nil})
       {:error, :calendar, %Ecto.Changeset{}, _changes_so_far}
