@@ -31,7 +31,7 @@ defmodule SDWeb.UserLive.Show do
         id="calendars"
         rows={@streams.calendars}
         row_click={
-          fn {_id, calendar} -> JS.navigate(~p"/tenants/#{@tenant.id}/calendars/#{calendar}") end
+          fn {_id, calendar} -> JS.navigate(~p"/users/#{@user.id}/calendars/#{calendar}") end
         }
       >
         <:col :let={{_id, calendar}} label="Name">{calendar.name}</:col>
@@ -39,11 +39,11 @@ defmodule SDWeb.UserLive.Show do
         <:col :let={{_id, calendar}} label="Visibility">{calendar.visibility}</:col>
         <:action :let={{_id, calendar}}>
           <div class="sr-only">
-            <.link navigate={~p"/tenants/#{@tenant.id}/calendars/#{calendar}"}>Show</.link>
+            <.link navigate={~p"/users/#{@user.id}/calendars/#{calendar}"}>Show</.link>
           </div>
           <.link
             id={"edit-calendar-#{calendar.id}"}
-            navigate={~p"/tenants/#{@tenant.id}/calendars/#{calendar}/edit?return_to=show_tenant"}
+            navigate={~p"/users/#{@user.id}/calendars/#{calendar}/edit?return_to=show_user"}
           >
             Edit
           </.link>
@@ -74,5 +74,13 @@ defmodule SDWeb.UserLive.Show do
      |> assign(:page_title, "Show User")
      |> stream(:calendars, user.calendars)
      |> assign(:user, user)}
+  end
+
+  @impl true
+  def handle_event("delete_calendar", %{"calendar_id" => calendar_id}, socket) do
+    calendar = SD.Calendars.get_calendar(calendar_id)
+    {:ok, _} = SD.Calendars.delete_calendar(calendar)
+
+    {:noreply, stream_delete(socket, :calendars, calendar)}
   end
 end

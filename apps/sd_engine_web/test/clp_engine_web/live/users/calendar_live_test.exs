@@ -19,7 +19,7 @@ defmodule SDWeb.Users.CalendarLiveTest do
     %{calendar: calendar, user: user}
   end
 
-  describe "Show" do
+  describe "User Show - calendar actions" do
     setup [:create_calendar, :log_in_admin]
 
     test "displays calendar", %{conn: conn, user: user, calendar: calendar} do
@@ -28,6 +28,42 @@ defmodule SDWeb.Users.CalendarLiveTest do
 
       assert html =~ "Show Calendar"
       assert html =~ user.name
+    end
+
+    test "navigates to edit calendar from user show", %{
+      conn: conn,
+      user: user,
+      calendar: calendar
+    } do
+      {:ok, lv, _html} = live(conn, ~p"/users/#{user.id}")
+
+      lv
+      |> element("#edit-calendar-#{calendar.id}")
+      |> render_click()
+
+      assert_redirect(
+        lv,
+        ~p"/users/#{user.id}/calendars/#{calendar}/edit?return_to=show_user"
+      )
+    end
+
+    test "deletes calendar from user show", %{conn: conn, user: user, calendar: calendar} do
+      {:ok, lv, _html} = live(conn, ~p"/users/#{user.id}")
+
+      # Ensure the row is present
+      row_id = "calendars-#{calendar.id}"
+      assert has_element?(lv, "##{row_id}")
+
+      # Click the Delete link inside that row
+      lv
+      |> element("##{row_id} a", "Delete")
+      |> render_click()
+
+      # Row is removed from the stream/DOM
+      refute has_element?(lv, "##{row_id}")
+
+      # Optional: verify DB deletion
+      assert is_nil(SD.Repo.get(SD.Calendars.Calendar, calendar.id))
     end
   end
 end
