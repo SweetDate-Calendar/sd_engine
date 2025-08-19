@@ -91,3 +91,5 @@ config :sd_engine, :tcp,
   port: String.to_integer(System.get_env("SD_TCP_PORT") || "5050"),
   sweet_date_account_id: System.get_env("SECRET_ACCESS_KEY") || "changeme",
   sweet_access_api_key: System.get_env("SWEET_ACCESS_API_KEY") || "changeme"
+
+config :sd_rest, :api, port: String.to_integer(System.get_env("SD_REST_PORT") || "4003")

@@ -1,5 +1,6 @@
 defmodule SD_REST.Router do
   use Plug.Router
+  alias SD_REST.Plugs.SignatureV1
 
   plug :match
 
@@ -8,19 +9,28 @@ defmodule SD_REST.Router do
     pass: ["*/*"],
     json_decoder: Jason
 
+  alias SD_REST.Plugs.SignatureV1
+  alias SD_REST.Auth.Resolver
+  plug SignatureV1, resolver: &Resolver.pubkey/1
+
   plug :dispatch
 
-  # Public health check (will be mounted at /api/health)
   get "/health" do
-    conn
-    |> Plug.Conn.put_resp_content_type("application/json")
-    |> Plug.Conn.send_resp(200, ~s({"status":"ok"}))
+    send_json(conn, 200, %{status: "ok"})
   end
 
-  # Catch-all for unknown API routes
+  # Protected example
+  get "/whoami" do
+    send_json(conn, 200, %{status: "ok", app_id: conn.assigns[:sd_app_id]})
+  end
+
   match _ do
+    send_json(conn, 404, %{error: "not_found"})
+  end
+
+  defp send_json(conn, status, map) do
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
-    |> Plug.Conn.send_resp(404, ~s({"error":"not_found"}))
+    |> Plug.Conn.send_resp(status, Jason.encode!(map))
   end
 end
