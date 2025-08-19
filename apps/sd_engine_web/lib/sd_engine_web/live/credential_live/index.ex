@@ -22,9 +22,9 @@ defmodule SDWeb.CredentialLive.Index do
         row_click={fn {_id, credential} -> JS.navigate(~p"/credentials/#{credential}") end}
       >
         <:col :let={{_id, credential}} label="App">{credential.app_id}</:col>
-        <:col :let={{_id, credential}} label="Public key">{credential.public_key}</:col>
+        <%!-- <:col :let={{_id, credential}} label="Public key">{credential.public_key}</:col> --%>
         <:col :let={{_id, credential}} label="Alg">{credential.alg}</:col>
-        <:col :let={{_id, credential}} label="Status">{credential.status}</:col>
+        <%!-- <:col :let={{_id, credential}} label="Status">{credential.status}</:col> --%>
         <:col :let={{_id, credential}} label="Expires at">{credential.expires_at}</:col>
         <:col :let={{_id, credential}} label="Last used at">{credential.last_used_at}</:col>
         <:action :let={{_id, credential}}>

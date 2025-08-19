@@ -77,6 +77,47 @@ defmodule SD.Account do
   end
 
   @doc """
+  Generates a new credential:
+
+  - app_id: auto (e.g. "app_" <> UUID)
+  - alg: :ed25519
+  - status: :active
+  - public_key: from generated keypair
+  - returns: `{:ok, credential, private_key_bin}` (private key is **not stored**)
+
+  Accepts optional attrs like `:expires_at` (and `:label` if you add that field later).
+  Any user-supplied `public_key`, `alg`, `status`, `app_id` are ignored for safety.
+  """
+  @spec generate_credential(map()) ::
+          {:ok, SD.Account.Credential.t(), binary()}
+          | {:error, Ecto.Changeset.t()}
+  def generate_credential(attrs \\ %{}) do
+    # 1) keys
+    {pub, priv} = :crypto.generate_key(:eddsa, :ed25519)
+    pub_b64 = Base.url_encode64(pub, padding: false)
+
+    # 2) app_id
+    app_id = "app_" <> Ecto.UUID.generate()
+
+    # 3) build safe params (ignore unsafe inputs)
+    safe =
+      attrs
+      # allow only these for now
+      |> Map.take([:expires_at, :last_used_at])
+      |> Map.merge(%{
+        app_id: app_id,
+        public_key: pub_b64,
+        alg: :ed25519,
+        status: :active
+      })
+
+    case create_credential(safe) do
+      {:ok, cred} -> {:ok, cred, priv}
+      {:error, cs} -> {:error, cs}
+    end
+  end
+
+  @doc """
   Updates a credential.
 
   ## Examples
