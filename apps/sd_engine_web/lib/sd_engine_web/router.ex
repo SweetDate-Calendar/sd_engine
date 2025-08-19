@@ -16,7 +16,7 @@ defmodule SDWeb.Router do
   #   plug :accepts, ["json"]
   # end
 
-  forward "/api", Elixir.SD_REST.Router
+  # forward "/api", Elixir.SD_REST.Router
 
   scope "/", SDWeb do
     pipe_through [:browser, :redirect_if_admin_is_authenticated]
@@ -55,6 +55,10 @@ defmodule SDWeb.Router do
     live "/calendars/:calendar_id/events/new", EventLive.Form, :new
     live "/calendars/:calendar_id/events/:id", EventLive.Show, :show
     live "/calendars/:calendar_id/events/:id/edit", EventLive.Form, :edit
+
+    live "/credentials", CredentialLive.Index, :index
+    live "/credentials/new", CredentialLive.Form, :new
+    live "/credentials/:id", CredentialLive.Show, :show
   end
 
   # Other scopes may use custom stacks.

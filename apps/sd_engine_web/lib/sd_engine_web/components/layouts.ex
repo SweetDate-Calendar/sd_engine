@@ -41,6 +41,11 @@ defmodule SDWeb.Layouts do
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <li>
+            <.link href={~p"/credentials"} class="btn btn-ghost">
+              Credentials
+            </.link>
+          </li>
+          <li>
             <.link href={~p"/tenants"} class="btn btn-ghost">
               Tenants
             </.link>

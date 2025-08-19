@@ -37,7 +37,6 @@ defmodule SDWeb.EventLive.Form do
       %URI{path: path, query: nil} -> path
       %URI{path: path, query: query} -> "#{path}?#{query}"
     end
-    |> IO.inspect()
   end
 
   @impl true
