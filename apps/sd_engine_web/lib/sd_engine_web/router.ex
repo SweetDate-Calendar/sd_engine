@@ -12,9 +12,11 @@ defmodule SDWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
+  # pipeline :api do
+  #   plug :accepts, ["json"]
+  # end
+
+  forward "/api", Elixir.SD_REST.Router
 
   scope "/", SDWeb do
     pipe_through [:browser, :redirect_if_admin_is_authenticated]
