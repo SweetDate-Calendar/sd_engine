@@ -57,8 +57,9 @@ defmodule SDWeb.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
       {:sd_engine, in_umbrella: true},
-      {:jason, "~> 1.2"},
-      {:bandit, "~> 1.5"}
+      {:jason, "~> 1.4.4"},
+      {:bandit, "~> 1.5"},
+      {:sd_rest, in_umbrella: true}
     ]
   end
 

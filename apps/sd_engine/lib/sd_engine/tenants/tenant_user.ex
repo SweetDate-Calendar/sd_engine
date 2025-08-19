@@ -7,7 +7,7 @@ defmodule SD.Tenants.TenantUser do
   schema "tenant_users" do
     field :role, Ecto.Enum,
       values: [:owner, :admin, :guest],
-      default: :admin
+      default: :guest
 
     belongs_to :tenant, SD.Tenants.Tenant, type: :binary_id
     belongs_to :user, SD.Users.User, type: :binary_id
