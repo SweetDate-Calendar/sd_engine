@@ -26,6 +26,24 @@ defmodule SD_REST.Router do
   end
 
   get("/api/v1/tenants", do: SD_REST.TenantsController.index(conn))
+  # post "/api/v1/tenants"        , do: SD_REST.TenantsController.create(conn)
+  # get  "/api/v1/tenants/:id"    , do: SD_REST.TenantsController.show(conn, id)
+  # put  "/api/v1/tenants/:id"    , do: SD_REST.TenantsController.update(conn, id)
+  # delete "/api/v1/tenants/:id"  , do: SD_REST.TenantsController.delete(conn, id)
+
+  # # Calendars (optionally nested under tenant)
+  # get  "/api/v1/calendars"           , do: SD_REST.CalendarsController.index(conn)
+  # post "/api/v1/calendars"           , do: SD_REST.CalendarsController.create(conn)
+  # get  "/api/v1/calendars/:id"       , do: SD_REST.CalendarsController.show(conn, id)
+  # put  "/api/v1/calendars/:id"       , do: SD_REST.CalendarsController.update(conn, id)
+  # delete "/api/v1/calendars/:id"     , do: SD_REST.CalendarsController.delete(conn, id)
+
+  # # Events
+  # get  "/api/v1/events"              , do: SD_REST.EventsController.index(conn)
+  # post "/api/v1/events"              , do: SD_REST.EventsController.create(conn)
+  # get  "/api/v1/events/:id"          , do: SD_REST.EventsController.show(conn, id)
+  # put  "/api/v1/events/:id"          , do: SD_REST.EventsController.update(conn, id)
+  # delete "/api/v1/events/:id"        , do: SD_REST.EventsController.delete(conn, id)
 
   match _ do
     send_json(conn, 404, %{error: "not_found"})
