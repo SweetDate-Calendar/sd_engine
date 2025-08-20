@@ -9,16 +9,36 @@ defmodule SD.Tenants do
   alias SD.Tenants.Tenant
 
   @doc """
-  Returns the list of tenants.
+  Returns the list of tenants, ordered by `name` ascending.
+
+  Supports pagination via `:limit` and `:offset` options.
+
+  ## Options
+
+    * `:limit` — maximum number of tenants to return (default: 25)
+    * `:offset` — number of tenants to skip (default: 0)
 
   ## Examples
 
       iex> list_tenants()
+      [%Tenant{name: "Alpha"}, %Tenant{name: "Beta"}, ...]
+
+      iex> list_tenants(limit: 10)
+      [%Tenant{}, ...]
+
+      iex> list_tenants(limit: 10, offset: 20)
       [%Tenant{}, ...]
 
   """
-  def list_tenants() do
-    Repo.all(Tenant)
+  def list_tenants(opts \\ []) do
+    limit = Keyword.get(opts, :limit, 25)
+    offset = Keyword.get(opts, :offset, 0)
+
+    Tenant
+    |> order_by([t], asc: t.name)
+    |> limit(^limit)
+    |> offset(^offset)
+    |> Repo.all()
   end
 
   @doc """
