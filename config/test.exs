@@ -44,3 +44,5 @@ config :sd_engine, :tcp,
   sweet_date_api_secret:
     System.get_env("SWEET_DATE_API_SECRET") ||
       "7Xp6HIex5rcxRBELL9ZVhYVb_ZPQE_3lbxKweXpVJow"
+
+import_config "../apps/sd_rest/config/test.exs"

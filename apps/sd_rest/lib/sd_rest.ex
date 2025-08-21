@@ -1,18 +1,40 @@
-defmodule SD_REST do
+defmodule SDRest do
   @moduledoc """
-  Documentation for `SD_REST`.
+  Entry point for SDRest’s web layer (API-only).
+  Provides minimal `:router`, `:controller`, and verified routes.
   """
 
-  @doc """
-  Hello world.
+  # Only serve what you actually have in priv/static
+  def static_paths, do: ~w(favicon.ico robots.txt)
 
-  ## Examples
+  def router do
+    quote do
+      use Phoenix.Router, helpers: false
 
-      iex> SD_REST.hello()
-      :world
-
-  """
-  def hello do
-    :world
+      import Plug.Conn
+      import Phoenix.Controller
+      # No LiveView router in API-only app
+    end
   end
+
+  # lib/sd_rest.ex
+  def controller do
+    quote do
+      use Phoenix.Controller, formats: [:json]
+      import Plug.Conn
+      unquote(verified_routes())
+    end
+  end
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: SDRest.Endpoint,
+        router: SDRest.Router,
+        statics: SDRest.static_paths()
+    end
+  end
+
+  @doc false
+  defmacro __using__(which) when is_atom(which), do: apply(__MODULE__, which, [])
 end

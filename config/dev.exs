@@ -20,7 +20,7 @@ config :sd_engine, SD.Repo,
 config :sd_engine_web, SDWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT") || "4000")],
+  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("SD_WEB_PORT") || "4000")],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -92,4 +92,4 @@ config :sd_engine, :tcp,
   sweet_date_account_id: System.get_env("SECRET_ACCESS_KEY") || "changeme",
   sweet_access_api_key: System.get_env("SWEET_ACCESS_API_KEY") || "changeme"
 
-config :sd_rest, :api, port: String.to_integer(System.get_env("SD_REST_PORT") || "4003")
+import_config "../apps/sd_rest/config/dev.exs"

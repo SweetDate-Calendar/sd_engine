@@ -1,6 +1,6 @@
-defmodule SD_REST.Auth.Resolver do
+defmodule SDRest.Auth.Resolver do
   @moduledoc false
-
+  # resolves the Ed25519 public key for a given app_id
   def pubkey(app_id) when is_binary(app_id) do
     case SD.Account.get_active_credential_by_app_id(app_id) do
       nil ->
