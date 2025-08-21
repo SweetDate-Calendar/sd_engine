@@ -58,8 +58,8 @@ defmodule SDWeb.MixProject do
       {:gettext, "~> 0.26"},
       {:sd_engine, in_umbrella: true},
       {:jason, "~> 1.4.4"},
-      {:bandit, "~> 1.7"},
-      {:sd_rest, in_umbrella: true}
+      {:bandit, "~> 1.7"}
+      # {:sd_web, in_umbrella: true}
     ]
   end
 

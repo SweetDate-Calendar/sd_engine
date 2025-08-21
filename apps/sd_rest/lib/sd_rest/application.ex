@@ -1,34 +1,31 @@
-# defmodule SD_REST.Application do
-#   use Application
+defmodule SDRest.Application do
+  # See https://hexdocs.pm/elixir/Application.html
+  # for more information on OTP Applications
+  @moduledoc false
 
-#   def start(_type, _args) do
-#     IO.inspect("SD_REST.Application started successfully")
-
-#     children = []
-
-#     opts = [strategy: :one_for_one, name: SD_REST.Supervisor]
-#     Supervisor.start_link(children, opts)
-#   end
-# end
-
-
-defmodule SD_REST.Application do
   use Application
-  require Logger
 
+  @impl true
   def start(_type, _args) do
-    port = Application.get_env(:sd_rest, :api, [])[:port] || 4003
-    Logger.info("SD_REST listening on port #{port}")
-
     children = [
-      {
-        Bandit,
-        plug: SD_REST.Router,
-        scheme: :http,
-        port: port
-      }
+      SDRest.Telemetry,
+      # Start a worker by calling: SDRest.Worker.start_link(arg)
+      # {SDRest.Worker, arg},
+      # Start to serve requests, typically the last entry
+      SDRest.Endpoint
     ]
 
-    Supervisor.start_link(children, strategy: :one_for_one, name: SD_REST.Supervisor)
+    # See https://hexdocs.pm/elixir/Supervisor.html
+    # for other strategies and supported options
+    opts = [strategy: :one_for_one, name: SDRest.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+
+  # Tell Phoenix to update the endpoint configuration
+  # whenever the application is updated.
+  @impl true
+  def config_change(changed, _new, removed) do
+    SDRest.Endpoint.config_change(changed, removed)
+    :ok
   end
 end

@@ -1,24 +1,18 @@
-# SD_REST
+# SDRest
 
+To start your Phoenix server:
 
+* Run `mix setup` to install and setup dependencies
+* Start Phoenix endpoint with `mix phx.server`
 
-## Part of the `sd_engine` Umbrella
+Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-This app is located under the `apps/sd_rest/` directory inside the `sd_engine` umbrella project.
+Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
-## Running
+## Learn more
 
-
-BASE_URL="https://your-host.tld"  
-APP_ID="your-app-id"               
-SECRET_B64URL="your-ed25519-secret-base64url"
-
-# Generate headers
-read H1 H2 H3 < <(node sign.js GET /whoami "$APP_ID" "$SECRET_B64URL" | paste -sd' ' -)
-
-# Call endpoint
-curl -i \
-  -H "${H1}" \
-  -H "${H2}" \
-  -H "${H3}" \
-  "$BASE_URL/whoami"
+* Official website: https://www.phoenixframework.org/
+* Guides: https://hexdocs.pm/phoenix/overview.html
+* Docs: https://hexdocs.pm/phoenix
+* Forum: https://elixirforum.com/c/phoenix-forum
+* Source: https://github.com/phoenixframework/phoenix
