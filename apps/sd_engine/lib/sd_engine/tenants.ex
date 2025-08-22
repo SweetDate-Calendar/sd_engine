@@ -7,6 +7,7 @@ defmodule SD.Tenants do
   alias SD.Repo
 
   alias SD.Tenants.Tenant
+  alias SD.Users.User
 
   @doc """
   Returns the list of tenants, ordered by `name` ascending.
@@ -125,45 +126,146 @@ defmodule SD.Tenants do
   alias SD.Tenants.TenantUser
 
   @doc """
-    Create a tenant user.
+  Adds an **existing user** to a tenant as a membership.
 
-    ## Examples
+  Expects:
 
-        iex> create_tenant_user(tenant_id, user_id, "owner")
-        {:ok, %TenantUser{}}
+    * `tenant_id` — tenant UUID (binary)
+    * `attrs` — map with:
+      * `"user_id"` (required) — the user UUID to add
+      * `"role"` (optional) — one of `"owner" | "admin" | "guest"` (defaults to `"guest"`)
 
-        iex> create_tenant_user(invalid_id, user_id, nil)
-        {:error, %Ecto.Changeset{}}
+  Returns:
+
+    * `{:ok, %{tenant_user: %TenantUser{}, user: %User{}}}` on success
+    * `{:error, :invalid}` when `"user_id"` is missing
+    * `{:error, :not_found}` when tenant or user does not exist
+    * `{:error, %Ecto.Changeset{}}` when membership creation fails
+      (e.g., duplicate membership or invalid role)
+
+  ## Examples
+
+      iex> add_user(tenant_id, %{"user_id" => user_id, "role" => "admin"})
+      {:ok, %{tenant_user: %TenantUser{}, user: %User{}}}
+
+      iex> add_user(tenant_id, %{"user_id" => user_id})
+      {:ok, %{tenant_user: %TenantUser{role: :guest}, user: %User{}}}
+
+      iex> add_user(tenant_id, %{})
+      {:error, :invalid}
+
+      iex> add_user("00000000-0000-0000-0000-000000000000", %{"user_id" => user_id})
+      {:error, :not_found}
+  """
+  def add_user(tenant_id, %{"user_id" => user_id} = attrs) when is_binary(tenant_id) do
+    case get_tenant(tenant_id) do
+      %Tenant{} ->
+        case SD.Users.get_user(user_id) do
+          %User{} = user ->
+            role = Map.get(attrs, "role", "guest")
+
+            case create_tenant_user(tenant_id, user.id, role) do
+              {:ok, %TenantUser{} = tu} -> {:ok, %{tenant_user: tu, user: user}}
+              {:error, %Ecto.Changeset{} = cs} -> {:error, cs}
+            end
+
+          _ ->
+            # user not found
+            {:error, :not_found}
+        end
+
+      _ ->
+        # tenant not found
+        {:error, :not_found}
+    end
+  end
+
+  # No user_id provided
+  def add_user(_tenant_id, _attrs), do: {:error, :invalid}
+
+  @doc """
+  Creates a tenant membership for an **existing** user.
+
+  - `tenant_id` – UUID (binary)
+  - `user_id` – UUID (binary)
+  - `role` – string or atom (defaults handled by caller; typical values: "guest" | "admin" | "owner")
+
+  Returns `{:ok, %TenantUser{}}` or `{:error, %Ecto.Changeset{}}`.
   """
   def create_tenant_user(tenant_id, user_id, role) do
+    attrs = %{
+      "tenant_id" => tenant_id,
+      "user_id" => user_id,
+      "role" => role
+    }
+
     %TenantUser{}
-    |> TenantUser.changeset(%{tenant_id: tenant_id, user_id: user_id, role: role})
+    |> TenantUser.changeset(attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Get a tenant user by ID.
+  Fetch the user associated with a tenant.
+
+  Given a `tenant_id` and a `user_id`, returns the user if that user
+  is a member of the tenant. Returns `nil` if no such membership exists.
 
   ## Examples
 
-      iex> get_tenant_user!(123)
-      %TenantUser{}
+      iex> %User{} = SD.Tenants.get_tenant_user(tenant_id, user_id)
 
-      iex> get_tenant_user!(456)
-      ** (Ecto.NoResultsError)
+      iex> SD.Tenants.get_tenant_user("00000000-0000-0000-0000-000000000000", user_id)
+      nil
+
   """
-  def get_tenant_user!(id), do: Repo.get(TenantUser, id)
+  def get_tenant_user(tenant_id, user_id) do
+    from(tu in TenantUser,
+      where: tu.tenant_id == ^tenant_id and tu.user_id == ^user_id,
+      join: u in assoc(tu, :user),
+      select: u
+    )
+    |> Repo.one()
+  end
 
   @doc """
-  List all tenant users.
+  List tenant users for a given tenant.
+
+  Supports `:limit`, `:offset`, and optional search `:q`.
 
   ## Examples
 
-      iex> list_tenant_users()
+      iex> list_tenant_users(tenant_id)
+      [%TenantUser{}, ...]
+
+      iex> list_tenant_users(tenant_id, limit: 10, offset: 20, q: "alice")
       [%TenantUser{}, ...]
   """
-  def list_tenant_users do
-    Repo.all(TenantUser)
+  def list_tenant_users(tenant_id, opts \\ []) do
+    import Ecto.Query
+
+    limit = Keyword.get(opts, :limit, 25)
+    offset = Keyword.get(opts, :offset, 0)
+    q = Keyword.get(opts, :q)
+
+    query =
+      from tu in TenantUser,
+        where: tu.tenant_id == ^tenant_id
+
+    # optional search (adapt as needed)
+    query =
+      if q do
+        from tu in query,
+          join: u in assoc(tu, :user),
+          where: ilike(u.name, ^"%#{q}%") or ilike(u.email, ^"%#{q}%"),
+          preload: [user: u]
+      else
+        from tu in query, preload: [:user]
+      end
+
+    query
+    |> limit(^limit)
+    |> offset(^offset)
+    |> Repo.all()
   end
 
   @doc """

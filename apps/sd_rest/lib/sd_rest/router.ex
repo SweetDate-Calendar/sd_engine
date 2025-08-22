@@ -23,5 +23,9 @@ defmodule SDRest.Router do
     get("/tenants/:id", TenantsController, :show)
     put("/tenants/:id", TenantsController, :update)
     delete("/tenants/:id", TenantsController, :delete)
+
+    resources "/tenants", TenantsController, only: [] do
+      resources "/users", TenantUsersController, only: [:index, :create, :show, :update, :delete]
+    end
   end
 end
