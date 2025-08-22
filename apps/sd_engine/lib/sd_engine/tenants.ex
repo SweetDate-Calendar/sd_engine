@@ -212,7 +212,7 @@ defmodule SD.Tenants do
 
   ## Examples
 
-      iex> %User{} = SD.Tenants.get_tenant_user(tenant_id, user_id)
+      iex> %TenantUser{} = SD.Tenants.get_tenant_user(tenant_id, user_id)
 
       iex> SD.Tenants.get_tenant_user("00000000-0000-0000-0000-000000000000", user_id)
       nil
@@ -221,10 +221,10 @@ defmodule SD.Tenants do
   def get_tenant_user(tenant_id, user_id) do
     from(tu in TenantUser,
       where: tu.tenant_id == ^tenant_id and tu.user_id == ^user_id,
-      join: u in assoc(tu, :user),
-      select: u
+      join: u in assoc(tu, :user)
     )
     |> Repo.one()
+    |> Repo.preload(:user)
   end
 
   @doc """

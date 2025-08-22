@@ -104,16 +104,20 @@ defmodule SD.Tenants.TenantUserTest do
       tenant = tenant_fixture()
       user = user_fixture()
 
-      # Create the membership
-      {:ok, tenant_user} = Tenants.create_tenant_user(tenant.id, user.id, :guest)
+      # Create a tenant_user
+      {:ok, _tenant_user} = Tenants.create_tenant_user(tenant.id, user.id, :guest)
 
-      # Success case: should return the user
-      assert {:ok, returned_user} = Tenants.get_tenant_user(tenant_user.id, user.id)
-      assert returned_user.id == user.id
+      # Success case: should return the tenant_user
+      returned_tenant_user = Tenants.get_tenant_user(tenant.id, user.id)
+      assert returned_tenant_user.user_id == user.id
 
       # Not found case
-      assert {:error, :not_found} =
-               Tenants.get_tenant_user("00000000-0000-0000-0000-000000000000")
+      assert is_nil(
+               Tenants.get_tenant_user(
+                 "00000000-0000-0000-0000-000000000000",
+                 "00000000-0000-0000-0000-000000000000"
+               )
+             )
     end
 
     test "update_tenant_user/2 updates role" do
