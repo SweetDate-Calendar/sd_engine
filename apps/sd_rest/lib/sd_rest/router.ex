@@ -18,10 +18,8 @@ defmodule SDRest.Router do
   scope "/api/v1", SDRest do
     pipe_through(:api_auth)
 
-    get("/tenants", TenantsController, :index)
-    post("/tenants", TenantsController, :create)
-    get("/tenants/:id", TenantsController, :show)
-    put("/tenants/:id", TenantsController, :update)
-    delete("/tenants/:id", TenantsController, :delete)
+    resources "/tenants", TenantsController do
+      resources "/users", TenantUsersController
+    end
   end
 end
