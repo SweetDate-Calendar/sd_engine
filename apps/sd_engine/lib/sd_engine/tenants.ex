@@ -134,13 +134,20 @@ defmodule SD.Tenants do
     %SD.Tenants.TenantUser{}
     |> SD.Tenants.TenantUser.changeset(attrs)
     |> SD.Repo.insert()
+    |> case do
+      {:ok, tenant_user} ->
+        {:ok, SD.Repo.preload(tenant_user, :user)}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
   @doc """
   Fetch the user associated with a tenant.
 
   Given a `tenant_id` and a `user_id`, returns the user if that user
-  is a member of the tenant. Returns `nil` if no such membership exists.
+  is a member of the tenant. Returns `nil` if no such tenant_user exists.
 
   ## Examples
 
@@ -228,14 +235,14 @@ defmodule SD.Tenants do
 
   ## Examples
 
-      iex> update_tenant_user(user, %{role: "editor"})
+      iex> update_tenant_user(tenant_user, %{role: "editor"})
       {:ok, %TenantUser{}}
 
-      iex> update_tenant_user(user, %{role: nil})
+      iex> update_tenant_user(tenant_user, %{role: nil})
       {:error, %Ecto.Changeset{}}
   """
-  def update_tenant_user(%TenantUser{} = user, attrs) do
-    user
+  def update_tenant_user(%TenantUser{} = tenant_user, attrs) do
+    tenant_user
     |> TenantUser.changeset(attrs)
     |> Repo.update()
   end

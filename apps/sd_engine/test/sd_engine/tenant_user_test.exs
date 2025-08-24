@@ -15,15 +15,31 @@ defmodule SD.Tenants.TenantUserTest do
       user = user_fixture()
       tenant = tenant_fixture()
 
-      assert {:ok, %TenantUser{}} = Tenants.create_tenant_user(tenant.id, user.id, :guest)
-      assert {:error, _changeset} = Tenants.create_tenant_user(tenant.id, user.id, :guest)
+      assert {:ok, %TenantUser{}} =
+               Tenants.create_tenant_user(%{
+                 "tenant_id" => tenant.id,
+                 "user_id" => user.id,
+                 "role" => "guest"
+               })
+
+      assert {:error, _changeset} =
+               Tenants.create_tenant_user(%{
+                 "tenant_id" => tenant.id,
+                 "user_id" => user.id,
+                 "role" => "guest"
+               })
     end
 
     test "user can be added to tenant and accessed from both sides" do
       user = user_fixture()
       tenant = tenant_fixture()
 
-      assert {:ok, %TenantUser{}} = Tenants.create_tenant_user(tenant.id, user.id, :guest)
+      assert {:ok, %TenantUser{}} =
+               Tenants.create_tenant_user(%{
+                 "tenant_id" => tenant.id,
+                 "user_id" => user.id,
+                 "role" => "guest"
+               })
 
       user = Repo.preload(user, :tenants)
       assert Enum.any?(user.tenants, &(&1.id == tenant.id))
@@ -36,7 +52,12 @@ defmodule SD.Tenants.TenantUserTest do
       user = user_fixture()
       tenant = tenant_fixture()
 
-      assert {:ok, %TenantUser{}} = Tenants.create_tenant_user(tenant.id, user.id, :guest)
+      assert {:ok, %TenantUser{}} =
+               Tenants.create_tenant_user(%{
+                 "tenant_id" => tenant.id,
+                 "user_id" => user.id,
+                 "role" => "guest"
+               })
 
       Repo.delete!(user)
 
@@ -51,7 +72,12 @@ defmodule SD.Tenants.TenantUserTest do
       user = user_fixture()
       tenant = tenant_fixture()
 
-      assert {:ok, %TenantUser{}} = Tenants.create_tenant_user(tenant.id, user.id, :guest)
+      assert {:ok, %TenantUser{}} =
+               Tenants.create_tenant_user(%{
+                 "tenant_id" => tenant.id,
+                 "user_id" => user.id,
+                 "role" => "guest"
+               })
 
       Repo.delete!(tenant)
 
@@ -64,16 +90,33 @@ defmodule SD.Tenants.TenantUserTest do
   end
 
   describe "scoped queries & helpers" do
-    test "list_tenant_users/2 returns memberships for that tenant with limit/offset" do
+    test "list_tenant_users/2 returns tenant_users for that tenant with limit/offset" do
       t1 = tenant_fixture(%{name: "Alpha"})
       t2 = tenant_fixture(%{name: "Beta"})
       u1 = user_fixture(%{name: "Ada", email: "ada@example.com"})
       u2 = user_fixture(%{name: "Bobby", email: "bobby@example.com"})
       u3 = user_fixture(%{name: "Cora", email: "cora@example.com"})
 
-      {:ok, tu1} = Tenants.create_tenant_user(t1.id, u1.id, :guest)
-      {:ok, tu2} = Tenants.create_tenant_user(t1.id, u2.id, :admin)
-      {:ok, _tu3} = Tenants.create_tenant_user(t2.id, u3.id, :guest)
+      {:ok, tu1} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => t1.id,
+          "user_id" => u1.id,
+          "role" => "guest"
+        })
+
+      {:ok, tu2} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => t1.id,
+          "user_id" => u2.id,
+          "role" => "admin"
+        })
+
+      {:ok, _tu3} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => t2.id,
+          "user_id" => u3.id,
+          "role" => "guest"
+        })
 
       # No opts → default 25/0
       list_all = Tenants.list_tenant_users(t1.id)
@@ -93,11 +136,26 @@ defmodule SD.Tenants.TenantUserTest do
 
       u1 = user_fixture(%{name: "Alice Johnson", email: "alice@example.com"})
       u2 = user_fixture(%{name: "Bob Smith", email: "bob@example.com"})
-      {:ok, _} = Tenants.create_tenant_user(t.id, u1.id, :guest)
-      {:ok, _} = Tenants.create_tenant_user(t.id, u2.id, :guest)
+
+      {:ok, _} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => t.id,
+          "user_id" => u1.id,
+          "role" => "guest"
+        })
+
+      {:ok, _} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => t.id,
+          "user_id" => u2.id,
+          "role" => "guest"
+        })
 
       only_alice = Tenants.list_tenant_users(t.id, q: "alice")
-      assert Enum.all?(only_alice, fn tu -> tu.user.email == "alice@example.com" end)
+
+      assert Enum.all?(only_alice, fn tenant_user ->
+               tenant_user.user.email == "alice@example.com"
+             end)
     end
 
     test "get_tenant_user/1 returns {:ok, user} or {:error, :not_found}" do
@@ -105,7 +163,12 @@ defmodule SD.Tenants.TenantUserTest do
       user = user_fixture()
 
       # Create a tenant_user
-      {:ok, _tenant_user} = Tenants.create_tenant_user(tenant.id, user.id, :guest)
+      {:ok, _tenant_user} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => tenant.id,
+          "user_id" => user.id,
+          "role" => "guest"
+        })
 
       # Success case: should return the tenant_user
       returned_tenant_user = Tenants.get_tenant_user(tenant.id, user.id)
@@ -123,19 +186,34 @@ defmodule SD.Tenants.TenantUserTest do
     test "update_tenant_user/2 updates role" do
       t = tenant_fixture()
       u = user_fixture()
-      {:ok, tu} = Tenants.create_tenant_user(t.id, u.id, :guest)
 
-      assert {:ok, updated} = Tenants.update_tenant_user(tu, %{"role" => "admin"})
+      {:ok, tenant_user} =
+        Tenants.create_tenant_user(%{"tenant_id" => t.id, "user_id" => u.id, "role" => "guest"})
+
+      assert {:ok, updated} =
+               Tenants.update_tenant_user(tenant_user, %{
+                 "role" => "admin"
+               })
+
       assert updated.role == :admin
     end
 
-    test "delete_tenant_user/1 removes membership" do
-      t = tenant_fixture()
-      u = user_fixture()
-      {:ok, tu} = Tenants.create_tenant_user(t.id, u.id, :guest)
+    test "delete_tenant_user/1 removes tenant_user" do
+      tenant = tenant_fixture()
+      user = user_fixture()
 
-      assert {:ok, _} = Tenants.delete_tenant_user(tu)
-      refute Repo.exists?(from(x in TenantUser, where: x.id == ^tu.id))
+      {:ok, tenant_user} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => tenant.id,
+          "user_id" => user.id,
+          "role" => "guest"
+        })
+
+      assert {:ok, _} = Tenants.delete_tenant_user(tenant_user)
+
+      assert is_nil(Tenants.get_tenant_user(tenant.id, user.id))
+
+      # refute Repo.exists?(from(x in TenantUser, where: x.id == ^tu.id))
     end
   end
 end

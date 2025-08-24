@@ -286,12 +286,12 @@ defmodule SDRest.TenantUsersControllerTest do
         "message" => _msg,
         "error_code" => _code,
         "fields" => _fields
-      } = json_response(conn, 422)
+      } = json_response(conn, 422) |> IO.inspect()
     end
   end
 
   describe "delete (DELETE /tenants/:tenant_id/users/:id)" do
-    test "deletes membership and returns status ok", %{conn: conn} do
+    test "deletes tenant_user and returns status ok", %{conn: conn} do
       tenant = tenant_fixture(%{name: "Team H"})
       user = user_fixture(%{name: "Hotel", email: "hotel@example.com"})
 
