@@ -286,7 +286,7 @@ defmodule SDRest.TenantUsersControllerTest do
         "message" => _msg,
         "error_code" => _code,
         "fields" => _fields
-      } = json_response(conn, 422) |> IO.inspect()
+      } = json_response(conn, 422)
     end
   end
 
