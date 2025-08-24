@@ -7,6 +7,7 @@ defmodule SD.Tenants do
   alias SD.Repo
 
   alias SD.Tenants.Tenant
+  alias SD.Tenants.TenantCalendar
 
   @doc """
   Returns the list of tenants, ordered by `name` ascending.
@@ -279,7 +280,6 @@ defmodule SD.Tenants do
       {:error, :calendar, %Ecto.Changeset{}, _changes_so_far}
 
   ## Notes
-
   This function:
 
     * Inserts a new calendar with the given attributes.
@@ -295,11 +295,121 @@ defmodule SD.Tenants do
     )
   end
 
+  @doc """
+  Convenience: list bare %Calendar{} for a tenant (via many_to_many preload).
+  Useful when you don't need join rows or pagination.
+  """
   def list_calendars(tenant_id) do
-    tenant =
-      get_tenant(tenant_id)
-      |> Repo.preload(:calendars)
+    case get_tenant(tenant_id) do
+      nil ->
+        []
 
-    tenant.calendars
+      %Tenant{} = t ->
+        t
+        |> Repo.preload(:calendars)
+        |> Map.get(:calendars, [])
+    end
+  end
+
+  @doc """
+  Creates a tenant_calendar link between a tenant and an existing calendar.
+
+  Expects a map with:
+    * "tenant_id"   – binary UUID
+    * "calendar_id" – binary UUID
+
+  On success returns {:ok, %TenantCalendar{calendar: %Calendar{}}} with :calendar preloaded.
+  On failure returns {:error, %Ecto.Changeset{}}.
+
+  Notes:
+    * Relies on DB FKs/unique indexes for integrity (invalid/missing IDs → changeset errors).
+  """
+  def create_tenant_calendar(%{"tenant_id" => _tenant_id, "calendar_id" => _calendar_id} = attrs) do
+    %TenantCalendar{}
+    |> TenantCalendar.changeset(attrs)
+    |> Repo.insert()
+    |> case do
+      {:ok, tenant_calendar} -> {:ok, Repo.preload(tenant_calendar, :calendar)}
+      {:error, change_set} -> {:error, change_set}
+    end
+  end
+
+  @doc """
+  Fetch a single tenant_calendar by tenant_id and calendar_id.
+
+  Returns the %TenantCalendar{} with :calendar preloaded, or nil if not found
+  or if either id is not a valid UUID.
+  """
+  def get_tenant_calendar(tenant_id, calendar_id) do
+    with {:ok, _} <- Ecto.UUID.cast(tenant_id),
+         {:ok, _} <- Ecto.UUID.cast(calendar_id) do
+      from(tc in TenantCalendar,
+        where: tc.tenant_id == ^tenant_id and tc.calendar_id == ^calendar_id,
+        join: c in assoc(tc, :calendar),
+        preload: [calendar: c]
+      )
+      |> Repo.one()
+    else
+      :error -> nil
+    end
+  end
+
+  @doc """
+  List calendars linked to a tenant via tenant_calendars.
+
+  Returns a list of %TenantCalendar{calendar: %Calendar{}} with :calendar preloaded.
+
+  Options:
+    * :limit  – default 25
+    * :offset – default 0
+    * :q      – optional search (ILIKE) on calendar.name
+
+  If `tenant_id` is not a valid UUID, returns [].
+  """
+  def list_tenant_calendars(tenant_id, opts \\ []) do
+    case Ecto.UUID.cast(tenant_id) do
+      :error ->
+        []
+
+      {:ok, _} ->
+        limit = Keyword.get(opts, :limit, 25)
+        offset = Keyword.get(opts, :offset, 0)
+        q = Keyword.get(opts, :q)
+
+        base =
+          from tc in TenantCalendar,
+            where: tc.tenant_id == ^tenant_id
+
+        query =
+          if is_binary(q) and q != "" do
+            from tc in base,
+              join: c in assoc(tc, :calendar),
+              where: ilike(c.name, ^"%#{q}%"),
+              preload: [calendar: c]
+          else
+            from tc in base, preload: [:calendar]
+          end
+
+        query
+        |> limit(^limit)
+        |> offset(^offset)
+        |> Repo.all()
+    end
+  end
+
+  @doc """
+  Delete a tenant_calendar link.
+
+  Returns {:ok, %TenantCalendar{}} | {:error, %Ecto.Changeset{}}.
+  """
+  def delete_tenant_calendar(%TenantCalendar{} = tenant_calendar) do
+    Repo.delete(tenant_calendar)
+  end
+
+  @doc """
+  Return a changeset for tenant_calendar.
+  """
+  def change_tenant_calendar(%TenantCalendar{} = tenant_calendar, attrs \\ %{}) do
+    TenantCalendar.changeset(tenant_calendar, attrs)
   end
 end

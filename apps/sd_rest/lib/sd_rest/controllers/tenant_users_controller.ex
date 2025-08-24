@@ -5,36 +5,35 @@ defmodule SDRest.TenantUsersController do
   @default_limit 25
   @max_limit 100
 
-  # GET /api/v1/tenants/:tenants_id/users?limit=...&offset=...&q=...
-  # Example response:
-  #   {
-  #     "status": "ok",
-  #     "users": [
-  #       {
-  #         "email": "some-email@example.com",
-  #         "id": "00000000-0000-0000-0000-000000000000",
-  #         "inserted_at": "2025-08-18T09:20:00Z",
-  #         "name": "some name",
-  #         "role": "owner",
-  #         "updated_at": "2025-08-19T10:15:00Z"
-  #       },
-  #       {
-  #         "email": "some-other-email@example.com",
-  #         "id": "00000000-0000-0000-0000-000000000000",
-  #         "inserted_at": "2025-08-18T09:20:00Z",
-  #         "name": "Some other name",
-  #         "role": "admin",
-  #         "updated_at": "2025-08-19T10:15:00Z"
-  #       }
-  #     ]
-  #   }
-  #
-  # Error response:
-  #   {
-  #     "message": "...",
-  #     "status": "error"
-  #   }     */
-  # GET /api/v1/tenants/:tenants_id/users?limit=...&offset=...&q=...
+  @doc """
+  List users for a tenant.
+
+  Request:
+    GET /api/v1/tenants/:tenant_id/users?limit=...&offset=...&q=...
+
+  Response:
+    {
+      "status": "ok",
+      "users": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "name": "some name",
+          "email": "some-email@example.com",
+          "role": "owner",
+          "inserted_at": "2025-08-18T09:20:00Z",
+          "updated_at": "2025-08-19T10:15:00Z"
+        }
+      ]
+    }
+
+  Errors:
+    404 Not Found
+    {
+      "status": "error",
+      "message": "not found",
+      "error_code": "NOT_FOUND"
+    }
+  """
   def index(conn, %{"tenants_id" => tenant_id} = params) do
     case SD.Tenants.get_tenant(tenant_id) do
       %{} ->
@@ -58,31 +57,61 @@ defmodule SDRest.TenantUsersController do
             }
           end)
 
+        # Drop "tenant_id" from the response to match docs
         json(conn, %{
           "status" => "ok",
-          "tenant_id" => tenant_id,
           "users" => users
         })
 
       _ ->
-        json(put_status(conn, 404), %{"status" => "error", "message" => "not found"})
+        # Delegate to FallbackController for standard error shape
+        {:error, :not_found}
     end
   end
 
-  # POST /api/v1/tenants/:tenants_id/users
-  # Response:
-  #   {
-  #     "status": "ok",
-  #     "user": {
-  #       "email": "some-name@example.com",
-  #       "id": "00000000-0000-0000-0000-000000000000",
-  #       "inserted_at": "2025-08-18T09:20:00Z",
-  #       "name": "some name",
-  #       "role": "admin",
-  #       "updated_at": "2025-08-19T10:15:00Z"
-  #     }
-  #   }
-  # SD.Tenants
+  @doc """
+  Create a tenant user (link an existing user to the tenant).
+
+  Request:
+    POST /api/v1/tenants/:tenant_id/users
+    {
+      "user_id": "00000000-0000-0000-0000-000000000000",
+      "role": "admin"    # optional, defaults to "guest"
+    }
+
+  Response:
+    201 Created
+    {
+      "status": "ok",
+      "user": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "name": "some name",
+        "email": "some-name@example.com",
+        "role": "admin",
+        "inserted_at": "2025-08-18T09:20:00Z",
+        "updated_at": "2025-08-19T10:15:00Z"
+      }
+    }
+
+  Errors:
+    404 Not Found
+    {
+      "status": "error",
+      "message": "not found",
+      "error_code": "NOT_FOUND"
+    }
+
+    422 Unprocessable Entity
+    {
+      "status": "error",
+      "message": "invalid input",
+      "error_code": "VALIDATION_ERROR",
+      "fields": {
+        "user_id": ["is not a valid UUID"],
+        "role": ["is invalid"]  # when enum cast fails
+      }
+    }
+  """
   def create(conn, %{"tenants_id" => tenant_id} = params) do
     case SD.Tenants.get_tenant(tenant_id) do
       %{} ->
@@ -120,19 +149,33 @@ defmodule SDRest.TenantUsersController do
     end
   end
 
-  # GET /api/v1/tenants/:tenants_id/users/:id
-  # Response:
-  # {
-  #   "status": "ok",
-  #   "user": {
-  #     "id": "00000000-0000-0000-0000-000000000000",
-  #     "name": "Some name",
-  #     "email": "some-name@example.com",
-  #     "role": "owner",
-  #     "inserted_at": "2025-08-18T09:20:00Z",
-  #     "updated_at": "2025-08-19T10:15:00Z"
-  #   }
-  # }
+  @doc """
+  Show a single tenant user (by user id within the tenant).
+
+  Request:
+    GET /api/v1/tenants/:tenant_id/users/:id
+
+  Response:
+    {
+      "status": "ok",
+      "user": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "name": "Some name",
+        "email": "some-name@example.com",
+        "role": "owner",
+        "inserted_at": "2025-08-18T09:20:00Z",
+        "updated_at": "2025-08-19T10:15:00Z"
+      }
+    }
+
+  Errors:
+    404 Not Found
+    {
+      "status": "error",
+      "message": "not found",
+      "error_code": "NOT_FOUND"
+    }
+  """
   def show(conn, %{"tenants_id" => tenant_id, "id" => user_id}) do
     case SD.Tenants.get_tenant_user(tenant_id, user_id) do
       %SD.Tenants.TenantUser{} = tenant_user ->
@@ -151,7 +194,7 @@ defmodule SDRest.TenantUsersController do
         })
 
       _ ->
-        json(put_status(conn, 404), %{"status" => "error", "message" => "not found"})
+        {:error, :not_found}
     end
   end
 
@@ -177,8 +220,23 @@ defmodule SDRest.TenantUsersController do
       }
     }
 
-  Error:
-    { "status": "error", "message": "..." }
+  Errors:
+    404 Not Found
+    {
+      "status": "error",
+      "message": "not found",
+      "error_code": "NOT_FOUND"
+    }
+
+    422 Unprocessable Entity
+    {
+      "status": "error",
+      "message": "invalid input",
+      "error_code": "VALIDATION_ERROR",
+      "fields": {
+        "role": ["is invalid"]
+      }
+    }
   """
   def update(conn, %{"tenants_id" => tenant_id, "id" => user_id} = params) do
     with %SD.Tenants.TenantUser{} = tenant_user <- SD.Tenants.get_tenant_user(tenant_id, user_id),
@@ -218,10 +276,12 @@ defmodule SDRest.TenantUsersController do
       "status": "ok"
     }
 
-  Error:
+  Errors:
+    404 Not Found
     {
       "status": "error",
-      "message": "not found"
+      "message": "not found",
+      "error_code": "NOT_FOUND"
     }
   """
   def delete(conn, %{"tenants_id" => tenant_id, "id" => user_id}) do
