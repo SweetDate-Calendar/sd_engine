@@ -7,7 +7,6 @@ defmodule SD.Tenants do
   alias SD.Repo
 
   alias SD.Tenants.Tenant
-  alias SD.Users.User
 
   @doc """
   Returns the list of tenants, ordered by `name` ascending.
@@ -56,7 +55,12 @@ defmodule SD.Tenants do
       ** nil
 
   """
-  def get_tenant(id), do: Repo.get(Tenant, id)
+  def get_tenant(id) when is_binary(id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} -> SD.Repo.get(SD.Tenants.Tenant, uuid)
+      :error -> nil
+    end
+  end
 
   @doc """
   Updates a tenant.
@@ -125,83 +129,11 @@ defmodule SD.Tenants do
 
   alias SD.Tenants.TenantUser
 
-  @doc """
-  Adds an **existing user** to a tenant as a membership.
-
-  Expects:
-
-    * `tenant_id` — tenant UUID (binary)
-    * `attrs` — map with:
-      * `"user_id"` (required) — the user UUID to add
-      * `"role"` (optional) — one of `"owner" | "admin" | "guest"` (defaults to `"guest"`)
-
-  Returns:
-
-    * `{:ok, %{tenant_user: %TenantUser{}, user: %User{}}}` on success
-    * `{:error, :invalid}` when `"user_id"` is missing
-    * `{:error, :not_found}` when tenant or user does not exist
-    * `{:error, %Ecto.Changeset{}}` when membership creation fails
-      (e.g., duplicate membership or invalid role)
-
-  ## Examples
-
-      iex> add_user(tenant_id, %{"user_id" => user_id, "role" => "admin"})
-      {:ok, %{tenant_user: %TenantUser{}, user: %User{}}}
-
-      iex> add_user(tenant_id, %{"user_id" => user_id})
-      {:ok, %{tenant_user: %TenantUser{role: :guest}, user: %User{}}}
-
-      iex> add_user(tenant_id, %{})
-      {:error, :invalid}
-
-      iex> add_user("00000000-0000-0000-0000-000000000000", %{"user_id" => user_id})
-      {:error, :not_found}
-  """
-  def add_user(tenant_id, %{"user_id" => user_id} = attrs) when is_binary(tenant_id) do
-    case get_tenant(tenant_id) do
-      %Tenant{} ->
-        case SD.Users.get_user(user_id) do
-          %User{} = user ->
-            role = Map.get(attrs, "role", "guest")
-
-            case create_tenant_user(tenant_id, user.id, role) do
-              {:ok, %TenantUser{} = tu} -> {:ok, %{tenant_user: tu, user: user}}
-              {:error, %Ecto.Changeset{} = cs} -> {:error, cs}
-            end
-
-          _ ->
-            # user not found
-            {:error, :not_found}
-        end
-
-      _ ->
-        # tenant not found
-        {:error, :not_found}
-    end
-  end
-
-  # No user_id provided
-  def add_user(_tenant_id, _attrs), do: {:error, :invalid}
-
-  @doc """
-  Creates a tenant membership for an **existing** user.
-
-  - `tenant_id` – UUID (binary)
-  - `user_id` – UUID (binary)
-  - `role` – string or atom (defaults handled by caller; typical values: "guest" | "admin" | "owner")
-
-  Returns `{:ok, %TenantUser{}}` or `{:error, %Ecto.Changeset{}}`.
-  """
-  def create_tenant_user(tenant_id, user_id, role) do
-    attrs = %{
-      "tenant_id" => tenant_id,
-      "user_id" => user_id,
-      "role" => role
-    }
-
-    %TenantUser{}
-    |> TenantUser.changeset(attrs)
-    |> Repo.insert()
+  # in SD.Tenants
+  def create_tenant_user(attrs) do
+    %SD.Tenants.TenantUser{}
+    |> SD.Tenants.TenantUser.changeset(attrs)
+    |> SD.Repo.insert()
   end
 
   @doc """
@@ -219,54 +151,77 @@ defmodule SD.Tenants do
 
   """
   def get_tenant_user(tenant_id, user_id) do
-    from(tu in TenantUser,
-      where: tu.tenant_id == ^tenant_id and tu.user_id == ^user_id,
-      join: u in assoc(tu, :user)
-    )
-    |> Repo.one()
-    |> Repo.preload(:user)
+    with {:ok, _} <- Ecto.UUID.cast(tenant_id),
+         {:ok, _} <- Ecto.UUID.cast(user_id) do
+      from(tu in TenantUser,
+        where: tu.tenant_id == ^tenant_id and tu.user_id == ^user_id,
+        join: u in assoc(tu, :user),
+        preload: [user: u]
+      )
+      |> Repo.one()
+    else
+      :error -> nil
+    end
   end
 
   @doc """
-  List tenant users for a given tenant.
+  Lists tenant_users for a given tenant.
 
-  Supports `:limit`, `:offset`, and optional search `:q`.
+  Returns a list of `%SD.Tenants.TenantUser{}` structs with the associated
+  `%SD.Users.User{}` preloaded in `:user`.
+
+  Options:
+    * `:limit`  – maximum number of records (default: 25)
+    * `:offset` – number of records to skip (default: 0)
+    * `:q`      – optional search string; matches `user.name` or `user.email` (ILIKE)
+
+  Notes:
+    * If `tenant_id` is not a valid UUID, an empty list `[]` is returned.
+    * No 404 handling here; callers decide how to treat empty results.
 
   ## Examples
 
-      iex> list_tenant_users(tenant_id)
-      [%TenantUser{}, ...]
+      iex> SD.Tenants.list_tenant_users(tenant_id)
+      [%SD.Tenants.TenantUser{user: %SD.Users.User{}}, ...]
 
-      iex> list_tenant_users(tenant_id, limit: 10, offset: 20, q: "alice")
-      [%TenantUser{}, ...]
+      iex> SD.Tenants.list_tenant_users(tenant_id, limit: 10, offset: 20, q: "alice")
+      [%SD.Tenants.TenantUser{user: %SD.Users.User{}}, ...]
   """
   def list_tenant_users(tenant_id, opts \\ []) do
-    import Ecto.Query
+    case Ecto.UUID.cast(tenant_id) do
+      :error ->
+        []
 
-    limit = Keyword.get(opts, :limit, 25)
-    offset = Keyword.get(opts, :offset, 0)
-    q = Keyword.get(opts, :q)
+      {:ok, _} ->
+        limit = Keyword.get(opts, :limit, 25)
+        offset = Keyword.get(opts, :offset, 0)
+        q = Keyword.get(opts, :q)
 
-    query =
-      from tu in TenantUser,
-        where: tu.tenant_id == ^tenant_id
-
-    # optional search (adapt as needed)
-    query =
-      if q do
-        from tu in query,
-          join: u in assoc(tu, :user),
-          where: ilike(u.name, ^"%#{q}%") or ilike(u.email, ^"%#{q}%"),
-          preload: [user: u]
-      else
-        from tu in query, preload: [:user]
-      end
-
-    query
-    |> limit(^limit)
-    |> offset(^offset)
-    |> Repo.all()
+        base_query(tenant_id)
+        |> search_query(q)
+        |> limit(^limit)
+        |> offset(^offset)
+        |> SD.Repo.all()
+    end
   end
+
+  defp base_query(tenant_id) do
+    from tu in SD.Tenants.TenantUser,
+      where: tu.tenant_id == ^tenant_id
+  end
+
+  defp search_query(base, q) do
+    if is_binary(q) and q != "" do
+      from tu in base,
+        join: u in assoc(tu, :user),
+        where: ilike(u.name, ^"%#{q}%") or ilike(u.email, ^"%#{q}%"),
+        preload: [user: u]
+    else
+      from tu in base, preload: [:user]
+    end
+  end
+
+  # Ecto.UUID.cast(tenant_id)
 
   @doc """
   Update a tenant user.

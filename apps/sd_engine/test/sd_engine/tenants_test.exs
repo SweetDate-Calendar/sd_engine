@@ -98,4 +98,93 @@ defmodule SD.TenantsTest do
       assert %Ecto.Changeset{} = Tenants.change_tenant(tenant)
     end
   end
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # New tests for tenant users
+  # ───────────────────────────────────────────────────────────────────────────
+  alias SD.Tenants.TenantUser
+  import SD.UsersFixtures
+
+  describe "tenant users" do
+    test "create_tenant_user/3 inserts a tenant_user with the given role" do
+      tenant = tenant_fixture(%{name: "T1"})
+      user = user_fixture(%{name: "Alice", email: "alice@example.com"})
+
+      assert {:ok, %TenantUser{} = tu} =
+               Tenants.create_tenant_user(tenant.id, user.id, "admin")
+
+      assert tu.tenant_id == tenant.id
+      assert tu.user_id == user.id
+      assert to_string(tu.role) == "admin"
+      assert tu.inserted_at && tu.updated_at
+    end
+
+    test "create_tenant_user/3 returns error changeset for invalid user" do
+      tenant = tenant_fixture(%{name: "T2"})
+      bad_user_id = Ecto.UUID.generate()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Tenants.create_tenant_user(tenant.id, bad_user_id, "guest")
+    end
+
+    test "add_tenant_user/2 defaults role to guest and preloads user" do
+      tenant = tenant_fixture(%{name: "T3"})
+      user = user_fixture(%{name: "Bob", email: "bob@example.com"})
+
+      assert {:ok, %TenantUser{} = tu} =
+               Tenants.add_tenant_user(tenant.id, %{"user_id" => user.id})
+
+      # Default role
+      assert to_string(tu.role) == "guest"
+
+      # Preloaded user convenience
+      assert tu.user
+      assert tu.user.id == user.id
+      assert tu.user.name == "Bob"
+      assert tu.user.email == "bob@example.com"
+    end
+
+    test "add_tenant_user/2 accepts explicit role" do
+      tenant = tenant_fixture(%{name: "T4"})
+      user = user_fixture(%{name: "Carol", email: "carol@example.com"})
+
+      assert {:ok, %TenantUser{} = tu} =
+               Tenants.add_tenant_user(tenant.id, %{"user_id" => user.id, "role" => "owner"})
+
+      assert to_string(tu.role) == "owner"
+      assert tu.user && tu.user.id == user.id
+    end
+
+    test "add_tenant_user/2 returns error changeset for invalid user_id" do
+      tenant = tenant_fixture(%{name: "T5"})
+      bad_id = Ecto.UUID.generate()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Tenants.add_tenant_user(tenant.id, %{"user_id" => bad_id})
+    end
+
+    test "list_tenant_users/2 returns memberships for the tenant (with optional q/limit/offset)" do
+      tenant = tenant_fixture(%{name: "T6"})
+      u1 = user_fixture(%{name: "Alpha", email: "alpha@example.com"})
+      u2 = user_fixture(%{name: "Beta", email: "beta@example.com"})
+      u3 = user_fixture(%{name: "Gamma", email: "gamma@example.com"})
+      _ = Tenants.create_tenant_user(tenant.id, u1.id, "guest")
+      _ = Tenants.create_tenant_user(tenant.id, u2.id, "admin")
+      _ = Tenants.create_tenant_user(tenant.id, u3.id, "owner")
+
+      # basic fetch
+      items = Tenants.list_tenant_users(tenant.id)
+
+      assert Enum.map(items, & &1.user_id) |> Enum.sort() ==
+               Enum.map([u1, u2, u3], & &1.id) |> Enum.sort()
+
+      # pagination
+      items2 = Tenants.list_tenant_users(tenant.id, limit: 2, offset: 1)
+      assert length(items2) == 2
+
+      # search by name/email
+      items3 = Tenants.list_tenant_users(tenant.id, q: "alpha")
+      assert Enum.any?(items3, &(&1.user.email == "alpha@example.com"))
+    end
+  end
 end

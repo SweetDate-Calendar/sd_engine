@@ -20,6 +20,27 @@ defmodule SD.Tenants.TenantUser do
     tenant_user
     |> cast(attrs, [:user_id, :tenant_id, :role])
     |> validate_required([:user_id, :tenant_id, :role])
+    |> validate_uuid(:tenant_id)
+    |> validate_uuid(:user_id)
+    |> foreign_key_constraint(:tenant_id)
+    |> foreign_key_constraint(:user_id)
     |> unique_constraint([:tenant_id, :user_id])
+  end
+
+  # Helper to check UUID format
+  defp validate_uuid(changeset, field) do
+    case get_field(changeset, field) do
+      nil ->
+        changeset
+
+      value when is_binary(value) ->
+        case Ecto.UUID.cast(value) do
+          {:ok, _} -> changeset
+          :error -> add_error(changeset, field, "is not a valid UUID")
+        end
+
+      _ ->
+        add_error(changeset, field, "is not a valid UUID")
+    end
   end
 end
