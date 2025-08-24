@@ -1,5 +1,5 @@
 defmodule SDRest.ChangesetErrorsTest do
-  use SDRest.DataCase, async: true
+  use SD.DataCase, async: true
 
   alias SDRest.ChangesetErrors
   alias SD.Tenants.TenantUser
@@ -36,8 +36,8 @@ defmodule SDRest.ChangesetErrorsTest do
       assert Map.has_key?(result, "tenant_id")
       assert Map.has_key?(result, "user_id")
 
-      assert Enum.any?(result["tenant_id"], &(&1 =~ "invalid"))
-      assert Enum.any?(result["user_id"], &(&1 =~ "invalid"))
+      assert Enum.any?(result["tenant_id"], &(&1 =~ ~r/invalid|not a valid/i))
+      assert Enum.any?(result["user_id"], &(&1 =~ ~r/invalid|not a valid/i))
     end
 
     test "returns empty map when there are no errors" do

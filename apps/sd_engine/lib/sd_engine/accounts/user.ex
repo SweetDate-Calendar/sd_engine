@@ -31,7 +31,10 @@ defmodule SD.Users.User do
     user
     |> cast(attrs, [:name, :email])
     |> validate_required([:name, :email])
+    |> update_change(:email, fn e -> e |> String.trim() |> String.downcase() end)
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> validate_length(:email, max: 160)
+    |> unsafe_validate_unique(:email, SD.Repo)
+    |> unique_constraint(:email)
   end
 end
