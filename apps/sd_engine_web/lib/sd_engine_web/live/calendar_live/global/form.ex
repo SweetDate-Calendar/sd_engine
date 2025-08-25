@@ -2,8 +2,8 @@ defmodule SDWeb.Global.CalendarLive.Form do
   alias SD.Tenants
   use SDWeb, :live_view
 
-  alias SD.Calendars
-  alias SD.Calendars.Calendar
+  alias SD.SweetDate
+  alias SD.SweetDate.Calendar
 
   @impl true
   def render(assigns) do
@@ -52,12 +52,12 @@ defmodule SDWeb.Global.CalendarLive.Form do
 
   # Edit mode: load an existing calendar
   defp apply_action(socket, :edit, %{"id" => id}) do
-    calendar = Calendars.get_calendar(id)
+    calendar = SweetDate.get_calendar(id)
 
     socket
     |> assign(:page_title, "Edit Calendar")
     |> assign(:calendar, calendar)
-    |> assign(:form, to_form(Calendars.change_calendar(calendar)))
+    |> assign(:form, to_form(SweetDate.change_calendar(calendar)))
   end
 
   # New mode: prepare a blank calendar struct with tenant_id
@@ -67,7 +67,7 @@ defmodule SDWeb.Global.CalendarLive.Form do
     socket
     |> assign(:page_title, "New Calendar")
     |> assign(:calendar, calendar)
-    |> assign(:form, to_form(Calendars.change_calendar(calendar, %{tenant_id: tenant_id})))
+    |> assign(:form, to_form(SweetDate.change_calendar(calendar, %{tenant_id: tenant_id})))
   end
 
   # Save new
@@ -93,7 +93,7 @@ defmodule SDWeb.Global.CalendarLive.Form do
 
   # Save updates
   defp save_calendar(socket, :edit, calendar_params) do
-    case Calendars.update_calendar(socket.assigns.calendar, calendar_params) do
+    case SweetDate.update_calendar(socket.assigns.calendar, calendar_params) do
       {:ok, _calendar} ->
         {:noreply,
          socket
@@ -114,7 +114,7 @@ defmodule SDWeb.Global.CalendarLive.Form do
 
   @impl true
   def handle_event("validate", %{"calendar" => calendar_params}, socket) do
-    changeset = Calendars.change_calendar(socket.assigns.calendar, calendar_params)
+    changeset = SweetDate.change_calendar(socket.assigns.calendar, calendar_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 

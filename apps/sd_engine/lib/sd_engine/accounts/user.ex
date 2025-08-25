@@ -1,4 +1,4 @@
-defmodule SD.Users.User do
+defmodule SD.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -8,20 +8,14 @@ defmodule SD.Users.User do
     field :name, :string
     field :email, :string
 
-    many_to_many :tenants, SD.Tenants.Tenant,
-      join_through: "tenant_users",
-      on_replace: :delete,
-      join_keys: [user_id: :id, tenant_id: :id]
+    has_many :tenant_users, SD.Accounts.TenantUser
+    has_many :tenants, through: [:tenant_users, :tenant]
 
-    many_to_many :calendars, SD.Calendars.Calendar,
-      join_through: "calendar_users",
-      on_replace: :delete,
-      join_keys: [user_id: :id, calendar_id: :id]
+    has_many :calendar_users, SD.Accounts.CalendarUser
+    has_many :calendars, through: [:calendar_users, :calendar]
 
-    many_to_many :events, SD.Events.Event,
-      join_through: "event_users",
-      on_replace: :delete,
-      join_keys: [user_id: :id, event_id: :id]
+    has_many :event_users, SD.Accounts.EventUser
+    has_many :events, through: [:event_users, :event]
 
     timestamps()
   end

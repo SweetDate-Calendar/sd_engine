@@ -6,10 +6,10 @@ mix phx.gen.schema Tenants.TenantUser tenant_users \
   user_id:references:users  role:string 
 
 Calendar
-mix phx.gen.live Calendars Calendar calendars  \
+mix phx.gen.live SweetDate Calendar calendars  \
 name:string color_theme:string visibility:string
 
-mix phx.gen.schema Calendars.CalendarUser calendar_users \
+mix phx.gen.schema SweetDate.CalendarUser calendar_users \
   user_id:references:users calendar_id:references:calendars role:string 
 
 

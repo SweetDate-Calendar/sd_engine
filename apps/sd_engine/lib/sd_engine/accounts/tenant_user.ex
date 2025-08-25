@@ -1,4 +1,4 @@
-defmodule SD.Tenants.TenantUser do
+defmodule SD.Accounts.TenantUser do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -10,7 +10,7 @@ defmodule SD.Tenants.TenantUser do
       default: :guest
 
     belongs_to :tenant, SD.Tenants.Tenant, type: :binary_id
-    belongs_to :user, SD.Users.User, type: :binary_id
+    belongs_to :user, SD.Accounts.User, type: :binary_id
 
     timestamps()
   end

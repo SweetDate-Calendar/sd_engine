@@ -1,4 +1,4 @@
-defmodule SD.Repo.Migrations.CreateTenantCalendars do
+defmodule SD.Repo.Migrations.CreateTenantSweetDate do
   use Ecto.Migration
 
   def change do

@@ -1,10 +1,10 @@
 defmodule SD.TenantsTest do
   use SD.DataCase
 
-  alias SD.Tenants
+  alias SD.Accounts
 
-  alias SD.{Tenants, Calendars}
-  alias SD.Calendars.Calendar
+  alias SD.{Tenants, SweetDate}
+  alias SD.SweetDate.Calendar
   import SD.TenantsFixtures
 
   describe "add_calendar/2" do
@@ -20,7 +20,7 @@ defmodule SD.TenantsTest do
       assert {:ok, %Calendar{} = calendar} = Tenants.add_calendar(tenant.id, params)
 
       # Calendar is persisted
-      db_calendar = Calendars.get_calendar(calendar.id)
+      db_calendar = SweetDate.get_calendar(calendar.id)
       assert db_calendar.name == "Team Calendar"
       assert db_calendar.color_theme == "blue"
 
@@ -100,9 +100,9 @@ defmodule SD.TenantsTest do
   end
 
   # ───────────────────────────────────────────────────────────────────────────
-  # New tests for tenant users
+  # tests for tenant users
   # ───────────────────────────────────────────────────────────────────────────
-  alias SD.Tenants.TenantUser
+  alias SD.Accounts.TenantUser
   import SD.UsersFixtures
 
   describe "tenant users" do
@@ -111,7 +111,7 @@ defmodule SD.TenantsTest do
       user = user_fixture(%{name: "Alice", email: "alice@example.com"})
 
       assert {:ok, %TenantUser{} = tenant_user} =
-               Tenants.create_tenant_user(%{
+               Accounts.create_tenant_user(%{
                  "tenant_id" => tenant.id,
                  "user_id" => user.id,
                  "role" => "admin"
@@ -128,7 +128,7 @@ defmodule SD.TenantsTest do
       bad_user_id = Ecto.UUID.generate()
 
       assert {:error, %Ecto.Changeset{}} =
-               Tenants.create_tenant_user(%{
+               Accounts.create_tenant_user(%{
                  "tenant_id" => tenant.id,
                  "user_id" => bad_user_id,
                  "role" => "admin"
@@ -140,7 +140,7 @@ defmodule SD.TenantsTest do
       user = user_fixture(%{name: "Bob", email: "bob@example.com"})
 
       assert {:ok, %TenantUser{} = tu} =
-               Tenants.create_tenant_user(%{
+               Accounts.create_tenant_user(%{
                  "tenant_id" => tenant.id,
                  "user_id" => user.id
                })
@@ -160,7 +160,7 @@ defmodule SD.TenantsTest do
       user = user_fixture(%{name: "Carol", email: "carol@example.com"})
 
       assert {:ok, %TenantUser{} = tenant_user} =
-               Tenants.create_tenant_user(%{
+               Accounts.create_tenant_user(%{
                  "tenant_id" => tenant.id,
                  "user_id" => user.id,
                  "role" => "owner"
@@ -175,7 +175,7 @@ defmodule SD.TenantsTest do
       bad_id = Ecto.UUID.generate()
 
       assert {:error, %Ecto.Changeset{}} =
-               Tenants.create_tenant_user(%{"tenant_id" => tenant.id, "user_id" => bad_id})
+               Accounts.create_tenant_user(%{"tenant_id" => tenant.id, "user_id" => bad_id})
     end
 
     test "list_tenant_users/2 returns tenant_users for the tenant (with optional q/limit/offset)" do
@@ -184,36 +184,36 @@ defmodule SD.TenantsTest do
       user_2 = user_fixture(%{name: "Beta", email: "beta@example.com"})
       user_3 = user_fixture(%{name: "Gamma", email: "gamma@example.com"})
 
-      Tenants.create_tenant_user(%{
+      Accounts.create_tenant_user(%{
         "tenant_id" => tenant.id,
         "user_id" => user_1.id,
         "role" => "guest"
       })
 
-      Tenants.create_tenant_user(%{
+      Accounts.create_tenant_user(%{
         "tenant_id" => tenant.id,
         "user_id" => user_2.id,
         "role" => "admin"
       })
 
-      Tenants.create_tenant_user(%{
+      Accounts.create_tenant_user(%{
         "tenant_id" => tenant.id,
         "user_id" => user_3.id,
         "role" => "owner"
       })
 
       # basic fetch
-      items = Tenants.list_tenant_users(tenant.id)
+      items = Accounts.list_tenant_users(tenant.id)
 
       assert Enum.map(items, & &1.user_id) |> Enum.sort() ==
                Enum.map([user_1, user_2, user_3], & &1.id) |> Enum.sort()
 
       # # pagination
-      # items2 = Tenants.list_tenant_users(tenant.id, limit: 2, offset: 1)
+      # items2 = Accounts.list_tenant_users(tenant.id, limit: 2, offset: 1)
       # assert length(items2) == 2
 
       # # search by name/email
-      # items3 = Tenants.list_tenant_users(tenant.id, q: "alpha")
+      # items3 = Accounts.list_tenant_users(tenant.id, q: "alpha")
       # assert Enum.any?(items3, &(&1.user_1.email == "alpha@example.com"))
     end
   end

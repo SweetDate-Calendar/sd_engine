@@ -10,7 +10,7 @@ defmodule SD.EventsFixtures do
   def event_fixture(attrs \\ %{}) do
     calendar_id =
       Map.get(attrs, :calendar_id) ||
-        SD.CalendarsFixtures.calendar_fixture().id
+        SD.SweetDateFixtures.calendar_fixture().id
 
     {:ok, event} =
       attrs

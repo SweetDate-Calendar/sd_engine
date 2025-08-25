@@ -1,10 +1,10 @@
-defmodule SDRest.TenantCalendarsControllerTest do
+defmodule SDRest.TenantSweetDateControllerTest do
   use SDRest.ConnCase, async: true
 
   import Phoenix.ConnTest
   import SD.TenantsFixtures
   import SD.AccountFixtures
-  import SD.CalendarsFixtures
+  import SD.SweetDateFixtures
 
   @tenants_base "/api/v1/tenants"
 

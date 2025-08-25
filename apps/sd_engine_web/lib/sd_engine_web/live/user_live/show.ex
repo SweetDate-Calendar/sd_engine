@@ -26,7 +26,7 @@ defmodule SDWeb.UserLive.Show do
         <:item title="Name">{@user.name}</:item>
         <:item title="Email">{@user.email}</:item>
       </.list>
-      Calendars
+      SweetDate
       <.table
         id="calendars"
         rows={@streams.calendars}
@@ -78,8 +78,8 @@ defmodule SDWeb.UserLive.Show do
 
   @impl true
   def handle_event("delete_calendar", %{"calendar_id" => calendar_id}, socket) do
-    calendar = SD.Calendars.get_calendar(calendar_id)
-    {:ok, _} = SD.Calendars.delete_calendar(calendar)
+    calendar = SD.SweetDate.get_calendar(calendar_id)
+    {:ok, _} = SD.SweetDate.delete_calendar(calendar)
 
     {:noreply, stream_delete(socket, :calendars, calendar)}
   end

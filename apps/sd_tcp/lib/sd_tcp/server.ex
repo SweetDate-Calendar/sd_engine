@@ -89,10 +89,10 @@ defmodule SDTCP.Server do
   defp dispatch("TENANTS." <> action, json), do: SDTCP.Handlers.Tenants.dispatch(action, json)
 
   defp dispatch("CALENDARS." <> action, json),
-    do: SDTCP.Handlers.Calendars.dispatch(action, json)
+    do: SDTCP.Handlers.SweetDate.dispatch(action, json)
 
   # defp dispatch("CALENDARS." <> action, json),
-  #   do: SDTCP.Handlers.Calendars.dispatch(action, json)
+  #   do: SDTCP.Handlers.SweetDate.dispatch(action, json)
 
   defp dispatch(_, _), do: %{status: "error", message: "unknown command"}
 end

@@ -20,7 +20,7 @@ defmodule SDRest.Router do
 
     resources "/tenants", TenantsController do
       resources "/users", TenantUsersController
-      resources "/calendars", TenantCalendarsController
+      resources "/calendars", TenantSweetDateController
     end
 
     resources "/users", TenantsController do

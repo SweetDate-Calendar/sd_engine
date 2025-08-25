@@ -1,11 +1,11 @@
-defmodule SD.Calendars.CalendarUserTest do
+defmodule SD.Accounts.CalendarUserTest do
   use SD.DataCase, async: true
 
-  alias SD.Calendars.CalendarUser
-  alias SD.Calendars
+  alias SD.Accounts.CalendarUser
+  alias SD.Accounts
   alias SD.Repo
 
-  import SD.CalendarsFixtures
+  import SD.SweetDateFixtures
   import SD.UsersFixtures
 
   describe "calendar_users join" do
@@ -13,17 +13,17 @@ defmodule SD.Calendars.CalendarUserTest do
       user = user_fixture()
       calendar = calendar_fixture()
 
-      Calendars.create_calendar_user(calendar.id, user.id, :guest)
+      Accounts.create_calendar_user(calendar.id, user.id, :guest)
 
       assert {:error, _} =
-               Calendars.create_calendar_user(calendar.id, user.id, :guest)
+               Accounts.create_calendar_user(calendar.id, user.id, :guest)
     end
 
     test "user can be added to calendar and accessed from both sides" do
       user = user_fixture()
       calendar = calendar_fixture()
 
-      Calendars.create_calendar_user(calendar.id, user.id, :guest)
+      Accounts.create_calendar_user(calendar.id, user.id, :guest)
 
       user = Repo.preload(user, :calendars)
       assert Enum.any?(user.calendars, &(&1.id == calendar.id))
@@ -36,7 +36,7 @@ defmodule SD.Calendars.CalendarUserTest do
       user = user_fixture()
       calendar = calendar_fixture()
 
-      Calendars.create_calendar_user(calendar.id, user.id, :guest)
+      Accounts.create_calendar_user(calendar.id, user.id, :guest)
 
       Repo.delete!(user)
 
@@ -51,7 +51,7 @@ defmodule SD.Calendars.CalendarUserTest do
       user = user_fixture()
       calendar = calendar_fixture()
 
-      Calendars.create_calendar_user(calendar.id, user.id, :guest)
+      Accounts.create_calendar_user(calendar.id, user.id, :guest)
 
       Repo.delete!(calendar)
 

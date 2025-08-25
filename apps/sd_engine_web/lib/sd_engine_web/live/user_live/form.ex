@@ -44,7 +44,7 @@ defmodule SDWeb.UserLive.Form do
   end
 
   defp apply_action(socket, :new, _params) do
-    user = %SD.Users.User{}
+    user = %SD.Accounts.User{}
 
     socket
     |> assign(:page_title, "New User")

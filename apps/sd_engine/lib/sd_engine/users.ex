@@ -6,7 +6,7 @@ defmodule SD.Users do
   import Ecto.Query, warn: false
   alias SD.Repo
 
-  alias SD.Users.User
+  alias SD.Accounts.User
 
   @doc """
   Returns the list of users, ordered by `email` ascending.
@@ -164,6 +164,8 @@ defmodule SD.Users do
     User.changeset(user, attrs)
   end
 
+  alias SD.SweetDate.Calendar
+
   @doc """
   Creates a calendar associated with a user.
 
@@ -173,7 +175,7 @@ defmodule SD.Users do
   ## Examples
 
       iex> add_calendar(user_id, %{name: "Personal calendar"})
-      {:ok, %SD.Calendars.Calendar{}}
+      {:ok, %SD.SweetDate.Calendar{}}
 
       iex> add_calendar(user_id, %{name: nil})
       {:error, :calendar, %Ecto.Changeset{}, _changes_so_far}
@@ -181,11 +183,22 @@ defmodule SD.Users do
 
   """
   def add_calendar(user_id, params) do
-    SD.Calendars.add_calendar_for(
-      user_id,
-      params,
-      SD.Calendars.CalendarUser,
-      :user_id
-    )
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(:calendar, Calendar.changeset(%Calendar{}, params))
+      |> Ecto.Multi.insert(:calendar_user, fn %{calendar: calendar} ->
+        %SD.Accounts.CalendarUser{
+          user_id: user_id,
+          calendar_id: calendar.id
+        }
+      end)
+
+    case Repo.transaction(multi) do
+      {:ok, %{calendar: %SD.SweetDate.Calendar{} = calendar}} ->
+        {:ok, calendar}
+
+      {:error, step, value, changes} ->
+        {:error, step, value, changes}
+    end
   end
 end

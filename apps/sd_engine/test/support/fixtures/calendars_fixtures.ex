@@ -1,7 +1,7 @@
-defmodule SD.CalendarsFixtures do
+defmodule SD.SweetDateFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `SD.Calendars` context.
+  entities via the `SD.SweetDate` context.
   """
 
   @doc """
@@ -16,7 +16,7 @@ defmodule SD.CalendarsFixtures do
         visibility: :public
       })
 
-    {:ok, calendar} = SD.Calendars.create_calendar(attrs)
+    {:ok, calendar} = SD.SweetDate.create_calendar(attrs)
     calendar
   end
 end
