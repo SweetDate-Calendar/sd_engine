@@ -1,9 +1,7 @@
 defmodule SDRest.TenantUsersController do
   use SDRest, :controller
+  use SDRest.ControllerHelpers, default_limit: 25, max_limit: 100
   action_fallback SDRest.FallbackController
-
-  @default_limit 25
-  @max_limit 100
 
   @doc """
   List users for a tenant.
@@ -297,21 +295,21 @@ defmodule SDRest.TenantUsersController do
     end
   end
 
-  defp pagination(params) do
-    limit = params |> Map.get("limit") |> parse_int(@default_limit) |> clamp(1, @max_limit)
-    offset = params |> Map.get("offset") |> parse_int(0) |> max(0)
-    {limit, offset}
-  end
+  # defp pagination(params) do
+  #   limit = params |> Map.get("limit") |> parse_int(@default_limit) |> clamp(1, @max_limit)
+  #   offset = params |> Map.get("offset") |> parse_int(0) |> max(0)
+  #   {limit, offset}
+  # end
 
-  defp parse_int(nil, default), do: default
-  defp parse_int(v, _default) when is_integer(v), do: v
+  # defp parse_int(nil, default), do: default
+  # defp parse_int(v, _default) when is_integer(v), do: v
 
-  defp parse_int(v, default) when is_binary(v) do
-    case Integer.parse(v) do
-      {i, _} -> i
-      :error -> default
-    end
-  end
+  # defp parse_int(v, default) when is_binary(v) do
+  #   case Integer.parse(v) do
+  #     {i, _} -> i
+  #     :error -> default
+  #   end
+  # end
 
-  defp clamp(i, min, max) when is_integer(i), do: i |> max(min) |> min(max)
+  # defp clamp(i, min, max) when is_integer(i), do: i |> max(min) |> min(max)
 end

@@ -1,33 +1,32 @@
-defmodule SDRest.TenantsController do
+defmodule SDRest.UsersController do
   use SDRest, :controller
   use SDRest.ControllerHelpers, default_limit: 25, max_limit: 100
 
-  alias SD.Tenants
+  alias SD.Users
 
-  # GET /api/v1/tenants?limit=25&offset=0
+  # GET /api/v1/users?limit=25&offset=0
   def index(conn, params) do
     {limit, offset} = pagination(params)
 
-    # Expecting: SD.Tenants.list_tenants(limit: ..., offset: ...)
-    tenants = Tenants.list_tenants(limit: limit, offset: offset)
+    users = Users.list_users(limit: limit, offset: offset)
 
     json(conn, %{
       "status" => "ok",
       "result" => %{
-        "tenants" => Enum.map(tenants, &tenant_json/1),
+        "users" => Enum.map(users, &user_json/1),
         "limit" => limit,
         "offset" => offset
       }
     })
   end
 
-  # GET /api/v1/tenants/:id
+  # GET /api/v1/users/:id
   def show(conn, %{"id" => id}) do
     with :ok <- ensure_uuid(id),
-         {:ok, tenant} <- fetch_tenant(id) do
+         {:ok, user} <- fetch_user(id) do
       json(conn, %{
         "status" => "ok",
-        "result" => %{"tenant" => tenant_json(tenant)}
+        "result" => %{"user" => user_json(user)}
       })
     else
       :error ->
@@ -41,20 +40,18 @@ defmodule SDRest.TenantsController do
     end
   end
 
-  # POST /api/v1/tenants
+  # POST /api/v1/users
   def create(conn, params) do
     attrs = %{
-      "name" => Map.get(params, "name")
-      # Include any extra attributes you accept here.
-      # If you auto-create a default calendar, that likely happens in the context.
+      "name" => Map.get(params, "name"),
+      "email" => Map.get(params, "email")
     }
 
-    # Expecting: SD.Tenants.create_tenant(attrs) -> {:ok, tenant} | {:error, changeset}
-    case Tenants.create_tenant(attrs) do
-      {:ok, tenant} ->
+    case Users.create_user(attrs) do
+      {:ok, user} ->
         json(conn |> put_status(201), %{
           "status" => "ok",
-          "tenant" => tenant_json(tenant)
+          "user" => user_json(user)
         })
 
       {:error, changeset} ->
@@ -66,17 +63,15 @@ defmodule SDRest.TenantsController do
     end
   end
 
-  # PUT /api/v1/tenants/:id
-  # PUT /api/v1/tenants/:id
+  # PUT /api/v1/users/:id
   def update(conn, %{"id" => id} = params) do
     with :ok <- ensure_uuid(id),
-         {:ok, tenant} <- fetch_tenant(id),
-         attrs <- Map.take(params, ["name"]),
-         {:ok, updated} <- SD.Tenants.update_tenant(tenant, attrs) do
-      json(conn, %{"status" => "ok", "tenant" => tenant_json(updated)})
+         {:ok, user} <- fetch_user(id),
+         attrs <- Map.take(params, ["name", "email"]),
+         {:ok, updated} <- Users.update_user(user, attrs) do
+      json(conn, %{"status" => "ok", "user" => user_json(updated)})
     else
       :error ->
-        # invalid UUID (treat same as not found to avoid leaking details)
         json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
 
       {:error, :not_found} ->
@@ -94,18 +89,21 @@ defmodule SDRest.TenantsController do
     end
   end
 
-  # DELETE /api/v1/tenants/:id
+  # DELETE /api/v1/users/:id
   def delete(conn, %{"id" => id}) do
     with :ok <- ensure_uuid(id),
-         {:ok, tenant} <- fetch_tenant(id),
-         {:ok, _} <- SD.Tenants.delete_tenant(tenant) do
+         {:ok, user} <- fetch_user(id),
+         {:ok, _} <- Users.delete_user(user) do
       json(conn, %{
         "status" => "ok",
-        "tenant" => %{"id" => tenant.id, "name" => tenant.name}
+        "user" => %{
+          "id" => user.id,
+          "name" => user.name,
+          "email" => user.email
+        }
       })
     else
       :error ->
-        # invalid UUID or failed check
         json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
 
       {:error, :not_found} ->
@@ -116,25 +114,24 @@ defmodule SDRest.TenantsController do
     end
   end
 
-  ## --- helpers ---
-
-  # Normalize various context return styles into {:ok, tenant} | {:error, :not_found}
-  defp fetch_tenant(id) do
-    case SD.Tenants.get_tenant(id) do
-      {:ok, tenant} when not is_nil(tenant) -> {:ok, tenant}
-      %{} = tenant -> {:ok, tenant}
+  # Normalize context return into {:ok, user} | {:error, :not_found}
+  defp fetch_user(id) do
+    case Users.get_user(id) do
+      {:ok, u} when not is_nil(u) -> {:ok, u}
+      %{} = u -> {:ok, u}
       nil -> {:error, :not_found}
       {:error, :not_found} -> {:error, :not_found}
       other -> other
     end
   end
 
-  defp tenant_json(t) do
+  defp user_json(u) do
     %{
-      "id" => t.id,
-      "name" => t.name,
-      "created_at" => t.inserted_at,
-      "updated_at" => t.updated_at
+      "id" => u.id,
+      "name" => u.name,
+      "email" => u.email,
+      "created_at" => u.inserted_at,
+      "updated_at" => u.updated_at
     }
   end
 end
