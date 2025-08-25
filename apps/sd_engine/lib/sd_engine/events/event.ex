@@ -28,7 +28,7 @@ defmodule SD.Events.Event do
     field :all_day, :boolean, default: false
     belongs_to :calendar, SD.Calendars.Calendar, type: :binary_id
 
-    many_to_many :users, SD.Users.User,
+    many_to_many :users, SD.Accounts.User,
       join_through: "event_users",
       on_replace: :delete,
       join_keys: [event_id: :id, user_id: :id]

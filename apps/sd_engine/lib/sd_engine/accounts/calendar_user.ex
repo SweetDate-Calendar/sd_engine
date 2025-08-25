@@ -1,4 +1,4 @@
-defmodule SD.Calendars.CalendarUser do
+defmodule SD.Accounts.CalendarUser do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -8,7 +8,7 @@ defmodule SD.Calendars.CalendarUser do
     field :role, Ecto.Enum, values: [:owner, :admin, :guest]
 
     belongs_to :calendar, SD.Calendars.Calendar, type: :binary_id
-    belongs_to :user, SD.Users.User, type: :binary_id
+    belongs_to :user, SD.Accounts.User, type: :binary_id
 
     timestamps()
   end

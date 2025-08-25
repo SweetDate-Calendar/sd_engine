@@ -39,7 +39,7 @@ defmodule SDRest.TenantUsersController do
         q = Map.get(params, "q")
 
         tenant_users =
-          SD.Tenants.list_tenant_users(tenant_id, limit: limit, offset: offset, q: q)
+          SD.Accounts.list_tenant_users(tenant_id, limit: limit, offset: offset, q: q)
 
         users =
           Enum.map(tenant_users, fn tu ->
@@ -119,7 +119,7 @@ defmodule SDRest.TenantUsersController do
           "role" => Map.get(params, "role", "guest")
         }
 
-        with {:ok, tenant_user} <- SD.Tenants.create_tenant_user(attrs),
+        with {:ok, tenant_user} <- SD.Accounts.create_tenant_user(attrs),
              tenant_user <- SD.Repo.preload(tenant_user, :user) do
           user = tenant_user.user
 
@@ -175,8 +175,8 @@ defmodule SDRest.TenantUsersController do
     }
   """
   def show(conn, %{"tenants_id" => tenant_id, "id" => user_id}) do
-    case SD.Tenants.get_tenant_user(tenant_id, user_id) do
-      %SD.Tenants.TenantUser{} = tenant_user ->
+    case SD.Accounts.get_tenant_user(tenant_id, user_id) do
+      %SD.Accounts.TenantUser{} = tenant_user ->
         user = tenant_user.user
 
         json(conn, %{
@@ -237,9 +237,10 @@ defmodule SDRest.TenantUsersController do
     }
   """
   def update(conn, %{"tenants_id" => tenant_id, "id" => user_id} = params) do
-    with %SD.Tenants.TenantUser{} = tenant_user <- SD.Tenants.get_tenant_user(tenant_id, user_id),
+    with %SD.Accounts.TenantUser{} = tenant_user <-
+           SD.Accounts.get_tenant_user(tenant_id, user_id),
          attrs <- Map.take(params, ["role"]),
-         {:ok, tenant_user} <- SD.Tenants.update_tenant_user(tenant_user, attrs),
+         {:ok, tenant_user} <- SD.Accounts.update_tenant_user(tenant_user, attrs),
          tenant_user <- SD.Repo.preload(tenant_user, :user) do
       user = tenant_user.user
 
@@ -283,8 +284,9 @@ defmodule SDRest.TenantUsersController do
     }
   """
   def delete(conn, %{"tenants_id" => tenant_id, "id" => user_id}) do
-    with %SD.Tenants.TenantUser{} = tenant_user <- SD.Tenants.get_tenant_user(tenant_id, user_id),
-         {:ok, _deleted} <- SD.Tenants.delete_tenant_user(tenant_user) do
+    with %SD.Accounts.TenantUser{} = tenant_user <-
+           SD.Accounts.get_tenant_user(tenant_id, user_id),
+         {:ok, _deleted} <- SD.Accounts.delete_tenant_user(tenant_user) do
       json(conn, %{"status" => "ok"})
     else
       nil ->

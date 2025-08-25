@@ -4,7 +4,7 @@ defmodule SD.UsersTest do
   alias SD.Users
   alias SD.{Users, Calendars}
   alias SD.Calendars.Calendar
-  alias SD.Calendars.CalendarUser
+  alias SD.Accounts.CalendarUser
 
   import SD.UsersFixtures
 
@@ -21,19 +21,17 @@ defmodule SD.UsersTest do
       # Call once and keep the result
       result = Users.add_calendar(user.id, params)
 
-      # Accept either {:ok, %Calendar{}} or {:ok, %{calendar: ..., user_calendar: ...}}
+      # Extract the calendar and user_calendar values safely
       {calendar, cu} =
-        case result do
-          {:ok, %Calendar{} = calendar} ->
-            # Look up the join row explicitly
-            cu =
-              Repo.one!(
-                from c in CalendarUser,
-                  where: c.user_id == ^user.id and c.calendar_id == ^calendar.id
-              )
+        with {:ok, %Calendar{} = calendar} <- result do
+          cu =
+            Repo.one!(
+              from c in CalendarUser,
+                where: c.user_id == ^user.id and c.calendar_id == ^calendar.id
+            )
 
-            {calendar, cu}
-
+          {calendar, cu}
+        else
           {:ok, %{calendar: %Calendar{} = calendar, user_calendar: %CalendarUser{} = cu}} ->
             {calendar, cu}
 
@@ -61,7 +59,7 @@ defmodule SD.UsersTest do
   end
 
   describe "users" do
-    alias SD.Users.User
+    alias SD.Accounts.User
 
     @invalid_attrs %{name: nil, email: nil}
 

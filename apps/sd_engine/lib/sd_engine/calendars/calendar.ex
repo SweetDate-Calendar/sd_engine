@@ -18,7 +18,7 @@ defmodule SD.Calendars.Calendar do
       join_through: "tenant_calendars",
       on_replace: :delete
 
-    many_to_many :users, SD.Users.User,
+    many_to_many :users, SD.Accounts.User,
       join_through: "calendar_users",
       on_replace: :delete,
       join_keys: [calendar_id: :id, user_id: :id]

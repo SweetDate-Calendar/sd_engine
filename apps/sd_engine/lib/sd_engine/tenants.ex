@@ -128,142 +128,7 @@ defmodule SD.Tenants do
     Tenant.changeset(tenant, attrs)
   end
 
-  alias SD.Tenants.TenantUser
-
-  # in SD.Tenants
-  def create_tenant_user(attrs) do
-    %SD.Tenants.TenantUser{}
-    |> SD.Tenants.TenantUser.changeset(attrs)
-    |> SD.Repo.insert()
-    |> case do
-      {:ok, tenant_user} ->
-        {:ok, SD.Repo.preload(tenant_user, :user)}
-
-      {:error, changeset} ->
-        {:error, changeset}
-    end
-  end
-
-  @doc """
-  Fetch the user associated with a tenant.
-
-  Given a `tenant_id` and a `user_id`, returns the user if that user
-  is a member of the tenant. Returns `nil` if no such tenant_user exists.
-
-  ## Examples
-
-      iex> %TenantUser{} = SD.Tenants.get_tenant_user(tenant_id, user_id)
-
-      iex> SD.Tenants.get_tenant_user("00000000-0000-0000-0000-000000000000", user_id)
-      nil
-
-  """
-  def get_tenant_user(tenant_id, user_id) do
-    with {:ok, _} <- Ecto.UUID.cast(tenant_id),
-         {:ok, _} <- Ecto.UUID.cast(user_id) do
-      from(tu in TenantUser,
-        where: tu.tenant_id == ^tenant_id and tu.user_id == ^user_id,
-        join: u in assoc(tu, :user),
-        preload: [user: u]
-      )
-      |> Repo.one()
-    else
-      :error -> nil
-    end
-  end
-
-  @doc """
-  Lists tenant_users for a given tenant.
-
-  Returns a list of `%SD.Tenants.TenantUser{}` structs with the associated
-  `%SD.Users.User{}` preloaded in `:user`.
-
-  Options:
-    * `:limit`  – maximum number of records (default: 25)
-    * `:offset` – number of records to skip (default: 0)
-    * `:q`      – optional search string; matches `user.name` or `user.email` (ILIKE)
-
-  Notes:
-    * If `tenant_id` is not a valid UUID, an empty list `[]` is returned.
-    * No 404 handling here; callers decide how to treat empty results.
-
-  ## Examples
-
-      iex> SD.Tenants.list_tenant_users(tenant_id)
-      [%SD.Tenants.TenantUser{user: %SD.Users.User{}}, ...]
-
-      iex> SD.Tenants.list_tenant_users(tenant_id, limit: 10, offset: 20, q: "alice")
-      [%SD.Tenants.TenantUser{user: %SD.Users.User{}}, ...]
-  """
-  def list_tenant_users(tenant_id, opts \\ []) do
-    case Ecto.UUID.cast(tenant_id) do
-      :error ->
-        []
-
-      {:ok, _} ->
-        limit = Keyword.get(opts, :limit, 25)
-        offset = Keyword.get(opts, :offset, 0)
-        q = Keyword.get(opts, :q)
-
-        base_query(tenant_id)
-        |> search_query(q)
-        |> limit(^limit)
-        |> offset(^offset)
-        |> SD.Repo.all()
-    end
-  end
-
-  defp base_query(tenant_id) do
-    from tu in SD.Tenants.TenantUser,
-      where: tu.tenant_id == ^tenant_id
-  end
-
-  defp search_query(base, q) do
-    if is_binary(q) and q != "" do
-      from tu in base,
-        join: u in assoc(tu, :user),
-        where: ilike(u.name, ^"%#{q}%") or ilike(u.email, ^"%#{q}%"),
-        preload: [user: u]
-    else
-      from tu in base, preload: [:user]
-    end
-  end
-
-  # Ecto.UUID.cast(tenant_id)
-
-  @doc """
-  Update a tenant user.
-
-  ## Examples
-
-      iex> update_tenant_user(tenant_user, %{role: "editor"})
-      {:ok, %TenantUser{}}
-
-      iex> update_tenant_user(tenant_user, %{role: nil})
-      {:error, %Ecto.Changeset{}}
-  """
-  def update_tenant_user(%TenantUser{} = tenant_user, attrs) do
-    tenant_user
-    |> TenantUser.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Delete a tenant user.
-
-  ## Examples
-
-      iex> delete_tenant_user(user)
-      {:ok, %TenantUser{}}
-  """
-  def delete_tenant_user(%TenantUser{} = user), do: Repo.delete(user)
-
-  @doc """
-  Return an `%Ecto.Changeset{}` for tracking tenant user changes.
-  """
-  def change_tenant_user(%TenantUser{} = user, attrs \\ %{}) do
-    TenantUser.changeset(user, attrs)
-  end
+  alias SD.Calendars.Calendar
 
   @doc """
   Creates a calendar associated with a tenant.
@@ -287,13 +152,35 @@ defmodule SD.Tenants do
     * Runs inside a transaction (`Ecto.Multi`).
   """
   def add_calendar(tenant_id, params) do
-    SD.Calendars.add_calendar_for(
-      tenant_id,
-      params,
-      SD.Tenants.TenantCalendar,
-      :tenant_id
-    )
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(:calendar, Calendar.changeset(%Calendar{}, params))
+      |> Ecto.Multi.insert(:tenant_calendar, fn %{calendar: calendar} ->
+        %SD.Tenants.TenantCalendar{
+          tenant_id: tenant_id,
+          calendar_id: calendar.id
+        }
+        # if you have a changeset function
+        |> SD.Tenants.TenantCalendar.changeset(%{})
+      end)
+
+    case Repo.transaction(multi) do
+      {:ok, %{calendar: %SD.Calendars.Calendar{} = calendar}} ->
+        {:ok, calendar}
+
+      {:error, step, value, changes} ->
+        {:error, step, value, changes}
+    end
   end
+
+  # def add_calendar(tenant_id, params) do
+  #   SD.Calendars.add_calendar_for(
+  #     tenant_id,
+  #     params,
+  #     SD.Tenants.TenantCalendar,
+  #     :tenant_id
+  #   )
+  # end
 
   @doc """
   Convenience: list bare %Calendar{} for a tenant (via many_to_many preload).

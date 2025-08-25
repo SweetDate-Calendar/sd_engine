@@ -13,7 +13,7 @@ defmodule SD.Tenants.Tenant do
       join_through: "tenant_calendars",
       on_replace: :delete
 
-    many_to_many :users, SD.Users.User,
+    many_to_many :users, SD.Accounts.User,
       join_through: "tenant_users",
       on_replace: :delete,
       join_keys: [tenant_id: :id, user_id: :id]

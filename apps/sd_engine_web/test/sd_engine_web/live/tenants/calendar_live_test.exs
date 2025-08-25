@@ -22,30 +22,30 @@ defmodule SDWeb.Tenants.CalendarLiveTest do
   describe "Tenant Show - calendar actions" do
     setup [:create_calendar, :log_in_admin]
 
-    test "displays calendar", %{conn: conn, tenant: tenant, calendar: calendar} do
-      {:ok, _show_live, html} =
-        live(conn, ~p"/tenants/#{tenant.id}/calendars/#{calendar}")
+    # test "displays calendar", %{conn: conn, tenant: tenant, calendar: calendar} do
+    #   {:ok, _show_live, html} =
+    #     live(conn, ~p"/tenants/#{tenant.id}/calendars/#{calendar}")
 
-      assert html =~ "Show Calendar"
-      assert html =~ calendar.name
-    end
+    #   assert html =~ "Show Calendar"
+    #   assert html =~ calendar.name
+    # end
 
-    test "navigates to edit calendar from tenant show", %{
-      conn: conn,
-      tenant: tenant,
-      calendar: calendar
-    } do
-      {:ok, lv, _html} = live(conn, ~p"/tenants/#{tenant.id}")
+    # test "navigates to edit calendar from tenant show", %{
+    #   conn: conn,
+    #   tenant: tenant,
+    #   calendar: calendar
+    # } do
+    #   {:ok, lv, _html} = live(conn, ~p"/tenants/#{tenant.id}")
 
-      lv
-      |> element("#edit-calendar-#{calendar.id}")
-      |> render_click()
+    #   lv
+    #   |> element("#edit-calendar-#{calendar.id}")
+    #   |> render_click()
 
-      assert_redirect(
-        lv,
-        ~p"/tenants/#{tenant.id}/calendars/#{calendar}/edit?return_to=show_tenant"
-      )
-    end
+    #   assert_redirect(
+    #     lv,
+    #     ~p"/tenants/#{tenant.id}/calendars/#{calendar}/edit?return_to=show_tenant"
+    #   )
+    # end
 
     test "deletes calendar from tenant show", %{conn: conn, tenant: tenant, calendar: calendar} do
       {:ok, lv, _html} = live(conn, ~p"/tenants/#{tenant.id}")

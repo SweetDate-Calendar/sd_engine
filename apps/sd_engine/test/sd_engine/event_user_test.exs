@@ -1,8 +1,8 @@
-defmodule SD.Events.EventUserTest do
+defmodule SD.Accounts.EventUserTest do
   use SD.DataCase, async: true
 
-  alias SD.Events.EventUser
-  alias SD.Events
+  alias SD.Accounts.EventUser
+  alias SD.Accounts
   alias SD.Repo
 
   import SD.EventsFixtures
@@ -12,14 +12,14 @@ defmodule SD.Events.EventUserTest do
     setup do
       user = user_fixture()
       event = event_fixture()
-      {:ok, event_user} = Events.create_event_user(event.id, user.id, :attendee, :invited)
+      {:ok, event_user} = Accounts.create_event_user(event.id, user.id, :attendee, :invited)
 
       %{user: user, event: event, event_user: event_user}
     end
 
     test "user can't be added to an event two times", %{user: user, event: event} do
       assert {:error, _} =
-               Events.create_event_user(event.id, user.id, :guest, :accepted)
+               Accounts.create_event_user(event.id, user.id, :guest, :accepted)
     end
 
     test "user can be added to event and accessed from both sides", %{user: user, event: event} do
@@ -51,7 +51,7 @@ defmodule SD.Events.EventUserTest do
     end
 
     test "list_event_users/0 returns all event users", %{event_user: event_user} do
-      result = Events.list_event_users()
+      result = Accounts.list_event_users()
       assert event_user in result
       assert is_list(result)
       assert Enum.all?(result, fn eu -> %EventUser{} = eu end)
@@ -59,14 +59,14 @@ defmodule SD.Events.EventUserTest do
 
     test "update_event_user/2 with valid data updates the record", %{event_user: eu} do
       assert {:ok, updated} =
-               Events.update_event_user(eu, %{role: :organizer, status: :accepted})
+               Accounts.update_event_user(eu, %{role: :organizer, status: :accepted})
 
       assert updated.role == :organizer
       assert updated.status == :accepted
     end
 
     test "update_event_user/2 with invalid data returns error changeset", %{event_user: eu} do
-      assert {:error, changeset} = Events.update_event_user(eu, %{role: nil})
+      assert {:error, changeset} = Accounts.update_event_user(eu, %{role: nil})
       assert %Ecto.Changeset{} = changeset
       assert errors_on(changeset)[:role] != nil
     end
