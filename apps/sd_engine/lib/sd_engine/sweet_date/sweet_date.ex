@@ -1,4 +1,4 @@
-defmodule SD.Calendars.Calendar do
+defmodule SD.SweetDate.Calendar do
   use Ecto.Schema
   import Ecto.Changeset
 

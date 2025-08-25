@@ -128,7 +128,7 @@ defmodule SD.Tenants do
     Tenant.changeset(tenant, attrs)
   end
 
-  alias SD.Calendars.Calendar
+  alias SD.SweetDate.Calendar
 
   @doc """
   Creates a calendar associated with a tenant.
@@ -165,7 +165,7 @@ defmodule SD.Tenants do
       end)
 
     case Repo.transaction(multi) do
-      {:ok, %{calendar: %SD.Calendars.Calendar{} = calendar}} ->
+      {:ok, %{calendar: %SD.SweetDate.Calendar{} = calendar}} ->
         {:ok, calendar}
 
       {:error, step, value, changes} ->
@@ -174,7 +174,7 @@ defmodule SD.Tenants do
   end
 
   # def add_calendar(tenant_id, params) do
-  #   SD.Calendars.add_calendar_for(
+  #   SD.SweetDate.add_calendar_for(
   #     tenant_id,
   #     params,
   #     SD.Tenants.TenantCalendar,

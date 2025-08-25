@@ -7,7 +7,7 @@ defmodule SD.Accounts.CalendarUser do
   schema "calendar_users" do
     field :role, Ecto.Enum, values: [:owner, :admin, :guest]
 
-    belongs_to :calendar, SD.Calendars.Calendar, type: :binary_id
+    belongs_to :calendar, SD.SweetDate.Calendar, type: :binary_id
     belongs_to :user, SD.Accounts.User, type: :binary_id
 
     timestamps()

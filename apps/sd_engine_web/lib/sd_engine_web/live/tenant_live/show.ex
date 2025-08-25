@@ -30,7 +30,7 @@ defmodule SDWeb.TenantLive.Show do
       <.list>
         <:item title="Name">{@tenant.name}</:item>
       </.list>
-      Calendars
+      SweetDate
       <.table
         id="calendars"
         rows={@streams.calendars}
@@ -82,8 +82,8 @@ defmodule SDWeb.TenantLive.Show do
 
   @impl true
   def handle_event("delete_calendar", %{"calendar_id" => calendar_id}, socket) do
-    calendar = SD.Calendars.get_calendar(calendar_id)
-    {:ok, _} = SD.Calendars.delete_calendar(calendar)
+    calendar = SD.SweetDate.get_calendar(calendar_id)
+    {:ok, _} = SD.SweetDate.delete_calendar(calendar)
 
     {:noreply, stream_delete(socket, :calendars, calendar)}
   end

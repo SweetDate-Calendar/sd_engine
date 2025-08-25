@@ -1,12 +1,12 @@
-defmodule SD.Calendars do
+defmodule SD.SweetDate do
   @moduledoc """
-  The Calendars context.
+  The SweetDate context.
   """
 
   import Ecto.Query, warn: false
   alias SD.Repo
 
-  alias SD.Calendars.Calendar
+  alias SD.SweetDate.Calendar
 
   @doc """
   Returns the list of calendars.

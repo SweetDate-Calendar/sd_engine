@@ -63,7 +63,7 @@ defmodule SDWeb.Users.CalendarLiveTest do
     #   refute has_element?(lv, "##{row_id}")
 
     #   # Optional: verify DB deletion
-    #   assert is_nil(SD.Repo.get(SD.Calendars.Calendar, calendar.id))
+    #   assert is_nil(SD.Repo.get(SD.SweetDate.Calendar, calendar.id))
     # end
   end
 end

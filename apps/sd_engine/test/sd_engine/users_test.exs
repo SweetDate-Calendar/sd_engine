@@ -2,8 +2,8 @@ defmodule SD.UsersTest do
   use SD.DataCase
 
   alias SD.Users
-  alias SD.{Users, Calendars}
-  alias SD.Calendars.Calendar
+  alias SD.{Users, SweetDate}
+  alias SD.SweetDate.Calendar
   alias SD.Accounts.CalendarUser
 
   import SD.UsersFixtures
@@ -40,7 +40,7 @@ defmodule SD.UsersTest do
         end
 
       # Verify persisted calendar
-      db_calendar = Calendars.get_calendar(calendar.id)
+      db_calendar = SweetDate.get_calendar(calendar.id)
       assert db_calendar.name == "Personal Calendar"
       assert db_calendar.visibility == :public
 

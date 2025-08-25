@@ -9,7 +9,7 @@ defmodule SD.Tenants.Tenant do
   schema "tenants" do
     field :name, :string
 
-    many_to_many :calendars, SD.Calendars.Calendar,
+    many_to_many :calendars, SD.SweetDate.Calendar,
       join_through: "tenant_calendars",
       on_replace: :delete
 

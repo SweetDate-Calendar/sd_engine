@@ -1,7 +1,7 @@
 defmodule SDWeb.Tenants.CalendarLive.Show do
   use SDWeb, :live_view
 
-  alias SD.Calendars
+  alias SD.SweetDate
 
   @impl true
   def render(assigns) do
@@ -78,7 +78,7 @@ defmodule SDWeb.Tenants.CalendarLive.Show do
 
   @impl true
   def mount(%{"tenant_id" => tenant_id, "id" => id}, _session, socket) do
-    calendar = Calendars.get_calendar(id) |> SD.Repo.preload([:events, :tenants])
+    calendar = SweetDate.get_calendar(id) |> SD.Repo.preload([:events, :tenants])
 
     return_to = ~p"/tenants/#{tenant_id}/calendars/#{id}"
 

@@ -1,23 +1,23 @@
-defmodule SD.CalendarsTest do
+defmodule SD.SweetDateTest do
   use SD.DataCase
 
-  alias SD.Calendars
+  alias SD.SweetDate
 
   describe "calendars" do
-    alias SD.Calendars.Calendar
+    alias SD.SweetDate.Calendar
 
-    import SD.CalendarsFixtures
+    import SD.SweetDateFixtures
 
     @invalid_attrs %{name: nil, color_theme: nil, visibility: nil}
 
     test "list_calendars/0 returns all calendars" do
       calendar = calendar_fixture()
-      assert Calendars.list_calendars() == [calendar]
+      assert SweetDate.list_calendars() == [calendar]
     end
 
     test "get_calendar/1 returns the calendar with given id" do
       calendar = calendar_fixture()
-      assert Calendars.get_calendar(calendar.id) == calendar
+      assert SweetDate.get_calendar(calendar.id) == calendar
     end
 
     test "create_calendar/1 with valid data creates a calendar" do
@@ -31,14 +31,14 @@ defmodule SD.CalendarsTest do
           visibility: :public
         }
 
-      assert {:ok, %Calendar{} = calendar} = Calendars.create_calendar(valid_attrs)
+      assert {:ok, %Calendar{} = calendar} = SweetDate.create_calendar(valid_attrs)
       assert calendar.name == "some name"
       assert calendar.color_theme == "some color_theme"
       assert calendar.visibility == :public
     end
 
     test "create_calendar/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Calendars.create_calendar(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = SweetDate.create_calendar(@invalid_attrs)
     end
 
     test "update_calendar/2 with valid data updates the calendar" do
@@ -50,7 +50,7 @@ defmodule SD.CalendarsTest do
         visibility: :private
       }
 
-      assert {:ok, %Calendar{} = calendar} = Calendars.update_calendar(calendar, update_attrs)
+      assert {:ok, %Calendar{} = calendar} = SweetDate.update_calendar(calendar, update_attrs)
       assert calendar.name == "some updated name"
       assert calendar.color_theme == "some updated color_theme"
       assert calendar.visibility == :private
@@ -58,19 +58,19 @@ defmodule SD.CalendarsTest do
 
     test "update_calendar/2 with invalid data returns error changeset" do
       calendar = calendar_fixture()
-      assert {:error, %Ecto.Changeset{}} = Calendars.update_calendar(calendar, @invalid_attrs)
-      assert calendar == Calendars.get_calendar(calendar.id)
+      assert {:error, %Ecto.Changeset{}} = SweetDate.update_calendar(calendar, @invalid_attrs)
+      assert calendar == SweetDate.get_calendar(calendar.id)
     end
 
     test "delete_calendar/1 deletes the calendar" do
       calendar = calendar_fixture()
-      assert {:ok, %Calendar{}} = Calendars.delete_calendar(calendar)
-      refute Calendars.get_calendar(calendar.id)
+      assert {:ok, %Calendar{}} = SweetDate.delete_calendar(calendar)
+      refute SweetDate.get_calendar(calendar.id)
     end
 
     test "change_calendar/1 returns a calendar changeset" do
       calendar = calendar_fixture()
-      assert %Ecto.Changeset{} = Calendars.change_calendar(calendar)
+      assert %Ecto.Changeset{} = SweetDate.change_calendar(calendar)
     end
   end
 end

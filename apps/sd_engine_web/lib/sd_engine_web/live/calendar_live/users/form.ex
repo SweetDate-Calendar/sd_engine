@@ -2,8 +2,8 @@ defmodule SDWeb.Users.CalendarLive.Form do
   alias SD.Users
   use SDWeb, :live_view
 
-  alias SD.Calendars
-  alias SD.Calendars.Calendar
+  alias SD.SweetDate
+  alias SD.SweetDate.Calendar
 
   @impl true
   def render(assigns) do
@@ -52,12 +52,12 @@ defmodule SDWeb.Users.CalendarLive.Form do
 
   # Edit mode: load an existing calendar
   defp apply_action(socket, :edit, %{"id" => id}) do
-    calendar = Calendars.get_calendar(id)
+    calendar = SweetDate.get_calendar(id)
 
     socket
     |> assign(:page_title, "Edit Calendar")
     |> assign(:calendar, calendar)
-    |> assign(:form, to_form(Calendars.change_calendar(calendar)))
+    |> assign(:form, to_form(SweetDate.change_calendar(calendar)))
   end
 
   # New mode: prepare a blank calendar struct with user_id
@@ -67,14 +67,14 @@ defmodule SDWeb.Users.CalendarLive.Form do
     socket
     |> assign(:page_title, "New Calendar")
     |> assign(:calendar, calendar)
-    |> assign(:form, to_form(Calendars.change_calendar(calendar, %{user_id: user_id})))
+    |> assign(:form, to_form(SweetDate.change_calendar(calendar, %{user_id: user_id})))
   end
 
   # Save new
   defp save_calendar(socket, :new, calendar_params) do
     case Users.add_calendar(socket.assigns.user_id, calendar_params) do
       # NEW simpler shape from add_calendar_for/4:
-      {:ok, %SD.Calendars.Calendar{} = _calendar} ->
+      {:ok, %SD.SweetDate.Calendar{} = _calendar} ->
         {:noreply,
          socket
          |> put_flash(:info, "Calendar created successfully")
@@ -94,7 +94,7 @@ defmodule SDWeb.Users.CalendarLive.Form do
 
   # Save updates
   defp save_calendar(socket, :edit, calendar_params) do
-    case Calendars.update_calendar(socket.assigns.calendar, calendar_params) do
+    case SweetDate.update_calendar(socket.assigns.calendar, calendar_params) do
       {:ok, _calendar} ->
         {:noreply,
          socket
@@ -115,7 +115,7 @@ defmodule SDWeb.Users.CalendarLive.Form do
 
   @impl true
   def handle_event("validate", %{"calendar" => calendar_params}, socket) do
-    changeset = Calendars.change_calendar(socket.assigns.calendar, calendar_params)
+    changeset = SweetDate.change_calendar(socket.assigns.calendar, calendar_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 

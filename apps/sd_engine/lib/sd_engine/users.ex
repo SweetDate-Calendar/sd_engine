@@ -164,7 +164,7 @@ defmodule SD.Users do
     User.changeset(user, attrs)
   end
 
-  alias SD.Calendars.Calendar
+  alias SD.SweetDate.Calendar
 
   @doc """
   Creates a calendar associated with a user.
@@ -175,7 +175,7 @@ defmodule SD.Users do
   ## Examples
 
       iex> add_calendar(user_id, %{name: "Personal calendar"})
-      {:ok, %SD.Calendars.Calendar{}}
+      {:ok, %SD.SweetDate.Calendar{}}
 
       iex> add_calendar(user_id, %{name: nil})
       {:error, :calendar, %Ecto.Changeset{}, _changes_so_far}
@@ -194,7 +194,7 @@ defmodule SD.Users do
       end)
 
     case Repo.transaction(multi) do
-      {:ok, %{calendar: %SD.Calendars.Calendar{} = calendar}} ->
+      {:ok, %{calendar: %SD.SweetDate.Calendar{} = calendar}} ->
         {:ok, calendar}
 
       {:error, step, value, changes} ->

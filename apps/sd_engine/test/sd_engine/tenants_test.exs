@@ -3,8 +3,8 @@ defmodule SD.TenantsTest do
 
   alias SD.Accounts
 
-  alias SD.{Tenants, Calendars}
-  alias SD.Calendars.Calendar
+  alias SD.{Tenants, SweetDate}
+  alias SD.SweetDate.Calendar
   import SD.TenantsFixtures
 
   describe "add_calendar/2" do
@@ -20,7 +20,7 @@ defmodule SD.TenantsTest do
       assert {:ok, %Calendar{} = calendar} = Tenants.add_calendar(tenant.id, params)
 
       # Calendar is persisted
-      db_calendar = Calendars.get_calendar(calendar.id)
+      db_calendar = SweetDate.get_calendar(calendar.id)
       assert db_calendar.name == "Team Calendar"
       assert db_calendar.color_theme == "blue"
 

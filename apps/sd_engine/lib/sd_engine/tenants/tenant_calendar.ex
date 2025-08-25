@@ -6,7 +6,7 @@ defmodule SD.Tenants.TenantCalendar do
   @foreign_key_type :binary_id
   schema "tenant_calendars" do
     belongs_to :tenant, SD.Tenants.Tenant, type: :binary_id
-    belongs_to :calendar, SD.Calendars.Calendar, type: :binary_id
+    belongs_to :calendar, SD.SweetDate.Calendar, type: :binary_id
 
     timestamps()
   end

@@ -26,7 +26,7 @@ defmodule SD.Events.Event do
       default: :none
 
     field :all_day, :boolean, default: false
-    belongs_to :calendar, SD.Calendars.Calendar, type: :binary_id
+    belongs_to :calendar, SD.SweetDate.Calendar, type: :binary_id
 
     many_to_many :users, SD.Accounts.User,
       join_through: "event_users",

@@ -1,5 +1,5 @@
 defmodule SD.EventsTest do
-  alias SD.CalendarsFixtures
+  alias SD.SweetDateFixtures
   use SD.DataCase
 
   alias SD.Events
@@ -32,7 +32,7 @@ defmodule SD.EventsTest do
     end
 
     test "create_event/1 with valid data creates a event" do
-      calendar = CalendarsFixtures.calendar_fixture()
+      calendar = SweetDateFixtures.calendar_fixture()
 
       valid_attrs = %{
         name: "some name",
