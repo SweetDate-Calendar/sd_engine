@@ -9,16 +9,36 @@ defmodule SD.Users do
   alias SD.Users.User
 
   @doc """
-  Returns the list of users.
+  Returns the list of users, ordered by `email` ascending.
+
+  Supports pagination via `:limit` and `:offset` options.
+
+  ## Options
+
+    * `:limit` — maximum number of users to return (default: 25)
+    * `:offset` — number of users to skip (default: 0)
 
   ## Examples
 
       iex> list_users()
+      [%User{name: "Alpha"}, %User{name: "Beta"}, ...]
+
+      iex> list_users(limit: 10)
+      [%User{}, ...]
+
+      iex> list_users(limit: 10, offset: 20)
       [%User{}, ...]
 
   """
-  def list_users do
-    Repo.all(User)
+  def list_users(opts \\ []) do
+    limit = Keyword.get(opts, :limit, 25)
+    offset = Keyword.get(opts, :offset, 0)
+
+    User
+    |> order_by([user], asc: user.name)
+    |> limit(^limit)
+    |> offset(^offset)
+    |> Repo.all()
   end
 
   @doc """
