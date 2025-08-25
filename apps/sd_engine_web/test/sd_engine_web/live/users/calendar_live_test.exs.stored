@@ -2,7 +2,7 @@ defmodule SDWeb.Users.CalendarLiveTest do
   use SDWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import SD.UsersFixtures
+  import SD.AccountsFixtures
 
   defp create_calendar(_context) do
     user = user_fixture()

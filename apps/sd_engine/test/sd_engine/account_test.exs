@@ -4,7 +4,7 @@ defmodule SD.AccountTest do
   alias SD.Account
   alias SD.Account.Credential
 
-  import SD.AccountFixtures
+  import SD.CredentialsFixtures
 
   @invalid_attrs %{
     status: nil,

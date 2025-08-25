@@ -176,7 +176,7 @@ defmodule SDRest.TenantUsersController do
   """
   def show(conn, %{"tenants_id" => tenant_id, "id" => user_id}) do
     case SD.Accounts.get_tenant_user(tenant_id, user_id) do
-      %SD.Accounts.TenantUser{} = tenant_user ->
+      %SD.SweetDate.TenantUser{} = tenant_user ->
         user = tenant_user.user
 
         json(conn, %{
@@ -237,7 +237,7 @@ defmodule SDRest.TenantUsersController do
     }
   """
   def update(conn, %{"tenants_id" => tenant_id, "id" => user_id} = params) do
-    with %SD.Accounts.TenantUser{} = tenant_user <-
+    with %SD.SweetDate.TenantUser{} = tenant_user <-
            SD.Accounts.get_tenant_user(tenant_id, user_id),
          attrs <- Map.take(params, ["role"]),
          {:ok, tenant_user} <- SD.Accounts.update_tenant_user(tenant_user, attrs),
@@ -284,7 +284,7 @@ defmodule SDRest.TenantUsersController do
     }
   """
   def delete(conn, %{"tenants_id" => tenant_id, "id" => user_id}) do
-    with %SD.Accounts.TenantUser{} = tenant_user <-
+    with %SD.SweetDate.TenantUser{} = tenant_user <-
            SD.Accounts.get_tenant_user(tenant_id, user_id),
          {:ok, _deleted} <- SD.Accounts.delete_tenant_user(tenant_user) do
       json(conn, %{"status" => "ok"})

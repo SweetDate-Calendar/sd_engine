@@ -25,32 +25,28 @@ defmodule SDWeb.EventLive.Form do
         <.input field={@form[:calendar_id]} type="text" class="hidden" />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Event</.button>
-          <.button navigate={@return_to}>Cancel</.button>
+          <%!-- <.button navigate={return_path(@current_scope, @return_to, @project_user)}>Cancel</.button> --%>
         </footer>
       </.form>
     </Layouts.app>
     """
   end
 
-  defp return_path(return_to) do
-    case URI.parse(return_to) do
-      %URI{path: path, query: nil} -> path
-      %URI{path: path, query: query} -> "#{path}?#{query}"
-    end
-  end
-
   @impl true
   def mount(
-        %{"calendar_id" => calendar_id, "return_to" => return_to} = params,
+        %{"calendar_id" => calendar_id} = params,
         _session,
         socket
       ) do
     {:ok,
      socket
-     |> assign(:return_to, return_path(return_to))
+     |> assign(:return_to, return_to(params["return_to"]))
      |> assign(:calendar_id, calendar_id)
      |> apply_action(socket.assigns.live_action, params)}
   end
+
+  defp return_to("show"), do: "show"
+  defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     event = Events.get_event(id)

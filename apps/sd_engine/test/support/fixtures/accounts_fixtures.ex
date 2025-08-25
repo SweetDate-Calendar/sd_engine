@@ -1,4 +1,4 @@
-defmodule SD.UsersFixtures do
+defmodule SD.AccountsFixtures do
   @moduledoc """
   This module defines test helpers for creating
   entities via the `SD.Users` context.
@@ -14,7 +14,7 @@ defmodule SD.UsersFixtures do
         name: "some name",
         email: "some-email#{System.unique_integer()}@example.com"
       })
-      |> SD.Users.create_user()
+      |> SD.Accounts.create_user()
 
     user
   end

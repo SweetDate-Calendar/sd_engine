@@ -1,4 +1,4 @@
-defmodule SD.Accounts.EventUser do
+defmodule SD.SweetDate.EventUser do
   use Ecto.Schema
   import Ecto.Changeset
 

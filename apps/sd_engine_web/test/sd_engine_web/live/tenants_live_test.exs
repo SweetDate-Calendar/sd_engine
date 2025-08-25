@@ -7,9 +7,9 @@ defmodule SDWeb.TenantLiveTest do
   @create_attrs %{name: "some name"}
   @update_attrs %{name: "some updated name"}
   @invalid_attrs %{name: nil}
+
   defp create_tenant(_) do
     tenant = tenant_fixture()
-
     %{tenant: tenant}
   end
 
@@ -88,7 +88,6 @@ defmodule SDWeb.TenantLiveTest do
 
     test "displays tenant", %{conn: conn, tenant: tenant} do
       {:ok, _show_live, html} = live(conn, ~p"/tenants/#{tenant}")
-
       assert html =~ "Show Tenant"
       assert html =~ tenant.name
     end

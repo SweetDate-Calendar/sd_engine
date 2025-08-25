@@ -1,12 +1,12 @@
-defmodule SD.Accounts.EventUserTest do
+defmodule SD.SweetDate.EventUserTest do
   use SD.DataCase, async: true
 
-  alias SD.Accounts.EventUser
+  alias SD.SweetDate.EventUser
   alias SD.Accounts
   alias SD.Repo
 
   import SD.EventsFixtures
-  import SD.UsersFixtures
+  import SD.AccountsFixtures
 
   describe "event_users join" do
     setup do

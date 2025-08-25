@@ -6,163 +6,163 @@ defmodule SD.Users do
   import Ecto.Query, warn: false
   alias SD.Repo
 
-  alias SD.Accounts.User
+  # alias SD.Accounts.User
 
-  @doc """
-  Returns the list of users, ordered by `email` ascending.
+  # @doc """
+  # Returns the list of users, ordered by `email` ascending.
 
-  Supports pagination via `:limit` and `:offset` options.
+  # Supports pagination via `:limit` and `:offset` options.
 
-  ## Options
+  # ## Options
 
-    * `:limit` — maximum number of users to return (default: 25)
-    * `:offset` — number of users to skip (default: 0)
+  #   * `:limit` — maximum number of users to return (default: 25)
+  #   * `:offset` — number of users to skip (default: 0)
 
-  ## Examples
+  # ## Examples
 
-      iex> list_users()
-      [%User{name: "Alpha"}, %User{name: "Beta"}, ...]
+  #     iex> list_users()
+  #     [%User{name: "Alpha"}, %User{name: "Beta"}, ...]
 
-      iex> list_users(limit: 10)
-      [%User{}, ...]
+  #     iex> list_users(limit: 10)
+  #     [%User{}, ...]
 
-      iex> list_users(limit: 10, offset: 20)
-      [%User{}, ...]
+  #     iex> list_users(limit: 10, offset: 20)
+  #     [%User{}, ...]
 
-  """
-  def list_users(opts \\ []) do
-    limit = Keyword.get(opts, :limit, 25)
-    offset = Keyword.get(opts, :offset, 0)
+  # """
+  # def list_users(opts \\ []) do
+  #   limit = Keyword.get(opts, :limit, 25)
+  #   offset = Keyword.get(opts, :offset, 0)
 
-    User
-    |> order_by([user], asc: user.name)
-    |> limit(^limit)
-    |> offset(^offset)
-    |> Repo.all()
-  end
+  #   User
+  #   |> order_by([user], asc: user.name)
+  #   |> limit(^limit)
+  #   |> offset(^offset)
+  #   |> Repo.all()
+  # end
 
-  @doc """
-  Gets a single user.
+  # @doc """
+  # Gets a single user.
 
-  Raises `Ecto.NoResultsError` if the User does not exist.
+  # Raises `Ecto.NoResultsError` if the User does not exist.
 
-  ## Examples
+  # ## Examples
 
-      iex> get_user(123)
-      %User{}
+  #     iex> get_user(123)
+  #     %User{}
 
-      iex> get_user(456)
-      ** nil
+  #     iex> get_user(456)
+  #     ** nil
 
-  """
-  def get_user(id), do: Repo.get(User, id)
+  # """
+  # def get_user(id), do: Repo.get(User, id)
 
-  @doc """
-  Gets a single user by email.
+  # @doc """
+  # Gets a single user by email.
 
-  returns nil if the User does not exist.
+  # returns nil if the User does not exist.
 
-  ## Examples
+  # ## Examples
 
-      iex> get_user_by_email("some-email@example.com")
-      %User{}
+  #     iex> get_user_by_email("some-email@example.com")
+  #     %User{}
 
-      iex> get_user("some-not-in-system-email@example.com")
-      ** nil
+  #     iex> get_user("some-not-in-system-email@example.com")
+  #     ** nil
 
-  """
-  def get_user_by_email(email) do
-    Repo.get_by(User, email: email)
-  end
+  # """
+  # def get_user_by_email(email) do
+  #   Repo.get_by(User, email: email)
+  # end
 
-  @doc """
-  Creates a user.
+  # @doc """
+  # Creates a user.
 
-  ## Examples
+  # ## Examples
 
-      iex> create_user(%{field: value})
-      {:ok, %User{}}
+  #     iex> create_user(%{field: value})
+  #     {:ok, %User{}}
 
-      iex> create_user(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+  #     iex> create_user(%{field: bad_value})
+  #     {:error, %Ecto.Changeset{}}
 
-  """
-  def create_user(attrs) do
-    %User{}
-    |> User.changeset(attrs)
-    |> Repo.insert()
-  end
+  # """
+  # def create_user(attrs) do
+  #   %User{}
+  #   |> User.changeset(attrs)
+  #   |> Repo.insert()
+  # end
 
-  @doc """
-  Find or Create a user.
+  # @doc """
+  # Find or Create a user.
 
-  ## Examples
+  # ## Examples
 
-      iex> get_or_create_user(%{field: value})
-      {:ok, %User{}}
+  #     iex> get_or_create_user(%{field: value})
+  #     {:ok, %User{}}
 
-      iex> find_or_create_create_user(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+  #     iex> find_or_create_create_user(%{field: bad_value})
+  #     {:error, %Ecto.Changeset{}}
 
-  """
-  def get_or_create_user(attrs) do
-    case get_user_by_email(attrs[:email]) do
-      nil ->
-        %User{}
-        |> User.changeset(attrs)
-        |> Repo.insert()
+  # """
+  # def get_or_create_user(attrs) do
+  #   case get_user_by_email(attrs[:email]) do
+  #     nil ->
+  #       %User{}
+  #       |> User.changeset(attrs)
+  #       |> Repo.insert()
 
-      user ->
-        {:ok, user}
-    end
-  end
+  #     user ->
+  #       {:ok, user}
+  #   end
+  # end
 
-  @doc """
-  Updates a user.
+  # @doc """
+  # Updates a user.
 
-  ## Examples
+  # ## Examples
 
-      iex> update_user(user, %{field: new_value})
-      {:ok, %User{}}
+  #     iex> update_user(user, %{field: new_value})
+  #     {:ok, %User{}}
 
-      iex> update_user(user, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+  #     iex> update_user(user, %{field: bad_value})
+  #     {:error, %Ecto.Changeset{}}
 
-  """
-  def update_user(%User{} = user, attrs) do
-    user
-    |> User.changeset(attrs)
-    |> Repo.update()
-  end
+  # """
+  # def update_user(%User{} = user, attrs) do
+  #   user
+  #   |> User.changeset(attrs)
+  #   |> Repo.update()
+  # end
 
-  @doc """
-  Deletes a user.
+  # @doc """
+  # Deletes a user.
 
-  ## Examples
+  # ## Examples
 
-      iex> delete_user(user)
-      {:ok, %User{}}
+  #     iex> delete_user(user)
+  #     {:ok, %User{}}
 
-      iex> delete_user(user)
-      {:error, %Ecto.Changeset{}}
+  #     iex> delete_user(user)
+  #     {:error, %Ecto.Changeset{}}
 
-  """
-  def delete_user(%User{} = user) do
-    Repo.delete(user)
-  end
+  # """
+  # def delete_user(%User{} = user) do
+  #   Repo.delete(user)
+  # end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking user changes.
+  # @doc """
+  # Returns an `%Ecto.Changeset{}` for tracking user changes.
 
-  ## Examples
+  # ## Examples
 
-      iex> change_user(user)
-      %Ecto.Changeset{data: %User{}}
+  #     iex> change_user(user)
+  #     %Ecto.Changeset{data: %User{}}
 
-  """
-  def change_user(%User{} = user, attrs \\ %{}) do
-    User.changeset(user, attrs)
-  end
+  # """
+  # def change_user(%User{} = user, attrs \\ %{}) do
+  #   User.changeset(user, attrs)
+  # end
 
   alias SD.SweetDate.Calendar
 
@@ -187,7 +187,7 @@ defmodule SD.Users do
       Ecto.Multi.new()
       |> Ecto.Multi.insert(:calendar, Calendar.changeset(%Calendar{}, params))
       |> Ecto.Multi.insert(:calendar_user, fn %{calendar: calendar} ->
-        %SD.Accounts.CalendarUser{
+        %SD.SweetDate.CalendarUser{
           user_id: user_id,
           calendar_id: calendar.id
         }

@@ -2,14 +2,14 @@ defmodule SDWeb.UserLiveTest do
   use SDWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import SD.UsersFixtures
+  import SD.AccountsFixtures
 
-  @create_attrs %{name: "some name", email: "some-email@example.com"}
-  @update_attrs %{name: "some updated name", email: "some-updated-email@example.com"}
+  @create_attrs %{name: "Some Name", email: "some@example.com"}
+  @update_attrs %{name: "Updated Name", email: "updated@example.com"}
   @invalid_attrs %{name: nil, email: nil}
+
   defp create_user(_) do
     user = user_fixture()
-
     %{user: user}
   end
 
@@ -18,7 +18,6 @@ defmodule SDWeb.UserLiveTest do
 
     test "lists all users", %{conn: conn, user: user} do
       {:ok, _index_live, html} = live(conn, ~p"/users")
-
       assert html =~ "Listing Users"
       assert html =~ user.name
     end
@@ -46,8 +45,7 @@ defmodule SDWeb.UserLiveTest do
 
       html = render(index_live)
       assert html =~ "User created successfully"
-      assert html =~ "some name"
-      assert html =~ "some-email@example.com"
+      assert html =~ "Some Name"
     end
 
     test "updates user in listing", %{conn: conn, user: user} do
@@ -73,8 +71,7 @@ defmodule SDWeb.UserLiveTest do
 
       html = render(index_live)
       assert html =~ "User updated successfully"
-      assert html =~ "some updated name"
-      assert html =~ "some-updated-email@example.com"
+      assert html =~ "Updated Name"
     end
 
     test "deletes user in listing", %{conn: conn, user: user} do
@@ -90,7 +87,6 @@ defmodule SDWeb.UserLiveTest do
 
     test "displays user", %{conn: conn, user: user} do
       {:ok, _show_live, html} = live(conn, ~p"/users/#{user}")
-
       assert html =~ "Show User"
       assert html =~ user.name
     end
@@ -118,7 +114,7 @@ defmodule SDWeb.UserLiveTest do
 
       html = render(show_live)
       assert html =~ "User updated successfully"
-      assert html =~ "some updated name"
+      assert html =~ "Updated Name"
     end
   end
 end

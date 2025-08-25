@@ -102,8 +102,8 @@ defmodule SD.TenantsTest do
   # ───────────────────────────────────────────────────────────────────────────
   # tests for tenant users
   # ───────────────────────────────────────────────────────────────────────────
-  alias SD.Accounts.TenantUser
-  import SD.UsersFixtures
+  alias SD.SweetDate.TenantUser
+  import SD.AccountsFixtures
 
   describe "tenant users" do
     test "create_tenant_user/3 inserts a tenant_user with the given role" do

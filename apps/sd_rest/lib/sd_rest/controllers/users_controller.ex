@@ -2,13 +2,13 @@ defmodule SDRest.UsersController do
   use SDRest, :controller
   use SDRest.ControllerHelpers, default_limit: 25, max_limit: 100
 
-  alias SD.Users
+  alias SD.Accounts
 
   # GET /api/v1/users?limit=25&offset=0
   def index(conn, params) do
     {limit, offset} = pagination(params)
 
-    users = Users.list_users(limit: limit, offset: offset)
+    users = Accounts.list_users(limit: limit, offset: offset)
 
     json(conn, %{
       "status" => "ok",
@@ -47,7 +47,7 @@ defmodule SDRest.UsersController do
       "email" => Map.get(params, "email")
     }
 
-    case Users.create_user(attrs) do
+    case Accounts.create_user(attrs) do
       {:ok, user} ->
         json(conn |> put_status(201), %{
           "status" => "ok",
@@ -68,7 +68,7 @@ defmodule SDRest.UsersController do
     with :ok <- ensure_uuid(id),
          {:ok, user} <- fetch_user(id),
          attrs <- Map.take(params, ["name", "email"]),
-         {:ok, updated} <- Users.update_user(user, attrs) do
+         {:ok, updated} <- Accounts.update_user(user, attrs) do
       json(conn, %{"status" => "ok", "user" => user_json(updated)})
     else
       :error ->
@@ -93,7 +93,7 @@ defmodule SDRest.UsersController do
   def delete(conn, %{"id" => id}) do
     with :ok <- ensure_uuid(id),
          {:ok, user} <- fetch_user(id),
-         {:ok, _} <- Users.delete_user(user) do
+         {:ok, _} <- Accounts.delete_user(user) do
       json(conn, %{
         "status" => "ok",
         "user" => %{
@@ -116,7 +116,7 @@ defmodule SDRest.UsersController do
 
   # Normalize context return into {:ok, user} | {:error, :not_found}
   defp fetch_user(id) do
-    case Users.get_user(id) do
+    case Accounts.get_user(id) do
       {:ok, u} when not is_nil(u) -> {:ok, u}
       %{} = u -> {:ok, u}
       nil -> {:error, :not_found}

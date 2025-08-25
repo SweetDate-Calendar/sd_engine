@@ -46,6 +46,11 @@ defmodule SDWeb.Layouts do
             </.link>
           </li>
           <li>
+            <.link href={~p"/calendars"} class="btn btn-ghost">
+              Calendars
+            </.link>
+          </li>
+          <li>
             <.link href={~p"/tenants"} class="btn btn-ghost">
               Tenants
             </.link>
