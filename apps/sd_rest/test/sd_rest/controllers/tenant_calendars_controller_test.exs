@@ -1,86 +1,16 @@
 defmodule SDRest.TenantSweetDateControllerTest do
   use SDRest.ConnCase, async: true
+  use SDRest.SignedRequestHelpers
 
   import Phoenix.ConnTest
   import SD.TenantsFixtures
   import SD.SweetDateFixtures
-  import SD.CredentialsFixtures
 
   @tenants_base "/api/v1/tenants"
 
-  # Fixed test keypair (base64url, no padding)
-  @app_id "app_test_fixed"
-  @public_key "Clq6ZOkhPxrTZeDkfhayAQbUS9dHU65JGw1f0UlaOuA"
-  @private_key "hYdg0McePak4jrRyyWFtj0pLlprc4WwDhWhGLxcrqak"
-
   setup %{conn: conn} do
-    _cred =
-      credential_fixture(%{
-        app_id: @app_id,
-        public_key: @public_key,
-        alg: :ed25519,
-        status: :active
-      })
-
     {:ok, conn: conn}
   end
-
-  ## ---------------- Auth helper utilities (same as users test) ----------------
-
-  defp decode_priv!(b64url) do
-    case Base.url_decode64(b64url, padding: false) do
-      {:ok, bin} -> bin
-      :error -> raise "invalid base64url private key"
-    end
-  end
-
-  # canonical = "v1\nMETHOD\n/path?qs\nTIMESTAMP\n-"
-  defp sign_headers(method, full_path, app_id, priv_bin, ts \\ System.os_time(:second)) do
-    method_up = method |> to_string() |> String.upcase()
-
-    {path, qs} =
-      case String.split(full_path, "?", parts: 2) do
-        [p] -> {p, ""}
-        [p, q] -> {p, q}
-      end
-
-    path_q = if qs == "", do: path, else: path <> "?" <> qs
-    msg = Enum.join(["v1", method_up, path_q, Integer.to_string(ts), "-"], "\n")
-
-    sig =
-      :crypto.sign(:eddsa, :none, msg, [priv_bin, :ed25519])
-      |> Base.url_encode64(padding: false)
-
-    [
-      {"sd-app-id", app_id},
-      {"sd-timestamp", Integer.to_string(ts)},
-      {"sd-signature", sig}
-    ]
-  end
-
-  defp put_headers(conn, headers) do
-    Enum.reduce(headers, conn, fn {k, v}, c -> put_req_header(c, k, v) end)
-  end
-
-  defp signed_get(conn, path) do
-    priv = decode_priv!(@private_key)
-    headers = sign_headers(:get, path, @app_id, priv)
-    conn |> put_headers(headers) |> get(path)
-  end
-
-  defp signed_delete(conn, path) do
-    priv = decode_priv!(@private_key)
-    headers = sign_headers(:delete, path, @app_id, priv)
-    conn |> put_headers(headers) |> delete(path)
-  end
-
-  defp signed_post(conn, path, params) do
-    priv = decode_priv!(@private_key)
-    headers = [{"content-type", "application/json"} | sign_headers(:post, path, @app_id, priv)]
-    conn |> put_headers(headers) |> post(path, Jason.encode!(params))
-  end
-
-  ## ---------------------------- Tests ----------------------------
 
   describe "index (GET /tenants/:tenant_id/calendars)" do
     test "lists calendars for the given tenant with default pagination", %{conn: conn} do
