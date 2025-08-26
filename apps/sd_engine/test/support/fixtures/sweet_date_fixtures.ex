@@ -1,7 +1,7 @@
-defmodule SD.EventsFixtures do
+defmodule SD.SweetDateFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `SD.Events` context.
+  entities via the `SD.SweetDate` context.
   """
 
   @doc """
@@ -27,8 +27,24 @@ defmodule SD.EventsFixtures do
         start_time: ~U[2025-06-09 17:09:00Z],
         visibility: :public
       })
-      |> SD.Events.create_event()
+      |> SD.SweetDate.create_event()
 
     event
+  end
+
+  @doc """
+  Generate a calendar.
+  """
+  def calendar_fixture(attrs \\ %{}) do
+    attrs =
+      attrs
+      |> Enum.into(%{
+        color_theme: "some color_theme",
+        name: "some name#{System.unique_integer()}",
+        visibility: :public
+      })
+
+    {:ok, calendar} = SD.SweetDate.create_calendar(attrs)
+    calendar
   end
 end

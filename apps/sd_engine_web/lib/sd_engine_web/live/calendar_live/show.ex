@@ -17,6 +17,9 @@ defmodule SDWeb.CalendarLive.Show do
           <.button variant="primary" navigate={~p"/calendars/#{@calendar}/edit"}>
             <.icon name="hero-pencil-square" /> Edit calendar
           </.button>
+          <.button variant="primary" navigate={~p"/calendars/#{@calendar}/events"}>
+            <.icon name="hero-list-bullet" /> Events
+          </.button>
         </:actions>
       </.header>
 

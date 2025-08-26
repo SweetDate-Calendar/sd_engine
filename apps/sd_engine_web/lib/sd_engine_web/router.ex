@@ -34,6 +34,11 @@ defmodule SDWeb.Router do
     live "/calendars/:id", CalendarLive.Show, :show
     live "/calendars/:id/edit", CalendarLive.Form, :edit
 
+    live "/calendars/:calendar_id/events", EventLive.Index, :index
+    live "/calendars/:calendar_id/events/new", EventLive.Form, :new
+    live "/calendars/:calendar_id/events/:id", EventLive.Show, :show
+    live "/calendars/:calendar_id/events/:id/edit", EventLive.Form, :edit
+
     live "/tenants", TenantLive.Index, :index
     live "/tenants/new", TenantLive.Form, :new
     live "/tenants/:id", TenantLive.Show, :show

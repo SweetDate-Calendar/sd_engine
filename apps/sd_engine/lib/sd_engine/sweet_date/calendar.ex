@@ -23,7 +23,7 @@ defmodule SD.SweetDate.Calendar do
       on_replace: :delete,
       join_keys: [calendar_id: :id, user_id: :id]
 
-    has_many :events, SD.Events.Event,
+    has_many :events, SD.SweetDate.Event,
       foreign_key: :calendar_id,
       references: :id
 

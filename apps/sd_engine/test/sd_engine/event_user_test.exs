@@ -5,7 +5,7 @@ defmodule SD.SweetDate.EventUserTest do
   alias SD.Accounts
   alias SD.Repo
 
-  import SD.EventsFixtures
+  import SD.SweetDateFixtures
   import SD.AccountsFixtures
 
   describe "event_users join" do
