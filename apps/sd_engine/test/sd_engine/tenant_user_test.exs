@@ -1,14 +1,14 @@
-defmodule SD.Accounts.TenantUserTest do
+defmodule SD.SweetDate.TenantUserTest do
   use SD.DataCase, async: true
 
   import Ecto.Query
 
   alias SD.Accounts
-  alias SD.Accounts.TenantUser
+  alias SD.SweetDate.TenantUser
   alias SD.Repo
 
   import SD.TenantsFixtures
-  import SD.UsersFixtures
+  import SD.AccountsFixtures
 
   describe "tenant_users join" do
     test "user cannot be added to the same tenant twice" do

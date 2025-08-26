@@ -1,12 +1,12 @@
-defmodule SD.Accounts.CalendarUserTest do
+defmodule SD.SweetDate.CalendarUserTest do
   use SD.DataCase, async: true
 
-  alias SD.Accounts.CalendarUser
+  alias SD.SweetDate.CalendarUser
   alias SD.Accounts
   alias SD.Repo
 
   import SD.SweetDateFixtures
-  import SD.UsersFixtures
+  import SD.AccountsFixtures
 
   describe "calendar_users join" do
     test "user can be added to calendar two times" do

@@ -1,7 +1,7 @@
 defmodule SDWeb.UserLive.Show do
   use SDWeb, :live_view
 
-  alias SD.Users
+  alias SD.Accounts
 
   @impl true
   def render(assigns) do
@@ -16,9 +16,6 @@ defmodule SDWeb.UserLive.Show do
           <.button variant="primary" navigate={~p"/users/#{@user}/edit?return_to=show"}>
             <.icon name="hero-pencil-square" /> Edit user
           </.button>
-          <.button variant="primary" navigate={~p"/users/#{@user}/calendars/new?return_to=show_user"}>
-            <.icon name="hero-plus" /> New Calendar
-          </.button>
         </:actions>
       </.header>
 
@@ -27,60 +24,17 @@ defmodule SDWeb.UserLive.Show do
         <:item title="Email">{@user.email}</:item>
       </.list>
       SweetDate
-      <.table
-        id="calendars"
-        rows={@streams.calendars}
-        row_click={
-          fn {_id, calendar} -> JS.navigate(~p"/users/#{@user.id}/calendars/#{calendar}") end
-        }
-      >
-        <:col :let={{_id, calendar}} label="Name">{calendar.name}</:col>
-        <:col :let={{_id, calendar}} label="Color theme">{calendar.color_theme}</:col>
-        <:col :let={{_id, calendar}} label="Visibility">{calendar.visibility}</:col>
-        <:action :let={{_id, calendar}}>
-          <div class="sr-only">
-            <.link navigate={~p"/users/#{@user.id}/calendars/#{calendar}"}>Show</.link>
-          </div>
-          <.link
-            id={"edit-calendar-#{calendar.id}"}
-            navigate={~p"/users/#{@user.id}/calendars/#{calendar}/edit?return_to=show_user"}
-          >
-            Edit
-          </.link>
-        </:action>
-        <:action :let={{id, calendar}}>
-          <.link
-            phx-click={
-              JS.push("delete_calendar", value: %{calendar_id: calendar.id}) |> hide("##{id}")
-            }
-            data-confirm="Are you sure?"
-          >
-            Delete
-          </.link>
-        </:action>
-      </.table>
     </Layouts.app>
     """
   end
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    user =
-      Users.get_user(id)
-      |> SD.Repo.preload([:calendars])
+    user = Accounts.get_user(id)
 
     {:ok,
      socket
      |> assign(:page_title, "Show User")
-     |> stream(:calendars, user.calendars)
      |> assign(:user, user)}
-  end
-
-  @impl true
-  def handle_event("delete_calendar", %{"calendar_id" => calendar_id}, socket) do
-    calendar = SD.SweetDate.get_calendar(calendar_id)
-    {:ok, _} = SD.SweetDate.delete_calendar(calendar)
-
-    {:noreply, stream_delete(socket, :calendars, calendar)}
   end
 end

@@ -3,8 +3,8 @@ defmodule SDRest.TenantUsersControllerTest do
 
   import Phoenix.ConnTest
   import SD.TenantsFixtures
-  import SD.AccountFixtures
-  import SD.UsersFixtures
+  import SD.AccountsFixtures
+  import SD.CredentialsFixtures
 
   @tenants_base "/api/v1/tenants"
 

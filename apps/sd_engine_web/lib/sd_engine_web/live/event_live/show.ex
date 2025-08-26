@@ -1,7 +1,7 @@
 defmodule SDWeb.EventLive.Show do
   use SDWeb, :live_view
 
-  alias SD.Events
+  alias SD.SweetDate
 
   @impl true
   def render(assigns) do
@@ -10,15 +10,10 @@ defmodule SDWeb.EventLive.Show do
       <.header>
         Event ID: {@event.id}
         <:actions>
-          <.button navigate={@return_back}>
+          <.button navigate={~p"/calendars/#{@calendar_id}"}>
             <.icon name="hero-arrow-left" />
           </.button>
-          <.button
-            variant="primary"
-            navigate={
-              ~p"/calendars/#{@event.calendar_id}/events/#{@event.id}/edit?return_to=#{@return_to}"
-            }
-          >
+          <.button variant="primary" navigate={~p"/calendars/#{@calendar_id}/events/#{@event}/edit?return_to=show"}>
             <.icon name="hero-pencil-square" /> Edit event
           </.button>
         </:actions>
@@ -41,18 +36,18 @@ defmodule SDWeb.EventLive.Show do
 
   @impl true
 
-  def mount(%{"id" => id, "return_to" => return_to}, _session, socket) do
-    event = Events.get_event(id) |> SD.Repo.preload(:calendar)
+  def mount(%{"calendar_id" => calendar_id, "id" => id}, _session, socket) do
+    event = SweetDate.get_event(id) |> SD.Repo.preload(:calendar)
 
     {:ok,
      socket
-     |> assign(:return_back, return_to)
      |> assign(:page_title, "Show Event")
+     |> assign(:calendar_id, calendar_id)
      |> assign(:event, event)}
   end
 
-  @impl true
-  def handle_params(_params, url, socket) do
-    {:noreply, assign(socket, return_to: url)}
-  end
+  # @impl true
+  # def handle_params(_params, url, socket) do
+  #   {:noreply, socket}
+  # end
 end

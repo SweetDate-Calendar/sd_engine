@@ -2,12 +2,12 @@ defmodule SD.EventsTest do
   alias SD.SweetDateFixtures
   use SD.DataCase
 
-  alias SD.Events
+  alias SD.SweetDate
 
   describe "events" do
-    alias SD.Events.Event
+    alias SD.SweetDate.Event
 
-    import SD.EventsFixtures
+    import SD.SweetDateFixtures
 
     @invalid_attrs %{
       name: nil,
@@ -22,13 +22,14 @@ defmodule SD.EventsTest do
     }
 
     test "list_events/0 returns all events" do
-      event = event_fixture()
-      assert Events.list_events() == [event]
+      calendar = calendar_fixture()
+      event = event_fixture(%{calendar_id: calendar.id})
+      assert SweetDate.list_events(calendar.id) == [event]
     end
 
     test "get_event/1 returns the event with given id" do
       event = event_fixture()
-      assert Events.get_event(event.id) == event
+      assert SweetDate.get_event(event.id) == event
     end
 
     test "create_event/1 with valid data creates a event" do
@@ -48,7 +49,7 @@ defmodule SD.EventsTest do
         calendar_id: calendar.id
       }
 
-      assert {:ok, %Event{} = event} = Events.create_event(valid_attrs)
+      assert {:ok, %Event{} = event} = SweetDate.create_event(valid_attrs)
       assert event.name == "some name"
       assert event.description == "some description"
       assert event.location == "some location"
@@ -61,7 +62,7 @@ defmodule SD.EventsTest do
     end
 
     test "create_event/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Events.create_event(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = SweetDate.create_event(@invalid_attrs)
     end
 
     test "update_event/2 with valid data updates the event" do
@@ -80,7 +81,7 @@ defmodule SD.EventsTest do
         all_day: false
       }
 
-      assert {:ok, %Event{} = event} = Events.update_event(event, update_attrs)
+      assert {:ok, %Event{} = event} = SweetDate.update_event(event, update_attrs)
       assert event.name == "some updated name"
       assert event.status == :cancelled
       assert event.description == "some updated description"
@@ -95,19 +96,19 @@ defmodule SD.EventsTest do
 
     test "update_event/2 with invalid data returns error changeset" do
       event = event_fixture()
-      assert {:error, %Ecto.Changeset{}} = Events.update_event(event, @invalid_attrs)
-      assert event == Events.get_event(event.id)
+      assert {:error, %Ecto.Changeset{}} = SweetDate.update_event(event, @invalid_attrs)
+      assert event == SweetDate.get_event(event.id)
     end
 
     test "delete_event/1 deletes the event" do
       event = event_fixture()
-      assert {:ok, %Event{}} = Events.delete_event(event)
-      refute Events.get_event(event.id)
+      assert {:ok, %Event{}} = SweetDate.delete_event(event)
+      refute SweetDate.get_event(event.id)
     end
 
     test "change_event/1 returns a event changeset" do
       event = event_fixture()
-      assert %Ecto.Changeset{} = Events.change_event(event)
+      assert %Ecto.Changeset{} = SweetDate.change_event(event)
     end
   end
 end

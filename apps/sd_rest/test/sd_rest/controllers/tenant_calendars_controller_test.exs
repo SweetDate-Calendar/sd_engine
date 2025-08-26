@@ -3,8 +3,8 @@ defmodule SDRest.TenantSweetDateControllerTest do
 
   import Phoenix.ConnTest
   import SD.TenantsFixtures
-  import SD.AccountFixtures
   import SD.SweetDateFixtures
+  import SD.CredentialsFixtures
 
   @tenants_base "/api/v1/tenants"
 

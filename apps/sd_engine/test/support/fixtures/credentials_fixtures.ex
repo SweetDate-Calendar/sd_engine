@@ -1,10 +1,4 @@
-defmodule SD.AccountFixtures do
-  @moduledoc """
-  Test helpers for creating entities via the `SD.Account` context.
-  """
-
-  ## Public helpers
-
+defmodule SD.CredentialsFixtures do
   @doc """
   Generate a unique credential app_id.
   """

@@ -1,4 +1,4 @@
-defmodule SD.Accounts.EventUser do
+defmodule SD.SweetDate.EventUser do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -13,7 +13,7 @@ defmodule SD.Accounts.EventUser do
       values: [:invited, :accepted, :declined, :maybe, :cancelled],
       default: :invited
 
-    belongs_to :event, SD.Events.Event, type: :binary_id
+    belongs_to :event, SD.SweetDate.Event, type: :binary_id
     belongs_to :user, SD.Accounts.User, type: :binary_id
 
     timestamps()

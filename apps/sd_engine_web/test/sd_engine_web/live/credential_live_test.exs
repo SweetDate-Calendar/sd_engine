@@ -2,7 +2,7 @@ defmodule SDWeb.CredentialLiveTest do
   use SDWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import SD.AccountFixtures
+  import SD.CredentialsFixtures
 
   defp create_credential(_) do
     credential = credential_fixture()
