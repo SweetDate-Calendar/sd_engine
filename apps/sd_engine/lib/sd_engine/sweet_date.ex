@@ -9,16 +9,36 @@ defmodule SD.SweetDate do
   alias SD.SweetDate.Calendar
 
   @doc """
-  Returns the list of calendars.
+  Returns the list of calendars, ordered by `name` ascending.
+
+  Supports pagination via `:limit` and `:offset` options.
+
+  ## Options
+
+    * `:limit` — maximum number of calendars to return (default: 25)
+    * `:offset` — number of calendars to skip (default: 0)
 
   ## Examples
 
       iex> list_calendars()
+      [%Calendar{name: "Personal"}, %Calendar{name: "Work"}, ...]
+
+      iex> list_calendars(limit: 10)
+      [%Calendar{}, ...]
+
+      iex> list_calendars(limit: 10, offset: 20)
       [%Calendar{}, ...]
 
   """
-  def list_calendars do
-    Repo.all(Calendar)
+  def list_calendars(opts \\ []) do
+    limit = Keyword.get(opts, :limit, 25)
+    offset = Keyword.get(opts, :offset, 0)
+
+    Calendar
+    |> order_by([c], asc: c.name)
+    |> limit(^limit)
+    |> offset(^offset)
+    |> Repo.all()
   end
 
   @doc """
@@ -107,25 +127,43 @@ defmodule SD.SweetDate do
   alias SD.SweetDate.Event
 
   @doc """
-  Returns the list of events for the given calendar ID, ordered by start time.
+  Returns the list of events for the given calendar ID, ordered by `start_time` ascending.
+
+  Supports pagination via `:limit` and `:offset` options.
+
+  ## Options
+
+    * `:limit` — maximum number of events to return (default: 25)
+    * `:offset` — number of events to skip (default: 0)
 
   ## Examples
 
-      iex> list_event(calendar_id)
+      iex> list_events(calendar_id)
+      [%Event{}, ...]
+
+      iex> list_events(calendar_id, limit: 10)
+      [%Event{}, ...]
+
+      iex> list_events(calendar_id, limit: 10, offset: 20)
       [%Event{}, ...]
 
   """
-  def list_events(calendar_id) do
+  def list_events(calendar_id, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 25)
+    offset = Keyword.get(opts, :offset, 0)
+
     Event
     |> where([e], e.calendar_id == ^calendar_id)
     |> order_by([e], asc: e.start_time)
+    |> limit(^limit)
+    |> offset(^offset)
     |> Repo.all()
   end
 
   @doc """
   Gets a single event.
 
-  Raises `Ecto.NoResultsError` if the Event does not exist.
+  Return nil if the Event does not exist.
 
   ## Examples
 

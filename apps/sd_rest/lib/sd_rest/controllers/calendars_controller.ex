@@ -1,32 +1,32 @@
-defmodule SDRest.TenantsController do
+defmodule SDRest.CalendarsController do
   use SDRest, :controller
   use SDRest.ControllerHelpers, default_limit: 25, max_limit: 100
 
-  alias SD.Tenants
+  alias SD.SweetDate
 
-  # GET /api/v1/tenants?limit=25&offset=0
+  # GET /api/v1/calendars?limit=25&offset=0
   def index(conn, params) do
     {limit, offset} = pagination(params)
 
-    tenants = Tenants.list_tenants(limit: limit, offset: offset)
+    calendars = SweetDate.list_calendars(limit: limit, offset: offset)
 
     json(conn, %{
       "status" => "ok",
       "result" => %{
-        "tenants" => Enum.map(tenants, &tenant_json/1),
+        "calendars" => Enum.map(calendars, &calendar_json/1),
         "limit" => limit,
         "offset" => offset
       }
     })
   end
 
-  # GET /api/v1/tenants/:id
+  # GET /api/v1/calendars/:id
   def show(conn, %{"id" => id}) do
     with :ok <- ensure_uuid(id),
-         {:ok, tenant} <- fetch_tenant(id) do
+         {:ok, calendar} <- fetch_calendar(id) do
       json(conn, %{
         "status" => "ok",
-        "result" => %{"tenant" => tenant_json(tenant)}
+        "result" => %{"calendar" => calendar_json(calendar)}
       })
     else
       :error ->
@@ -40,20 +40,19 @@ defmodule SDRest.TenantsController do
     end
   end
 
-  # POST /api/v1/tenants
+  # POST /api/v1/calendars
   def create(conn, params) do
     attrs = %{
-      "name" => Map.get(params, "name")
-      # Include any extra attributes you accept here.
-      # If you auto-create a default calendar, that likely happens in the context.
+      "name" => Map.get(params, "name"),
+      "color_theme" => Map.get(params, "color_theme", "default"),
+      "visibility" => Map.get(params, "visibility", "public")
     }
 
-    # Expecting: SD.Tenants.create_tenant(attrs) -> {:ok, tenant} | {:error, changeset}
-    case Tenants.create_tenant(attrs) do
-      {:ok, tenant} ->
+    case SweetDate.create_calendar(attrs) do
+      {:ok, calendar} ->
         json(conn |> put_status(201), %{
           "status" => "ok",
-          "tenant" => tenant_json(tenant)
+          "calendar" => calendar_json(calendar)
         })
 
       {:error, changeset} ->
@@ -65,17 +64,15 @@ defmodule SDRest.TenantsController do
     end
   end
 
-  # PUT /api/v1/tenants/:id
-  # PUT /api/v1/tenants/:id
+  # PUT /api/v1/calendars/:id
   def update(conn, %{"id" => id} = params) do
     with :ok <- ensure_uuid(id),
-         {:ok, tenant} <- fetch_tenant(id),
-         attrs <- Map.take(params, ["name"]),
-         {:ok, updated} <- SD.Tenants.update_tenant(tenant, attrs) do
-      json(conn, %{"status" => "ok", "tenant" => tenant_json(updated)})
+         {:ok, calendar} <- fetch_calendar(id),
+         attrs <- Map.take(params, ["name", "color_theme", "visibility"]),
+         {:ok, updated} <- SweetDate.update_calendar(calendar, attrs) do
+      json(conn, %{"status" => "ok", "calendar" => calendar_json(updated)})
     else
       :error ->
-        # invalid UUID (treat same as not found to avoid leaking details)
         json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
 
       {:error, :not_found} ->
@@ -93,18 +90,17 @@ defmodule SDRest.TenantsController do
     end
   end
 
-  # DELETE /api/v1/tenants/:id
+  # DELETE /api/v1/calendars/:id
   def delete(conn, %{"id" => id}) do
     with :ok <- ensure_uuid(id),
-         {:ok, tenant} <- fetch_tenant(id),
-         {:ok, _} <- SD.Tenants.delete_tenant(tenant) do
+         {:ok, calendar} <- fetch_calendar(id),
+         {:ok, _} <- SweetDate.delete_calendar(calendar) do
       json(conn, %{
         "status" => "ok",
-        "tenant" => %{"id" => tenant.id, "name" => tenant.name}
+        "calendar" => %{"id" => calendar.id, "name" => calendar.name}
       })
     else
       :error ->
-        # invalid UUID or failed check
         json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
 
       {:error, :not_found} ->
@@ -117,23 +113,24 @@ defmodule SDRest.TenantsController do
 
   ## --- helpers ---
 
-  # Normalize various context return styles into {:ok, tenant} | {:error, :not_found}
-  defp fetch_tenant(id) do
-    case SD.Tenants.get_tenant(id) do
-      {:ok, tenant} when not is_nil(tenant) -> {:ok, tenant}
-      %{} = tenant -> {:ok, tenant}
+  defp fetch_calendar(id) do
+    case SweetDate.get_calendar(id) do
+      {:ok, calendar} when not is_nil(calendar) -> {:ok, calendar}
+      %{} = calendar -> {:ok, calendar}
       nil -> {:error, :not_found}
       {:error, :not_found} -> {:error, :not_found}
       other -> other
     end
   end
 
-  defp tenant_json(t) do
+  defp calendar_json(calendar) do
     %{
-      "id" => t.id,
-      "name" => t.name,
-      "created_at" => t.inserted_at,
-      "updated_at" => t.updated_at
+      "id" => calendar.id,
+      "name" => calendar.name,
+      "color_theme" => calendar.color_theme,
+      "visibility" => calendar.visibility,
+      "created_at" => calendar.inserted_at,
+      "updated_at" => calendar.updated_at
     }
   end
 end

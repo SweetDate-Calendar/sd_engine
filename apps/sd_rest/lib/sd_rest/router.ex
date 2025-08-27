@@ -18,6 +18,10 @@ defmodule SDRest.Router do
   scope "/api/v1", SDRest do
     pipe_through(:api_auth)
 
+    resources "/calendars", CalendarsController do
+      resources "/events", EventsController
+    end
+
     resources "/tenants", TenantsController do
       resources "/users", TenantUsersController
       resources "/calendars", TenantSweetDateController

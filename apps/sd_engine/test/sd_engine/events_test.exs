@@ -27,6 +27,27 @@ defmodule SD.EventsTest do
       assert SweetDate.list_events(calendar.id) == [event]
     end
 
+    test "list_events/2 returns all events ordered by start_time and respects pagination" do
+      calendar = calendar_fixture()
+
+      # Create 3 events with increasing start_time
+      e1 = event_fixture(%{calendar_id: calendar.id, start_time: ~U[2025-01-01 12:00:00Z]})
+      e2 = event_fixture(%{calendar_id: calendar.id, start_time: ~U[2025-02-01 12:00:00Z]})
+      e3 = event_fixture(%{calendar_id: calendar.id, start_time: ~U[2025-03-01 12:00:00Z]})
+
+      # Without pagination — expect all
+      assert SweetDate.list_events(calendar.id) == [e1, e2, e3]
+
+      # Limit: 2, Offset: 0 — expect first 2 (e1 and e2)
+      assert SweetDate.list_events(calendar.id, limit: 2, offset: 0) == [e1, e2]
+
+      # Limit: 2, Offset: 1 — expect middle and last (e2 and e3)
+      assert SweetDate.list_events(calendar.id, limit: 2, offset: 1) == [e2, e3]
+
+      # Limit: 1, Offset: 2 — expect only the last (e3)
+      assert SweetDate.list_events(calendar.id, limit: 1, offset: 2) == [e3]
+    end
+
     test "get_event/1 returns the event with given id" do
       event = event_fixture()
       assert SweetDate.get_event(event.id) == event
