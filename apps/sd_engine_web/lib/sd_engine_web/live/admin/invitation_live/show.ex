@@ -1,4 +1,4 @@
-defmodule SDWeb.InvitationLive.Show do
+defmodule SDWeb.Admin.InvitationLive.Show do
   use SDWeb, :live_view
 
   alias SD.Notifications
@@ -31,11 +31,10 @@ defmodule SDWeb.InvitationLive.Show do
   end
 
   @impl true
-  def mount(%{"event_id" => event_id, "id" => id}, _session, socket) do
+  def mount(%{"id" => id}, _session, socket) do
     {:ok,
      socket
      |> assign(:page_title, "Show Invitation")
-     |> assign(:event_id, event_id)
      |> assign(:invitation, Notifications.get_invitation(id))}
   end
 end

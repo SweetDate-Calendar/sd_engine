@@ -71,10 +71,10 @@ defmodule SDWeb.Router do
     live "/credentials/new", CredentialLive.Form, :new
     live "/credentials/:id", CredentialLive.Show, :show
 
-    live "/event_invitations", InvitationLive.Index, :index
-    live "/event_invitations/new", InvitationLive.Form, :new
-    live "/event_invitations/:id", InvitationLive.Show, :show
-    live "/event_invitations/:id/edit", InvitationLive.Form, :edit
+    live "/events/:event_id/event_invitations", InvitationLive.Index, :index
+    live "/events/:event_id/event_invitations/new", InvitationLive.Form, :new
+    live "/events/:event_id/event_invitations/:id", InvitationLive.Show, :show
+    live "/events/:event_id/event_invitations/:id/edit", InvitationLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.

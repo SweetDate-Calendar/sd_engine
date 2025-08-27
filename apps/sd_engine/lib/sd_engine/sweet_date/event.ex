@@ -33,6 +33,8 @@ defmodule SD.SweetDate.Event do
       on_replace: :delete,
       join_keys: [event_id: :id, user_id: :id]
 
+    has_many :invitations, SD.Notifications.Invitation, foreign_key: :event_id
+
     timestamps()
   end
 

@@ -191,8 +191,8 @@ defmodule SD.Tenants do
       nil ->
         []
 
-      %Tenant{} = t ->
-        t
+      %Tenant{} = tenant ->
+        tenant
         |> Repo.preload(:calendars)
         |> Map.get(:calendars, [])
     end

@@ -1,4 +1,4 @@
-defmodule SDWeb.InvitationLive.Form do
+defmodule SDWeb.Admin.InvitationLive.Form do
   use SDWeb, :live_view
 
   alias SD.Notifications
@@ -22,7 +22,6 @@ defmodule SDWeb.InvitationLive.Form do
           <.button phx-disable-with="Saving..." variant="primary">Save Invitation</.button>
           <.button navigate={return_path(@return_to, @event_id, @invitation)}>Cancel</.button>
         </footer>
-         <.input field={@form[:event_id]} type="text" class="hidden" />
       </.form>
     </Layouts.app>
     """
@@ -49,8 +48,8 @@ defmodule SDWeb.InvitationLive.Form do
     |> assign(:form, to_form(Notifications.change_invitation(invitation)))
   end
 
-  defp apply_action(socket, :new, %{"event_id" => event_id}) do
-    invitation = %Invitation{event_id: event_id}
+  defp apply_action(socket, :new, _params) do
+    invitation = %Invitation{}
 
     socket
     |> assign(:page_title, "New Invitation")
@@ -108,7 +107,7 @@ defmodule SDWeb.InvitationLive.Form do
     end
   end
 
-  defp return_path("index", event_id, _invitation) do
+  defp return_path("index", event_id, _) do
     ~p"/events/#{event_id}/event_invitations"
   end
 
