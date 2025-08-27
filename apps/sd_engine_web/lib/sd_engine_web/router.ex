@@ -62,14 +62,19 @@ defmodule SDWeb.Router do
     # live "/tenants/:id", TenantLive.Show, :show
     # live "/tenants/:id/edit", TenantLive.Form, :edit
 
-    # # live "/calendars/:calendar_id/events", EventLive.Index, :index
-    # live "/calendars/:calendar_id/events/new", EventLive.Form, :new
-    # live "/calendars/:calendar_id/events/:id", EventLive.Show, :show
-    # live "/calendars/:calendar_id/events/:id/edit", EventLive.Form, :edit
+    # live "/calendars/:calendar_id/events", EventLive.Index, :index
+    live "/calendars/:calendar_id/events/new", EventLive.Form, :new
+    live "/calendars/:calendar_id/events/:id", EventLive.Show, :show
+    live "/calendars/:calendar_id/events/:id/edit", EventLive.Form, :edit
 
     live "/credentials", CredentialLive.Index, :index
     live "/credentials/new", CredentialLive.Form, :new
     live "/credentials/:id", CredentialLive.Show, :show
+
+    live "/event_invitations", InvitationLive.Index, :index
+    live "/event_invitations/new", InvitationLive.Form, :new
+    live "/event_invitations/:id", InvitationLive.Show, :show
+    live "/event_invitations/:id/edit", InvitationLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.
