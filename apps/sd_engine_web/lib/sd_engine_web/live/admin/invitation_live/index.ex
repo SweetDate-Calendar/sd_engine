@@ -1,4 +1,4 @@
-defmodule SDWeb.InvitationLive.Index do
+defmodule SDWeb.Admin.InvitationLive.Index do
   use SDWeb, :live_view
 
   alias SD.Notifications
@@ -49,7 +49,6 @@ defmodule SDWeb.InvitationLive.Index do
     {:ok,
      socket
      |> assign(:page_title, "Listing Event invitations")
-     |> assign(:event_id, event_id)
      |> stream(:event_invitations, Notifications.list_event_invitations(event_id))}
   end
 

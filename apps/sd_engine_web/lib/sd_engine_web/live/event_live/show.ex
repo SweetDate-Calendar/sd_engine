@@ -16,6 +16,9 @@ defmodule SDWeb.EventLive.Show do
           <.button variant="primary" navigate={~p"/calendars/#{@calendar_id}/events/#{@event}/edit?return_to=show"}>
             <.icon name="hero-pencil-square" /> Edit event
           </.button>
+           <.button variant="primary" navigate={~p"/events/#{@event}/event_invitations"}>
+            <.icon name="hero-pencil-square" /> Invitations
+          </.button>
         </:actions>
       </.header>
 

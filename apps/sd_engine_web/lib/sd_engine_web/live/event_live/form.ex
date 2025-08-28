@@ -125,6 +125,4 @@ defmodule SDWeb.EventLive.Form do
 
   defp return_path("show", calendar_id, event_id),
     do: ~p"/calendars/#{calendar_id}/events/#{event_id}"
-
-  # defp return_path(_, calendar_id, _), do: ~p"/calendars/#{calendar_id}/events"
 end
