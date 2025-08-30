@@ -43,6 +43,8 @@ defmodule SDWeb.TenantLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket), do: SDWeb.Endpoint.subscribe("tenants")
+
     {:ok,
      socket
      |> assign(:page_title, "Listing Tenants")
@@ -54,6 +56,25 @@ defmodule SDWeb.TenantLive.Index do
     tenant = Tenants.get_tenant(id)
     {:ok, _} = Tenants.delete_tenant(tenant)
 
+    {:noreply, stream_delete(socket, :tenants, tenant)}
+  end
+
+  @impl true
+  def handle_info(%Phoenix.Socket.Broadcast{event: "created", payload: tenant}, socket) do
+    {:noreply, stream_insert(socket, :tenants, tenant, at: 0)}
+  end
+
+  def handle_info(
+        %Phoenix.Socket.Broadcast{topic: "tenants", event: "updated", payload: %{tenant: tenant}},
+        socket
+      ) do
+    {:noreply, stream_insert(socket, :tenants, tenant)}
+  end
+
+  def handle_info(
+        %Phoenix.Socket.Broadcast{topic: "tenants", event: "deleted", payload: %{tenant: tenant}},
+        socket
+      ) do
     {:noreply, stream_delete(socket, :tenants, tenant)}
   end
 end

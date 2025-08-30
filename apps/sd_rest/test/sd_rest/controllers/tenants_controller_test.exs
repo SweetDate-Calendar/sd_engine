@@ -21,11 +21,9 @@ defmodule SDRest.TenantsControllerTest do
 
       %{
         "status" => "ok",
-        "result" => %{
-          "tenants" => tenants,
-          "limit" => 25,
-          "offset" => 0
-        }
+        "tenants" => tenants,
+        "limit" => 25,
+        "offset" => 0
       } = json_response(conn, 200)
 
       assert Enum.map(tenants, & &1["name"]) == ["Alpha", "Beta", "Charlie"]
@@ -36,11 +34,9 @@ defmodule SDRest.TenantsControllerTest do
 
       %{
         "status" => "ok",
-        "result" => %{
-          "tenants" => tenants,
-          "limit" => 2,
-          "offset" => 1
-        }
+        "tenants" => tenants,
+        "limit" => 2,
+        "offset" => 1
       } = json_response(conn, 200)
 
       assert Enum.map(tenants, & &1["name"]) == ["Beta", "Charlie"]
@@ -54,7 +50,7 @@ defmodule SDRest.TenantsControllerTest do
 
       %{
         "status" => "ok",
-        "result" => %{"tenant" => jt}
+        "tenant" => jt
       } = json_response(conn, 200)
 
       assert jt["id"] == t.id
