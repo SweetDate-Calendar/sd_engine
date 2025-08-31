@@ -306,7 +306,8 @@ defmodule SD.Tenants do
   Returns {:ok, count} | {:error, :seed_required}
   """
   def prune_test_data(seed) when is_binary(seed) and seed != "" do
-    pattern = "%[CI:#{seed}]%"
+    # match anywhere in the name
+    pattern = "%" <> seed <> "%"
 
     {count, _} =
       from(t in Tenant, where: ilike(t.name, ^pattern))

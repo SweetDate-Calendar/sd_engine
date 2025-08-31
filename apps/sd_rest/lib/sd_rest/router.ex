@@ -15,11 +15,12 @@ defmodule SDRest.Router do
     get("/healthz", HealthController, :show)
   end
 
-  if Mix.env() in [:dev, :test] do
-    scope "/api/v1/test", SDRest do
-      post "/prune", TestController, :prune
-    end
+  # if Mix.env() in [:dev, :test] do
+  scope "/api/v1/test", SDRest do
+    post "/prune", TestController, :prune
   end
+
+  # end
 
   scope "/api/v1", SDRest do
     pipe_through(:api_auth)

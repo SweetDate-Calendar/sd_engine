@@ -60,21 +60,31 @@ defmodule SDWeb.TenantLive.Index do
   end
 
   @impl true
-  def handle_info(%Phoenix.Socket.Broadcast{event: "created", payload: tenant}, socket) do
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: "created", payload: %SD.Tenants.Tenant{} = tenant},
+        socket
+      ) do
     {:noreply, stream_insert(socket, :tenants, tenant, at: 0)}
   end
 
   def handle_info(
-        %Phoenix.Socket.Broadcast{topic: "tenants", event: "updated", payload: %{tenant: tenant}},
+        %Phoenix.Socket.Broadcast{event: "updated", payload: %SD.Tenants.Tenant{} = tenant},
         socket
       ) do
     {:noreply, stream_insert(socket, :tenants, tenant)}
   end
 
   def handle_info(
-        %Phoenix.Socket.Broadcast{topic: "tenants", event: "deleted", payload: %{tenant: tenant}},
+        %Phoenix.Socket.Broadcast{event: "deleted", payload: %SD.Tenants.Tenant{} = tenant},
         socket
       ) do
     {:noreply, stream_delete(socket, :tenants, tenant)}
+  end
+
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: "pruned"},
+        socket
+      ) do
+    {:noreply, stream(socket, :tenants, [], reset: true)}
   end
 end

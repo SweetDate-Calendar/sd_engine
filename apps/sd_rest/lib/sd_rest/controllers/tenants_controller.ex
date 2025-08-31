@@ -100,7 +100,7 @@ defmodule SDRest.TenantsController do
   def delete(conn, %{"id" => id}) do
     with :ok <- ensure_uuid(id),
          {:ok, tenant} <- fetch_tenant(id),
-         {:ok, _} <- SD.Tenants.delete_tenant(tenant) do
+         {:ok, _deleted} <- SD.Tenants.delete_tenant(tenant) do
       broadcast_tenant("deleted", tenant)
 
       json(conn, %{
