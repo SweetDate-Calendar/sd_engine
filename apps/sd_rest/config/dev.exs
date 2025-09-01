@@ -1,4 +1,3 @@
-# apps/sd_rest/config/dev.exs
 import Config
 
 config :sd_rest, SDRest.Endpoint,

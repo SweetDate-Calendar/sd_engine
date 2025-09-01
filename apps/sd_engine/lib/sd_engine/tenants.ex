@@ -45,7 +45,7 @@ defmodule SD.Tenants do
   @doc """
   Gets a single tenant.
 
-  Raises `Ecto.NoResultsError` if the Tenant does not exist.
+  Return nil if the Tenant does not exist.
 
   ## Examples
 
@@ -299,4 +299,22 @@ defmodule SD.Tenants do
   def change_tenant_calendar(%TenantCalendar{} = tenant_calendar, attrs \\ %{}) do
     TenantCalendar.changeset(tenant_calendar, attrs)
   end
+
+  @doc """
+  Delete only tenants whose name contains a CI seed marker like: [CI:abc123]
+
+  Returns {:ok, count} | {:error, :seed_required}
+  """
+  def prune_test_data(seed) when is_binary(seed) and seed != "" do
+    # match anywhere in the name
+    pattern = "%" <> seed <> "%"
+
+    {count, _} =
+      from(t in Tenant, where: ilike(t.name, ^pattern))
+      |> Repo.delete_all()
+
+    {:ok, count}
+  end
+
+  def prune_test_data(_), do: {:error, :seed_required}
 end

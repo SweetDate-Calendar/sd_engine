@@ -4,6 +4,14 @@ defmodule SDRest.TenantsController do
 
   alias SD.Tenants
 
+  defp broadcast_tenant(event, tenant) do
+    Phoenix.PubSub.broadcast(SD.PubSub, "tenants", %Phoenix.Socket.Broadcast{
+      topic: "tenants",
+      event: event,
+      payload: tenant
+    })
+  end
+
   # GET /api/v1/tenants?limit=25&offset=0
   def index(conn, params) do
     {limit, offset} = pagination(params)
@@ -12,11 +20,9 @@ defmodule SDRest.TenantsController do
 
     json(conn, %{
       "status" => "ok",
-      "result" => %{
-        "tenants" => Enum.map(tenants, &tenant_json/1),
-        "limit" => limit,
-        "offset" => offset
-      }
+      "tenants" => Enum.map(tenants, &tenant_json/1),
+      "limit" => limit,
+      "offset" => offset
     })
   end
 
@@ -26,12 +32,9 @@ defmodule SDRest.TenantsController do
          {:ok, tenant} <- fetch_tenant(id) do
       json(conn, %{
         "status" => "ok",
-        "result" => %{"tenant" => tenant_json(tenant)}
+        "tenant" => tenant_json(tenant)
       })
     else
-      :error ->
-        json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
-
       {:error, :not_found} ->
         json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
 
@@ -44,13 +47,12 @@ defmodule SDRest.TenantsController do
   def create(conn, params) do
     attrs = %{
       "name" => Map.get(params, "name")
-      # Include any extra attributes you accept here.
-      # If you auto-create a default calendar, that likely happens in the context.
     }
 
-    # Expecting: SD.Tenants.create_tenant(attrs) -> {:ok, tenant} | {:error, changeset}
     case Tenants.create_tenant(attrs) do
       {:ok, tenant} ->
+        broadcast_tenant("created", tenant)
+
         json(conn |> put_status(201), %{
           "status" => "ok",
           "tenant" => tenant_json(tenant)
@@ -72,6 +74,7 @@ defmodule SDRest.TenantsController do
          {:ok, tenant} <- fetch_tenant(id),
          attrs <- Map.take(params, ["name"]),
          {:ok, updated} <- SD.Tenants.update_tenant(tenant, attrs) do
+      broadcast_tenant("updated", updated)
       json(conn, %{"status" => "ok", "tenant" => tenant_json(updated)})
     else
       :error ->
@@ -97,7 +100,9 @@ defmodule SDRest.TenantsController do
   def delete(conn, %{"id" => id}) do
     with :ok <- ensure_uuid(id),
          {:ok, tenant} <- fetch_tenant(id),
-         {:ok, _} <- SD.Tenants.delete_tenant(tenant) do
+         {:ok, _deleted} <- SD.Tenants.delete_tenant(tenant) do
+      broadcast_tenant("deleted", tenant)
+
       json(conn, %{
         "status" => "ok",
         "tenant" => %{"id" => tenant.id, "name" => tenant.name}
@@ -124,7 +129,7 @@ defmodule SDRest.TenantsController do
       %{} = tenant -> {:ok, tenant}
       nil -> {:error, :not_found}
       {:error, :not_found} -> {:error, :not_found}
-      other -> other
+      _ -> {:error, :not_found}
     end
   end
 

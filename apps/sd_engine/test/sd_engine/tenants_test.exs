@@ -7,6 +7,35 @@ defmodule SD.TenantsTest do
   alias SD.SweetDate.Calendar
   import SD.TenantsFixtures
 
+  describe "prune_test_data/1" do
+    alias SD.Tenants.Tenant
+
+    test "deletes only tenants with the given CI seed" do
+      # Tenants with CI marker
+      t1 = tenant_fixture(%{name: "SDK Test [CI:abc123] Alpha"})
+      t2 = tenant_fixture(%{name: "SDK Test [CI:abc123] Beta"})
+
+      # Tenant without CI marker
+      t3 = tenant_fixture(%{name: "Regular Tenant Gamma"})
+
+      # Call prune
+      assert {:ok, 2} = SD.Tenants.prune_test_data("abc123")
+
+      # Deleted
+      refute SD.Tenants.get_tenant(t1.id)
+      refute SD.Tenants.get_tenant(t2.id)
+
+      # Still present
+      assert SD.Tenants.get_tenant(t3.id)
+    end
+
+    test "returns error when seed is missing or empty" do
+      assert {:error, :seed_required} = SD.Tenants.prune_test_data(nil)
+      assert {:error, :seed_required} = SD.Tenants.prune_test_data("")
+      assert {:error, :seed_required} = SD.Tenants.prune_test_data(123)
+    end
+  end
+
   describe "add_calendar/2" do
     test "creates a calendar and associates it with the tenant" do
       tenant = tenant_fixture()
