@@ -1,4 +1,4 @@
-defmodule SDRest.TenantSweetDateControllerTest do
+defmodule SDRest.TenantCalendarsControllerTest do
   use SDRest.ConnCase, async: true
   use SDRest.SignedRequestHelpers
 

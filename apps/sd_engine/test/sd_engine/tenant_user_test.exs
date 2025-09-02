@@ -1,10 +1,10 @@
-defmodule SD.SweetDate.TenantUserTest do
+defmodule SD.Tenants.TenantUserTest do
   use SD.DataCase, async: true
 
   import Ecto.Query
 
-  alias SD.Accounts
-  alias SD.SweetDate.TenantUser
+  alias SD.Tenants
+  alias SD.Tenants.TenantUser
   alias SD.Repo
 
   import SD.TenantsFixtures
@@ -16,14 +16,14 @@ defmodule SD.SweetDate.TenantUserTest do
       tenant = tenant_fixture()
 
       assert {:ok, %TenantUser{}} =
-               Accounts.create_tenant_user(%{
+               Tenants.create_tenant_user(%{
                  "tenant_id" => tenant.id,
                  "user_id" => user.id,
                  "role" => "guest"
                })
 
       assert {:error, _changeset} =
-               Accounts.create_tenant_user(%{
+               Tenants.create_tenant_user(%{
                  "tenant_id" => tenant.id,
                  "user_id" => user.id,
                  "role" => "guest"
@@ -35,7 +35,7 @@ defmodule SD.SweetDate.TenantUserTest do
       tenant = tenant_fixture()
 
       assert {:ok, %TenantUser{}} =
-               Accounts.create_tenant_user(%{
+               Tenants.create_tenant_user(%{
                  "tenant_id" => tenant.id,
                  "user_id" => user.id,
                  "role" => "guest"
@@ -53,7 +53,7 @@ defmodule SD.SweetDate.TenantUserTest do
       tenant = tenant_fixture()
 
       assert {:ok, %TenantUser{}} =
-               Accounts.create_tenant_user(%{
+               Tenants.create_tenant_user(%{
                  "tenant_id" => tenant.id,
                  "user_id" => user.id,
                  "role" => "guest"
@@ -73,7 +73,7 @@ defmodule SD.SweetDate.TenantUserTest do
       tenant = tenant_fixture()
 
       assert {:ok, %TenantUser{}} =
-               Accounts.create_tenant_user(%{
+               Tenants.create_tenant_user(%{
                  "tenant_id" => tenant.id,
                  "user_id" => user.id,
                  "role" => "guest"
@@ -98,33 +98,33 @@ defmodule SD.SweetDate.TenantUserTest do
       u3 = user_fixture(%{name: "Cora", email: "cora@example.com"})
 
       {:ok, tu1} =
-        Accounts.create_tenant_user(%{
+        Tenants.create_tenant_user(%{
           "tenant_id" => t1.id,
           "user_id" => u1.id,
           "role" => "guest"
         })
 
       {:ok, tu2} =
-        Accounts.create_tenant_user(%{
+        Tenants.create_tenant_user(%{
           "tenant_id" => t1.id,
           "user_id" => u2.id,
           "role" => "admin"
         })
 
       {:ok, _tu3} =
-        Accounts.create_tenant_user(%{
+        Tenants.create_tenant_user(%{
           "tenant_id" => t2.id,
           "user_id" => u3.id,
           "role" => "guest"
         })
 
       # No opts → default 25/0
-      list_all = Accounts.list_tenant_users(t1.id)
+      list_all = Tenants.list_tenant_users(t1.id)
       assert Enum.map(list_all, & &1.id) |> MapSet.new() == MapSet.new([tu1.id, tu2.id])
 
       # limit / offset
-      list_page1 = Accounts.list_tenant_users(t1.id, limit: 1, offset: 0)
-      list_page2 = Accounts.list_tenant_users(t1.id, limit: 5, offset: 1)
+      list_page1 = Tenants.list_tenant_users(t1.id, limit: 1, offset: 0)
+      list_page2 = Tenants.list_tenant_users(t1.id, limit: 5, offset: 1)
       assert length(list_page1) == 1
       assert length(list_page2) == 1
       refute hd(list_page1).id == hd(list_page2).id
@@ -138,20 +138,20 @@ defmodule SD.SweetDate.TenantUserTest do
       u2 = user_fixture(%{name: "Bob Smith", email: "bob@example.com"})
 
       {:ok, _} =
-        Accounts.create_tenant_user(%{
+        Tenants.create_tenant_user(%{
           "tenant_id" => t.id,
           "user_id" => u1.id,
           "role" => "guest"
         })
 
       {:ok, _} =
-        Accounts.create_tenant_user(%{
+        Tenants.create_tenant_user(%{
           "tenant_id" => t.id,
           "user_id" => u2.id,
           "role" => "guest"
         })
 
-      only_alice = Accounts.list_tenant_users(t.id, q: "alice")
+      only_alice = Tenants.list_tenant_users(t.id, q: "alice")
 
       assert Enum.all?(only_alice, fn tenant_user ->
                tenant_user.user.email == "alice@example.com"
@@ -164,19 +164,19 @@ defmodule SD.SweetDate.TenantUserTest do
 
       # Create a tenant_user
       {:ok, _tenant_user} =
-        Accounts.create_tenant_user(%{
+        Tenants.create_tenant_user(%{
           "tenant_id" => tenant.id,
           "user_id" => user.id,
           "role" => "guest"
         })
 
       # Success case: should return the tenant_user
-      returned_tenant_user = Accounts.get_tenant_user(tenant.id, user.id)
+      returned_tenant_user = Tenants.get_tenant_user(tenant.id, user.id)
       assert returned_tenant_user.user_id == user.id
 
       # Not found case
       assert is_nil(
-               Accounts.get_tenant_user(
+               Tenants.get_tenant_user(
                  "00000000-0000-0000-0000-000000000000",
                  "00000000-0000-0000-0000-000000000000"
                )
@@ -188,10 +188,10 @@ defmodule SD.SweetDate.TenantUserTest do
       u = user_fixture()
 
       {:ok, tenant_user} =
-        Accounts.create_tenant_user(%{"tenant_id" => t.id, "user_id" => u.id, "role" => "guest"})
+        Tenants.create_tenant_user(%{"tenant_id" => t.id, "user_id" => u.id, "role" => "guest"})
 
       assert {:ok, updated} =
-               Accounts.update_tenant_user(tenant_user, %{
+               Tenants.update_tenant_user(tenant_user, %{
                  "role" => "admin"
                })
 
@@ -203,15 +203,15 @@ defmodule SD.SweetDate.TenantUserTest do
       user = user_fixture()
 
       {:ok, tenant_user} =
-        Accounts.create_tenant_user(%{
+        Tenants.create_tenant_user(%{
           "tenant_id" => tenant.id,
           "user_id" => user.id,
           "role" => "guest"
         })
 
-      assert {:ok, _} = Accounts.delete_tenant_user(tenant_user)
+      assert {:ok, _} = Tenants.delete_tenant_user(tenant_user)
 
-      assert is_nil(Accounts.get_tenant_user(tenant.id, user.id))
+      assert is_nil(Tenants.get_tenant_user(tenant.id, user.id))
 
       # refute Repo.exists?(from(x in TenantUser, where: x.id == ^tu.id))
     end

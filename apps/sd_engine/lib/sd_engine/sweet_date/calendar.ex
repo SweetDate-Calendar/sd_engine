@@ -2,7 +2,8 @@ defmodule SD.SweetDate.Calendar do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @derive {Jason.Encoder, only: [:id, :name, :color_theme, :visibility]}
+  @derive {Jason.Encoder,
+           only: [:id, :name, :color_theme, :visibility, :inserted_at, :updated_at]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -23,7 +24,7 @@ defmodule SD.SweetDate.Calendar do
       on_replace: :delete,
       join_keys: [calendar_id: :id, user_id: :id]
 
-    has_many :events, SD.SweetDate.Event,
+    has_many :events, SD.Calendars.Event,
       foreign_key: :calendar_id,
       references: :id
 

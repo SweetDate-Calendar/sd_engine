@@ -1,7 +1,7 @@
-defmodule SD.SweetDate.EventUserTest do
+defmodule SD.Calendars.EventUserTest do
   use SD.DataCase, async: true
 
-  alias SD.SweetDate.EventUser
+  alias SD.Calendars.EventUser
   alias SD.Accounts
   alias SD.Repo
 

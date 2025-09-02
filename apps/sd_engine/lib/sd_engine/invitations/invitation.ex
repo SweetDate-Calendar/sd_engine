@@ -15,7 +15,7 @@ defmodule SD.Notifications.Invitation do
 
     field :token, :string
     field :expires_at, :utc_datetime
-    belongs_to :event, SD.SweetDate.Event, type: :binary_id
+    belongs_to :event, SD.Calendars.Event, type: :binary_id
 
     timestamps()
   end

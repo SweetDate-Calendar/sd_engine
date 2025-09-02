@@ -1,4 +1,4 @@
-defmodule SD.SweetDate.TenantUser do
+defmodule SD.Tenants.TenantUser do
   use Ecto.Schema
   import Ecto.Changeset
 

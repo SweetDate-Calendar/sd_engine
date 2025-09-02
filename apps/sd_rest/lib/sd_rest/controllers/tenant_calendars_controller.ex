@@ -1,4 +1,4 @@
-defmodule SDRest.TenantSweetDateController do
+defmodule SDRest.TenantCalendarsController do
   use SDRest, :controller
   use SDRest.ControllerHelpers, default_limit: 25, max_limit: 100
   action_fallback SDRest.FallbackController

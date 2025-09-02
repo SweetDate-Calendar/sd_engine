@@ -19,7 +19,7 @@ defmodule SDRest.CalendarsControllerTest do
     test "GET /api/v1/calendars returns list of calendars", %{conn: conn} do
       conn = signed_get(conn, @base)
 
-      %{"status" => "ok", "result" => %{"calendars" => cals, "limit" => 25, "offset" => 0}} =
+      %{"status" => "ok", "calendars" => cals, "limit" => 25, "offset" => 0} =
         json_response(conn, 200)
 
       assert Enum.map(cals, & &1["name"]) == ["Alpha", "Beta", "Charlie"]
@@ -28,7 +28,7 @@ defmodule SDRest.CalendarsControllerTest do
     test "respects limit and offset", %{conn: conn} do
       conn = signed_get(conn, "#{@base}?limit=2&offset=1")
 
-      %{"status" => "ok", "result" => %{"calendars" => cals, "limit" => 2, "offset" => 1}} =
+      %{"status" => "ok", "calendars" => cals, "limit" => 2, "offset" => 1} =
         json_response(conn, 200)
 
       assert Enum.map(cals, & &1["name"]) == ["Beta", "Charlie"]
@@ -40,7 +40,7 @@ defmodule SDRest.CalendarsControllerTest do
       c = calendar_fixture(%{name: "Echo"})
       conn = signed_get(conn, "#{@base}/#{c.id}")
 
-      %{"status" => "ok", "result" => %{"calendar" => jc}} = json_response(conn, 200)
+      %{"status" => "ok", "calendar" => jc} = json_response(conn, 200)
       assert jc["id"] == c.id
       assert jc["name"] == "Echo"
     end

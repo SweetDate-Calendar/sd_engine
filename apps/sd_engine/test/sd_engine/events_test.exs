@@ -5,7 +5,7 @@ defmodule SD.EventsTest do
   alias SD.SweetDate
 
   describe "events" do
-    alias SD.SweetDate.Event
+    alias SD.Calendars.Event
 
     import SD.SweetDateFixtures
 

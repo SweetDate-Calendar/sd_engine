@@ -12,11 +12,9 @@ defmodule SDRest.CalendarsController do
 
     json(conn, %{
       "status" => "ok",
-      "result" => %{
-        "calendars" => Enum.map(calendars, &calendar_json/1),
-        "limit" => limit,
-        "offset" => offset
-      }
+      "calendars" => Enum.map(calendars, &calendar_json/1),
+      "limit" => limit,
+      "offset" => offset
     })
   end
 
@@ -26,7 +24,7 @@ defmodule SDRest.CalendarsController do
          {:ok, calendar} <- fetch_calendar(id) do
       json(conn, %{
         "status" => "ok",
-        "result" => %{"calendar" => calendar_json(calendar)}
+        "calendar" => calendar_json(calendar)
       })
     else
       :error ->

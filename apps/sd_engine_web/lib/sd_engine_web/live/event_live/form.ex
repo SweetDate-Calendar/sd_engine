@@ -1,7 +1,7 @@
 defmodule SDWeb.EventLive.Form do
   use SDWeb, :live_view
   alias SD.SweetDate
-  alias SD.SweetDate.Event
+  alias SD.Calendars.Event
 
   @impl true
   def render(assigns) do

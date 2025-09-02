@@ -124,7 +124,7 @@ defmodule SD.SweetDate do
 
   # ---------- events --------------
 
-  alias SD.SweetDate.Event
+  alias SD.Calendars.Event
 
   @doc """
   Returns the list of events for the given calendar ID, ordered by `start_time` ascending.
