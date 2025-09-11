@@ -6,7 +6,7 @@ defmodule SD.SweetDateTest do
   describe "calendars" do
     alias SD.SweetDate.Calendar
 
-    import SD.SweetDateFixtures
+    import SD.CalendarsFixtures
 
     @invalid_attrs %{name: nil, color_theme: nil, visibility: nil}
 

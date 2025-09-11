@@ -3,7 +3,7 @@ defmodule SDWeb.InvitationLiveTest do
 
   import Phoenix.LiveViewTest
   import SD.NotificationsFixtures
-  import SD.SweetDateFixtures
+  import SD.CalendarsFixtures
   # import SD.CredentialsFixtures
 
   @create_attrs %{

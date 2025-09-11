@@ -30,10 +30,7 @@ defmodule SDRest.Router do
       resources "/events", EventsController
     end
 
-    resources "/tenants", TenantsController do
-      resources "/users", TenantUsersController
-      resources "/calendars", TenantCalendarsController
-    end
+    resources "/tenants", TenantsController
 
     resources "/users", UsersController do
       resources "/calendars", CalendarsController
@@ -44,7 +41,11 @@ defmodule SDRest.Router do
     pipe_through(:api_auth)
     resources "/tenant_calendars", TenantCalendarsController, only: [:create, :delete]
     resources "/tenant_users", TenantUsersController, only: [:create, :update, :delete]
-    resources "/calendar_users", CalendarUsersController, only: [:create, :update, :delete]
-    # resources "/event_users", EventUsersController, only: [:create, :update, :delete]
+
+    resources "/calendars", CalendarController, only: [] do
+      resources "/users", CalendarUsersController, only: [:create, :update, :delete]
+    end
+
+    resources "/event_users", EventUsersController, only: [:create, :update, :delete]
   end
 end

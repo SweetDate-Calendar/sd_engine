@@ -3,7 +3,7 @@ defmodule SDRest.EventsControllerTest do
   use SDRest.SignedRequestHelpers
 
   import Phoenix.ConnTest
-  import SD.SweetDateFixtures
+  import SD.CalendarsFixtures
 
   setup %{conn: conn} do
     calendar = calendar_fixture(%{name: "Main"})

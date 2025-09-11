@@ -8,7 +8,7 @@ defmodule SD.NotificationsFixtures do
   Generate a invitation.
   """
   def invitation_fixture(attrs \\ %{}) do
-    event = attrs[:event] || SD.SweetDateFixtures.event_fixture()
+    event = attrs[:event] || SD.CalendarsFixtures.event_fixture()
 
     {:ok, invitation} =
       attrs

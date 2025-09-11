@@ -4,7 +4,7 @@ defmodule SDRest.TenantCalendarsControllerTest do
 
   import Phoenix.ConnTest
   import SD.TenantsFixtures
-  import SD.SweetDateFixtures
+  import SD.CalendarsFixtures
 
   @tenants_base "/api/v1/tenants"
 

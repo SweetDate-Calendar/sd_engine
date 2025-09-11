@@ -3,7 +3,7 @@ defmodule SDRest.CalendarsControllerTest do
   use SDRest.SignedRequestHelpers
 
   import Phoenix.ConnTest
-  import SD.SweetDateFixtures
+  import SD.CalendarsFixtures
 
   @base "/api/v1/calendars"
 

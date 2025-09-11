@@ -2,6 +2,8 @@ defmodule SD.Tenants.TenantCalendar do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, only: [:tenant_id, :calendar_id]}
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "tenant_calendars" do

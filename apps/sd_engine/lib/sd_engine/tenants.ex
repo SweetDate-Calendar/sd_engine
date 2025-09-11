@@ -220,14 +220,10 @@ defmodule SD.Tenants do
   Notes:
     * Relies on DB FKs/unique indexes for integrity (invalid/missing IDs → changeset errors).
   """
-  def create_tenant_calendar(%{"tenant_id" => _tenant_id, "calendar_id" => _calendar_id} = attrs) do
+  def create_tenant_calendar(attrs) do
     %TenantCalendar{}
     |> TenantCalendar.changeset(attrs)
     |> Repo.insert()
-    |> case do
-      {:ok, tenant_calendar} -> {:ok, Repo.preload(tenant_calendar, :calendar)}
-      {:error, change_set} -> {:error, change_set}
-    end
   end
 
   @doc """
@@ -335,23 +331,44 @@ defmodule SD.Tenants do
 
   ## Examples
 
-      iex> %TenantUser{} = SD.Tenants.get_tenant_user(tenant_id, user_id)
+      iex>   SD.Tenants.get_tenant_user(tenant_id, user_id)
+      {:ok, %TenantUser{}}
 
       iex> SD.Tenants.get_tenant_user("00000000-0000-0000-0000-000000000000", user_id)
-      nil
+      {:error, :not_found}
+
+      iex> SD.Tenants.get_tenant_user("not a uuid", user_id)
+      {:error, :invalid_id}
+
 
   """
-  def get_tenant_user(tenant_id, user_id) do
-    with {:ok, _} <- Ecto.UUID.cast(tenant_id),
-         {:ok, _} <- Ecto.UUID.cast(user_id) do
+
+  def get_tenant_user(attrs) when is_map(attrs) do
+    tenant_id_raw = Map.get(attrs, "tenant_id") || Map.get(attrs, :tenant_id)
+    user_id_raw = Map.get(attrs, "user_id") || Map.get(attrs, :user_id)
+
+    with {:ok, tenant_id} <- Ecto.UUID.cast(tenant_id_raw),
+         {:ok, user_id} <- Ecto.UUID.cast(user_id_raw),
+         {:ok, tenant_user} <- do_get_tenant_user(tenant_id, user_id) do
+      {:ok, tenant_user}
+    else
+      # one of the UUID casts failed
+      :error -> {:error, :invalid_id}
+      {:error, :not_found} -> {:error, :not_found}
+    end
+  end
+
+  defp do_get_tenant_user(tenant_id, user_id) do
+    tu =
       from(tu in TenantUser,
         where: tu.tenant_id == ^tenant_id and tu.user_id == ^user_id,
-        join: u in assoc(tu, :user),
-        preload: [user: u]
+        preload: [:user]
       )
       |> Repo.one()
-    else
-      :error -> nil
+
+    case tu do
+      %TenantUser{} = tenant_user -> {:ok, tenant_user}
+      _ -> {:error, :not_found}
     end
   end
 
@@ -439,7 +456,7 @@ defmodule SD.Tenants do
       iex> delete_tenant_user(user)
       {:ok, %TenantUser{}}
   """
-  def delete_tenant_user(%TenantUser{} = user), do: Repo.delete(user)
+  def delete_tenant_user(%TenantUser{} = tenant_user), do: Repo.delete(tenant_user)
 
   @doc """
   Return an `%Ecto.Changeset{}` for tracking tenant user changes.

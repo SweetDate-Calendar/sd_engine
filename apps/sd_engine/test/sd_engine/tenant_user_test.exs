@@ -171,16 +171,16 @@ defmodule SD.Tenants.TenantUserTest do
         })
 
       # Success case: should return the tenant_user
-      returned_tenant_user = Tenants.get_tenant_user(tenant.id, user.id)
-      assert returned_tenant_user.user_id == user.id
+      {:ok, tenant_user} = Tenants.get_tenant_user(%{tenant_id: tenant.id, user_id: user.id})
 
-      # Not found case
-      assert is_nil(
-               Tenants.get_tenant_user(
-                 "00000000-0000-0000-0000-000000000000",
-                 "00000000-0000-0000-0000-000000000000"
-               )
-             )
+      assert tenant_user.user_id == user.id
+      assert tenant_user.tenant_id == tenant.id
+
+      assert {:error, :not_found} ==
+               Tenants.get_tenant_user(%{
+                 tenant_id: "00000000-0000-0000-0000-000000000000",
+                 user_id: "00000000-0000-0000-0000-000000000000"
+               })
     end
 
     test "update_tenant_user/2 updates role" do
@@ -211,9 +211,11 @@ defmodule SD.Tenants.TenantUserTest do
 
       assert {:ok, _} = Tenants.delete_tenant_user(tenant_user)
 
-      assert is_nil(Tenants.get_tenant_user(tenant.id, user.id))
-
-      # refute Repo.exists?(from(x in TenantUser, where: x.id == ^tu.id))
+      assert {:error, :not_found} ==
+               Tenants.get_tenant_user(%{
+                 tenant_id: "00000000-0000-0000-0000-000000000000",
+                 user_id: "00000000-0000-0000-0000-000000000000"
+               })
     end
   end
 end

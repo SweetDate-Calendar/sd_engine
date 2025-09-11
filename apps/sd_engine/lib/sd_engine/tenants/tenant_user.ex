@@ -2,6 +2,8 @@ defmodule SD.Tenants.TenantUser do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, only: [:tenant_id, :user_id, :role]}
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "tenant_users" do

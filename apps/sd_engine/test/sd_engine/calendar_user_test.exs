@@ -5,7 +5,7 @@ defmodule SD.Calendars.CalendarUserTest do
   alias SD.Calendars
   alias SD.Repo
 
-  import SD.SweetDateFixtures
+  import SD.CalendarsFixtures
   import SD.AccountsFixtures
 
   describe "calendar_users join" do
