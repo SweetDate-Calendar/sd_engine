@@ -6,31 +6,40 @@ defmodule SDRest.Join.TenantCalendarsController do
   alias SD.Tenants
 
   def create(conn, params) do
-    with {:ok, join} <- Tenants.create_tenant_calendar(params) do
-      json(conn |> put_status(:created), %{
-        "status" => "ok",
-        "tenant_calendar" => join
-      })
-    else
+    case Tenants.create_tenant_calendar(params) do
+      {:ok, tenant_calendar} ->
+        tenant_calendar = SD.Repo.preload(tenant_calendar, :calendar)
+
+        json(conn |> put_status(:created), %{
+          "status" => "ok",
+          "calendar" => tenant_calendar.calendar
+        })
+
       {:error, changeset} ->
         json(conn |> put_status(:unprocessable_entity), %{
           "status" => "error",
-          "message" => "validation failed",
-          "details" => translate_changeset_errors(changeset)
+          "message" => translate_changeset_errors(changeset)
         })
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    case Tenants.delete_tenant_calendar(id) do
-      {:ok, join} ->
-        json(conn, %{"status" => "ok", "tenant_calendar" => join})
+  def delete(conn, params) do
+    tenant_id = Map.get(params, "tenant_id", "")
+    calendar_id = Map.get(params, "id", "")
 
-      {:error, :not_found} ->
-        json(conn |> put_status(:not_found), %{
-          "status" => "error",
-          "message" => "not found"
-        })
+    case Tenants.get_tenant_calendar(tenant_id, calendar_id) do
+      {:ok, tenant_calendar} ->
+        SD.Tenants.delete_tenant_calendar(tenant_calendar)
+        json(conn, %{"status" => "ok"})
+
+      {:error, :invalid_tenant_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid tenant_id"})
+
+      {:error, :invalid_calendar_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid calendar_id"})
+
+      _ ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
     end
   end
 end

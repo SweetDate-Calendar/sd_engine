@@ -2,46 +2,75 @@ defmodule SDRest.Join.TenantCalendarsControllerTest do
   use SDRest.ConnCase, async: true
   use SDRest.SignedRequestHelpers
 
-  @tenant_calendar_endpoint "/api/v1/join/tenant_calendars"
-
-  describe "POST /join/tenant_calendars" do
-    test "creates a tenant-calendar join", %{conn: conn} do
+  describe "POST /api/v1/join/tenants/:tenant_id/calendars" do
+    test "creates a tenant_calendar", %{conn: conn} do
       tenant = SD.TenantsFixtures.tenant_fixture(%{name: "TenantJoin #{System.unique_integer()}"})
 
       calendar =
-        SD.CalendarsFixtures.calendar_fixture(%{name: "CalendarJoin #{System.unique_integer()}"})
+        SD.CalendarsFixtures.calendar_fixture(%{name: "Calendar #{System.unique_integer()}"})
 
-      body = %{
-        "tenant_id" => tenant.id,
-        "calendar_id" => calendar.id
+      payload = %{
+        "calendar_id" => calendar.id,
+        "visibility" => "shared"
       }
 
-      conn = signed_post(conn, @tenant_calendar_endpoint, body)
+      endpoint = "/api/v1/join/tenants/#{tenant.id}/calendars"
+      conn = signed_post(conn, endpoint, payload)
 
       assert json = json_response(conn, 201)
+
       assert json["status"] == "ok"
-      assert tenant_calendar = json["tenant_calendar"]
-      assert tenant_calendar["tenant_id"] == tenant.id
-      assert tenant_calendar["calendar_id"] == calendar.id
+      calendar_json = json["calendar"]
+      assert calendar_json["name"] == calendar.name
+      assert calendar_json["visibility"] == "public"
+      assert calendar_json["id"] == calendar.id
     end
 
     test "returns 422 on missing fields", %{conn: conn} do
-      conn = signed_post(conn, @tenant_calendar_endpoint, %{})
+      tenant = SD.TenantsFixtures.tenant_fixture(%{name: "TenantJoin #{System.unique_integer()}"})
+      endpoint = "/api/v1/join/tenants/#{tenant.id}/calendars"
+      conn = signed_post(conn, endpoint, %{})
       json = json_response(conn, 422)
 
       assert json["status"] == "error"
-      assert json["message"] == "validation failed"
-      assert Map.has_key?(json["details"], "tenant_id")
-      assert Map.has_key?(json["details"], "calendar_id")
+      assert json["message"]["calendar_id"] == ["can't be blank"]
+    end
+
+    test "returns 422 with invalid tenant_id UUID and missing calendar_id", %{conn: conn} do
+      endpoint =
+        "/api/v1/join/tenants/123/calendars/"
+
+      conn = signed_post(conn, endpoint, %{})
+      json = json_response(conn, 422)
+
+      assert json["status"] == "error"
+      assert json["message"]["calendar_id"] == ["can't be blank"]
+      assert json["message"]["tenant_id"] == ["is not a valid UUID"]
+    end
+
+    test "returns 422 on invalid UUIDs", %{conn: conn} do
+      endpoint =
+        "/api/v1/join/tenants/bad-uuid/calendars/"
+
+      conn =
+        signed_post(conn, endpoint, %{
+          "calendar_id" => "also-bad"
+        })
+
+      json = json_response(conn, 422)
+
+      assert json["status"] == "error"
+      assert json["message"]["calendar_id"] == ["is not a valid UUID"]
+      assert json["message"]["tenant_id"] == ["is not a valid UUID"]
     end
   end
 
-  describe "DELETE /tenants/:tenant_id/calendars/:id" do
+  describe "DELETE /api/v1/join/tenants/:tenants_id/calendars/:id" do
     test "deletes an existing tenant_calendar", %{conn: conn} do
       tenant_calendar = SD.CalendarsFixtures.tenant_calendar_fixture()
 
       path =
-        "/api/v1/tenants/#{tenant_calendar.tenant_id}/calendars/#{tenant_calendar.calendar_id}"
+        "/api/v1/join/tenants/#{tenant_calendar.tenant_id}/calendars/#{tenant_calendar.calendar_id}"
 
       conn = signed_delete(conn, path)
 
@@ -49,70 +78,13 @@ defmodule SDRest.Join.TenantCalendarsControllerTest do
       assert json["status"] == "ok"
     end
 
-    test "returns 404 for nonexistent tenant_calendar", %{conn: conn} do
-      path = "/api/v1/tenants/#{Ecto.UUID.generate()}/calendars/#{Ecto.UUID.generate()}"
+    test "returns 404 for nonexistent calendar", %{conn: conn} do
+      path = "/api/v1/join/tenants/#{Ecto.UUID.generate()}/calendars/#{Ecto.UUID.generate()}"
       conn = signed_delete(conn, path)
 
       json = json_response(conn, 404)
       assert json["status"] == "error"
       assert json["message"] == "not found"
-    end
-  end
-
-  describe "POST /join/tenant_calendars — validation" do
-    test "returns 422 on missing both tenant_id and calendar_id", %{conn: conn} do
-      conn = signed_post(conn, @tenant_calendar_endpoint, %{})
-      json = json_response(conn, 422)
-
-      assert json["status"] == "error"
-      assert json["message"] == "validation failed"
-      assert json["details"]["tenant_id"] == ["can't be blank"]
-      assert json["details"]["calendar_id"] == ["can't be blank"]
-    end
-
-    test "returns 422 on missing calendar_id", %{conn: conn} do
-      tenant = SD.TenantsFixtures.tenant_fixture()
-
-      conn =
-        signed_post(conn, @tenant_calendar_endpoint, %{
-          "tenant_id" => tenant.id
-        })
-
-      json = json_response(conn, 422)
-
-      assert json["status"] == "error"
-      assert json["message"] == "validation failed"
-      assert json["details"]["calendar_id"] == ["can't be blank"]
-    end
-
-    test "returns 422 on missing tenant_id", %{conn: conn} do
-      calendar = SD.CalendarsFixtures.calendar_fixture()
-
-      conn =
-        signed_post(conn, @tenant_calendar_endpoint, %{
-          "calendar_id" => calendar.id
-        })
-
-      json = json_response(conn, 422)
-
-      assert json["status"] == "error"
-      assert json["message"] == "validation failed"
-      assert json["details"]["tenant_id"] == ["can't be blank"]
-    end
-
-    test "returns 422 on invalid UUIDs", %{conn: conn} do
-      conn =
-        signed_post(conn, @tenant_calendar_endpoint, %{
-          "tenant_id" => "not-a-uuid",
-          "calendar_id" => "also-bad"
-        })
-
-      json = json_response(conn, 422)
-
-      # assert json["status"] == "error"
-      # assert json["message"] == "validation failed"
-      # assert json["details"]["tenant_id"] == ["is invalid"]
-      # assert json["details"]["calendar_id"] == ["is invalid"]
     end
   end
 end

@@ -1,35 +1,60 @@
 defmodule SDRest.Join.EventUsersController do
   use SDRest, :controller
-  import SDRest.ControllerHelpers
+  use SDRest.ControllerHelpers, default_limit: 25, max_limit: 100
 
   alias SD.Calendars
 
   def create(conn, params) do
-    with {:ok, join} <- Calendars.create_event_user(params) do
+    with {:ok, event_user} <- Calendars.create_event_user(params) do
+      user =
+        event_user.user
+        |> Map.from_struct()
+        |> Map.take([:id, :email, :name])
+        |> Map.merge(%{
+          "role" => event_user.role,
+          "inserted_at" => event_user.inserted_at,
+          "updated_at" => event_user.updated_at
+        })
+
       json(conn |> put_status(:created), %{
         "status" => "ok",
-        "calendar_event_user" => join
+        "user" => user
       })
     else
       {:error, changeset} ->
         json(conn |> put_status(:unprocessable_entity), %{
           "status" => "error",
-          "message" => "validation failed",
-          "details" => translate_changeset_errors(changeset)
+          "message" => translate_changeset_errors(changeset)
         })
     end
   end
 
   def update(conn, params) do
-    params = Map.put(params, "user_id", params["id"])
+    event_id = Map.get(params, "event_id", "")
+    user_id = Map.get(params, "id", "")
 
-    case Calendars.get_calendar_user(params) do
-      {:ok, calendar_user} ->
-        json(conn, %{
-          "status" => "ok",
-          "calendar_id" => calendar_user.calendar_id,
-          "user" => calendar_user.user
-        })
+    case Calendars.get_event_user(event_id, user_id) do
+      {:ok, event_user} ->
+        case Calendars.update_event_user(event_user, params) do
+          {:ok, event_user} ->
+            user =
+              event_user.user
+              |> Map.from_struct()
+              |> Map.take([:id, :name, :email])
+              |> Map.merge(%{
+                "role" => event_user.role,
+                "inserted_at" => event_user.inserted_at,
+                "updated_at" => event_user.updated_at
+              })
+
+            json(conn, %{"status" => "ok", "user" => user})
+
+          {:error, message} ->
+            json(conn, %{
+              "status" => "error",
+              "message" => message
+            })
+        end
 
       {:error, :not_found} ->
         json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
@@ -39,16 +64,17 @@ defmodule SDRest.Join.EventUsersController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    case Calendars.delete_event_user(id) do
-      {:ok, join} ->
-        json(conn, %{"status" => "ok", "calendar_event_user" => join})
+  def delete(conn, params) do
+    event_id = Map.get(params, "event_id", "")
+    user_id = Map.get(params, "id", "")
 
-      {:error, :not_found} ->
-        json(conn |> put_status(:not_found), %{
-          "status" => "error",
-          "message" => "not found"
-        })
+    case Calendars.get_event_user(event_id, user_id) do
+      {:ok, event_user} ->
+        Calendars.delete_event_user(event_user)
+        json(conn, %{"status" => "ok", "event_user" => event_user})
+
+      {:error, :invalid_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid id"})
     end
   end
 end

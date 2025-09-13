@@ -32,7 +32,10 @@ defmodule SDRest.Join.CalendarUsersController do
   end
 
   def update(conn, params) do
-    case Calendars.get_calendar_user(params) do
+    calendar_id = Map.get(params, "calendar_id", "")
+    user_id = Map.get(params, "id", "")
+
+    case Calendars.get_calendar_user(calendar_id, user_id) do
       {:ok, calendar_user} ->
         case Calendars.update_calendar_user(calendar_user, params) do
           {:ok, calendar_user} ->
@@ -59,21 +62,31 @@ defmodule SDRest.Join.CalendarUsersController do
       {:error, :not_found} ->
         json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
 
-      {:error, :invalid_id} ->
-        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid id"})
+      {:error, :invalid_calendar_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid calendar id"})
+
+      {:error, :invalid_user_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid user id"})
     end
   end
 
-  def delete(conn, %{"calendar_id" => calendar_id, "id" => user_id}) do
-    case Calendars.delete_calendar_user(calendar_id, user_id) do
-      {:ok, _calendar_user} ->
+  def delete(conn, params) do
+    calendar_id = Map.get(params, "calendar_id", "")
+    user_id = Map.get(params, "id", "")
+
+    case Calendars.get_calendar_user(calendar_id, user_id) do
+      {:ok, calendar_user} ->
+        Calendars.delete_calendar_user(calendar_user)
         json(conn, %{"status" => "ok"})
 
+      {:error, :invalid_user_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid user id"})
+
+      {:error, :invalid_calendar_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid calendar id"})
+
       {:error, :not_found} ->
-        json(conn |> put_status(:not_found), %{
-          "status" => "error",
-          "message" => "not found"
-        })
+        json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
     end
   end
 end

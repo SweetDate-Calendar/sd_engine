@@ -171,16 +171,16 @@ defmodule SD.Tenants.TenantUserTest do
         })
 
       # Success case: should return the tenant_user
-      {:ok, tenant_user} = Tenants.get_tenant_user(%{tenant_id: tenant.id, user_id: user.id})
+      {:ok, tenant_user} = Tenants.get_tenant_user(tenant.id, user.id)
 
       assert tenant_user.user_id == user.id
       assert tenant_user.tenant_id == tenant.id
 
       assert {:error, :not_found} ==
-               Tenants.get_tenant_user(%{
-                 tenant_id: "00000000-0000-0000-0000-000000000000",
-                 user_id: "00000000-0000-0000-0000-000000000000"
-               })
+               Tenants.get_tenant_user(
+                 "00000000-0000-0000-0000-000000000000",
+                 "00000000-0000-0000-0000-000000000000"
+               )
     end
 
     test "update_tenant_user/2 updates role" do
@@ -212,10 +212,10 @@ defmodule SD.Tenants.TenantUserTest do
       assert {:ok, _} = Tenants.delete_tenant_user(tenant_user)
 
       assert {:error, :not_found} ==
-               Tenants.get_tenant_user(%{
-                 tenant_id: "00000000-0000-0000-0000-000000000000",
-                 user_id: "00000000-0000-0000-0000-000000000000"
-               })
+               Tenants.get_tenant_user(
+                 "00000000-0000-0000-0000-000000000000",
+                 "00000000-0000-0000-0000-000000000000"
+               )
     end
   end
 end

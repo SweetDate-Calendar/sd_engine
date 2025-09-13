@@ -26,51 +26,46 @@ defmodule SD.Calendars do
   end
 
   @doc """
-  Fetch one user associated with a calendar.
+  Fetch the user associated with a calendar.
 
   Given a `calendar_id` and a `user_id`, returns the user if that user
-  is a member of the calendar. Returns `error` if no such calendar_user exists.
+  is a member of the calendar. Returns `{:error, :not_found}` if no such
+  calendar_user exists.
 
   ## Examples
 
-      iex>  SD.Calendars.get_calendar_user(calendar_id, user_id)
+      iex> SD.Calendars.get_calendar_user(calendar_id, user_id)
       {:ok, %CalendarUser{}}
 
       iex> SD.Calendars.get_calendar_user("00000000-0000-0000-0000-000000000000", user_id)
       {:error, :not_found}
 
       iex> SD.Calendars.get_calendar_user("not a uuid", user_id)
-      {:error, :invalid_id}
+      {:error, :invalid_calendar_id}
 
+      iex> SD.Calendars.get_calendar_user(calendar_id, "not a uuid")
+      {:error, :invalid_user_id}
   """
-  def get_calendar_user(attrs) when is_map(attrs) do
-    calendar_id_raw = Map.get(attrs, "calendar_id") || Map.get(attrs, :calendar_id)
-    user_id_raw = Map.get(attrs, "id") || Map.get(attrs, :id)
-
-    with {:ok, calendar_id} <- Ecto.UUID.cast(calendar_id_raw),
-         {:ok, user_id} <- Ecto.UUID.cast(user_id_raw),
-         {:ok, calendar_user} <- do_get_calendar_user(calendar_id, user_id) do
-      {:ok, calendar_user}
-    else
-      # one of the UUID casts failed
-      :error -> {:error, :invalid_id}
-      {:error, :not_found} -> {:error, :not_found}
+  def get_calendar_user(calendar_id, user_id) do
+    with {:ok, calendar_uuid} <-
+           Ecto.UUID.cast(calendar_id) |> check_calendar_uuid(:invalid_calendar_id),
+         {:ok, user_uuid} <-
+           Ecto.UUID.cast(user_id) |> check_calendar_uuid(:invalid_user_id) do
+      case Repo.one(
+             from(cu in CalendarUser,
+               where: cu.calendar_id == ^calendar_uuid and cu.user_id == ^user_uuid,
+               join: u in assoc(cu, :user),
+               preload: [user: u]
+             )
+           ) do
+        nil -> {:error, :not_found}
+        calendar_user -> {:ok, calendar_user}
+      end
     end
   end
 
-  defp do_get_calendar_user(calendar_id, user_id) do
-    calendar_user =
-      from(cu in CalendarUser,
-        where: cu.calendar_id == ^calendar_id and cu.user_id == ^user_id,
-        preload: [:user]
-      )
-      |> Repo.one()
-
-    case calendar_user do
-      %CalendarUser{} = calendar_user -> {:ok, calendar_user}
-      _ -> {:error, :not_found}
-    end
-  end
+  defp check_calendar_uuid(:error, reason), do: {:error, reason}
+  defp check_calendar_uuid({:ok, uuid}, _reason), do: {:ok, uuid}
 
   @doc """
   List all calendar users.
@@ -112,11 +107,8 @@ defmodule SD.Calendars do
       iex> delete_calendar_user_by_pair("missing-calendar", "missing-user")
       {:error, :not_found}
   """
-  def delete_calendar_user(calendar_id, user_id) do
-    case Repo.get_by(CalendarUser, calendar_id: calendar_id, user_id: user_id) do
-      nil -> {:error, :not_found}
-      calendar_user -> Repo.delete(calendar_user)
-    end
+  def delete_calendar_user(calendar_user) do
+    Repo.delete(calendar_user)
   end
 
   @doc """
@@ -153,17 +145,44 @@ defmodule SD.Calendars do
   end
 
   @doc """
-  Get an event_user by ID.
+  Fetch the user associated with an event.
+
+  Given an `event_id` and a `user_id`, returns the user if that user
+  is a member of the event. Returns `{:error, :not_found}` if no such
+  event_user exists.
 
   ## Examples
 
-      iex> get_event_user!(123)
-      %EventUser{}
+      iex> SD.Calendars.get_event_user(event_id, user_id)
+      {:ok, %EventUser{}}
 
-      iex> get_event_user!(456)
-      ** (Ecto.NoResultsError)
+      iex> SD.Calendars.get_event_user("00000000-0000-0000-0000-000000000000", user_id)
+      {:error, :not_found}
+
+      iex> SD.Calendars.get_event_user("not a uuid", user_id)
+      {:error, :invalid_event_id}
+
+      iex> SD.Calendars.get_event_user(event_id, "not a uuid")
+      {:error, :invalid_user_id}
   """
-  def get_event_user!(id), do: Repo.get(EventUser, id)
+  def get_event_user(event_id, user_id) do
+    with {:ok, event_uuid} <- Ecto.UUID.cast(event_id) |> check_event_uuid(:invalid_event_id),
+         {:ok, user_uuid} <- Ecto.UUID.cast(user_id) |> check_event_uuid(:invalid_user_id) do
+      case Repo.one(
+             from(eu in EventUser,
+               where: eu.event_id == ^event_uuid and eu.user_id == ^user_uuid,
+               join: u in assoc(eu, :user),
+               preload: [user: u]
+             )
+           ) do
+        nil -> {:error, :not_found}
+        event_user -> {:ok, event_user}
+      end
+    end
+  end
+
+  defp check_event_uuid(:error, reason), do: {:error, reason}
+  defp check_event_uuid({:ok, uuid}, _reason), do: {:ok, uuid}
 
   @doc """
   List all event_users.
@@ -193,14 +212,21 @@ defmodule SD.Calendars do
   end
 
   @doc """
-  Delete an event user.
+  Deletes a event_user.
+
+  This function deletes a `EventUser` association from the join table between users and events.
 
   ## Examples
 
-      iex> delete_event_user(user)
-      {:ok, %EventUser{}}
+      iex> delete_event_user("event-id", "user-id")
+      {:ok, %CalendarUser{}}
+
+      iex> delete_event_user_by_pair("missing-calendar", "missing-user")
+      {:error, :not_found}
   """
-  def delete_event_user(%EventUser{} = user), do: Repo.delete(user)
+  def delete_event_user(event_user) do
+    Repo.delete(event_user)
+  end
 
   @doc """
   Return an `%Ecto.Changeset{}` for tracking event user changes.

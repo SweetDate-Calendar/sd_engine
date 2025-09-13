@@ -72,7 +72,7 @@ defmodule SDRest.Join.CalendarUsersControllerTest do
   end
 
   describe "DELETE /calendar_users/:id" do
-    test "deletes a calendar user join", %{conn: conn} do
+    test "deletes a calendar_user", %{conn: conn} do
       calendar_user = SD.CalendarsFixtures.calendar_user_fixture()
 
       endpoint =
@@ -84,7 +84,7 @@ defmodule SDRest.Join.CalendarUsersControllerTest do
       assert json["status"] == "ok"
     end
 
-    test "returns 404 when join not found", %{conn: conn} do
+    test "returns 404 when calendar_user is not found", %{conn: conn} do
       endpoint =
         "/api/v1/join/calendars/00000000-0000-0000-0000-000000000000/users/00000000-0000-0000-0000-000000000000"
 

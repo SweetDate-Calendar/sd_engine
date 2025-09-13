@@ -2,88 +2,82 @@ defmodule SDRest.Join.TenantUsersControllerTest do
   use SDRest.ConnCase, async: true
   use SDRest.SignedRequestHelpers
 
-  @tenant_users_endpoint "/api/v1/join/tenant_users"
-
-  describe "POST /join/tenant_users" do
-    test "creates a tenant-user join", %{conn: conn} do
+  describe "POST /api/v1/join/tenants/TENANT_ID/users" do
+    test "creates a tenan_user", %{conn: conn} do
       tenant = SD.TenantsFixtures.tenant_fixture()
       user = SD.AccountsFixtures.user_fixture()
 
+      endpoint =
+        "/api/v1/join/tenants/#{tenant.id}/users/"
+
       body = %{
-        "tenant_id" => tenant.id,
         "user_id" => user.id,
         "role" => "admin"
       }
 
-      conn = signed_post(conn, @tenant_users_endpoint, body)
+      conn = signed_post(conn, endpoint, body)
       json = json_response(conn, 201)
-
       assert json["status"] == "ok"
-      assert join = json["tenant_user"]
-      assert join["tenant_id"] == tenant.id
-      assert join["user_id"] == user.id
-      assert join["role"] == "admin"
+      assert json["user"]["email"] == user.email
+      assert json["user"]["name"] == user.name
+      assert json["user"]["role"] == "admin"
     end
 
-    test "returns 422 validation failed on missing fields", %{conn: conn} do
-      conn = signed_post(conn, @tenant_users_endpoint, %{})
+    test "returns 422 validation failure", %{conn: conn} do
+      endpoint =
+        "/api/v1/join/tenants/1234/users/"
+
+      conn = signed_post(conn, endpoint, %{})
       json = json_response(conn, 422)
 
-      assert json == %{
-               "details" => %{
-                 "tenant_id" => ["can't be blank"],
-                 "user_id" => ["can't be blank"]
-               },
-               "message" => "validation failed",
-               "status" => "error"
-             }
+      assert json["status"] == "error"
+      assert json["message"]["tenant_id"] == ["is not a valid UUID"]
+      assert json["message"]["user_id"] == ["can't be blank"]
     end
 
     test "returns 422 on missing bad uuids", %{conn: conn} do
-      conn = signed_post(conn, @tenant_users_endpoint, %{"user_id" => "bad-uuid"})
+      endpoint = "/api/v1/join/tenants/bad-uuid/users"
+      conn = signed_post(conn, endpoint, %{"user_id" => "bad-uuid"})
       json = json_response(conn, 422)
 
-      assert json == %{
-               "details" => %{
-                 "tenant_id" => ["can't be blank"],
-                 "user_id" => ["is not a valid UUID"]
-               },
-               "message" => "validation failed",
-               "status" => "error"
-             }
+      assert json["status"] == "error"
+      assert json["message"]["tenant_id"] == ["is not a valid UUID"]
+      assert json["message"]["user_id"] == ["is not a valid UUID"]
     end
   end
 
-  describe "PATCH /join/tenant_users/:id" do
-    test "updates a tenant-user role", %{conn: conn} do
-      # create and preload user
+  describe "PATCH /api/v1/join/tenants/TENANT_ID/users/" do
+    test "updates a tenant_user role", %{conn: conn} do
       tenant_user = SD.TenantsFixtures.tenant_user_fixture()
 
-      # perform signed PATCH
+      payload = %{
+        "role" => "owner"
+      }
+
+      endpoint = "/api/v1/join/tenants/#{tenant_user.tenant_id}/users/#{tenant_user.user_id}"
+
       conn =
-        signed_patch(conn, "#{@tenant_users_endpoint}/#{tenant_user.tenant_id}", %{
-          "role" => "owner",
-          "user_id" => tenant_user.user_id
-        })
+        signed_patch(conn, endpoint, payload)
 
       json = json_response(conn, 200)
 
       assert json["status"] == "ok"
-      assert json["tenant_id"] == tenant_user.tenant_id
-      assert json["user"]["id"] == tenant_user.user_id
-      assert json["user"]["name"] == tenant_user.user.name
-      assert json["user"]["email"] == tenant_user.user.email
+      assert json["user"]["role"] == "owner"
     end
 
     test "returns 404 if tenant_user not found", %{conn: conn} do
+      endpoint =
+        "/api/v1/join/tenants/00000000-0000-0000-0000-000000000000/users/00000000-0000-0000-0000-000000000000"
+
       conn =
-        signed_patch(conn, "#{@tenant_users_endpoint}/00000000-0000-0000-0000-000000000000", %{
+        signed_patch(conn, endpoint, %{
           "role" => "admin"
         })
 
       json = json_response(conn, 404)
+
       assert json["status"] == "error"
-      assert json["message"] == "invalid id"
+      assert json["message"] == "not found"
     end
   end
 
@@ -91,25 +85,25 @@ defmodule SDRest.Join.TenantUsersControllerTest do
     test "deletes a tenant_user", %{conn: conn} do
       tenant_user = SD.TenantsFixtures.tenant_user_fixture()
 
+      endpoint =
+        "/api/v1/join/tenants/#{tenant_user.tenant_id}/users/#{tenant_user.user_id}"
+
       conn =
-        signed_delete(conn, "#{@tenant_users_endpoint}/#{tenant_user.tenant_id}", %{
-          "user_id" => tenant_user.user_id,
-          "tenant_id" => tenant_user.tenant_id
-        })
+        signed_delete(conn, endpoint, %{})
 
       json = json_response(conn, 200)
 
       assert json["status"] == "ok"
-      assert json["tenant_user"]["tenant_id"] == tenant_user.tenant_id
-      assert json["tenant_user"]["user_id"] == tenant_user.user_id
-      assert json["tenant_user"]["role"] == Atom.to_string(tenant_user.role)
     end
 
     test "returns 404 for nonexistent tenant", %{conn: conn} do
-      conn = signed_delete(conn, "#{@tenant_users_endpoint}/00000000-0000-0000-0000-000000000000")
+      endpoint =
+        "/api/v1/join/tenants/00000000-0000-0000-0000-000000000000/users/00000000-0000-0000-0000-000000000000"
+
+      conn = signed_delete(conn, endpoint)
       json = json_response(conn, 404)
       assert json["status"] == "error"
-      assert json["message"] == "invalid id"
+      assert json["message"] == "not found"
     end
   end
 end

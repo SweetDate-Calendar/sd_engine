@@ -56,8 +56,7 @@ defmodule SDRest.CalendarsController do
       {:error, changeset} ->
         json(conn |> put_status(422), %{
           "status" => "error",
-          "message" => "validation failed",
-          "details" => translate_changeset_errors(changeset)
+          "message" => translate_changeset_errors(changeset)
         })
     end
   end
@@ -79,8 +78,7 @@ defmodule SDRest.CalendarsController do
       {:error, %Ecto.Changeset{} = cs} ->
         json(conn |> put_status(422), %{
           "status" => "error",
-          "message" => "not found or invalid input",
-          "details" => translate_changeset_errors(cs)
+          "message" => translate_changeset_errors(cs)
         })
 
       {:error, reason} ->

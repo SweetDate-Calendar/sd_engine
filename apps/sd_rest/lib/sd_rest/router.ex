@@ -39,13 +39,18 @@ defmodule SDRest.Router do
 
   scope "/api/v1/join", SDRest.Join do
     pipe_through(:api_auth)
-    resources "/tenant_calendars", TenantCalendarsController, only: [:create, :delete]
-    resources "/tenant_users", TenantUsersController, only: [:create, :update, :delete]
+
+    resources "/tenants", TenantController, only: [] do
+      resources "/calendars", TenantCalendarsController, only: [:create, :delete]
+      resources "/users", TenantUsersController, only: [:create, :update, :delete]
+    end
 
     resources "/calendars", CalendarController, only: [] do
       resources "/users", CalendarUsersController, only: [:create, :update, :delete]
     end
 
-    resources "/event_users", EventUsersController, only: [:create, :update, :delete]
+    resources "/events", EventController, only: [] do
+      resources "/users", EventUsersController, only: [:create, :update, :delete]
+    end
   end
 end

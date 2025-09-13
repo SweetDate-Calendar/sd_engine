@@ -208,43 +208,75 @@ defmodule SD.Tenants do
   end
 
   @doc """
-  Creates a tenant_calendar link between a tenant and an existing calendar.
+  Creates a tenant_calendar join
 
   Expects a map with:
     * "tenant_id"   – binary UUID
     * "calendar_id" – binary UUID
 
-  On success returns {:ok, %TenantCalendar{calendar: %Calendar{}}} with :calendar preloaded.
-  On failure returns {:error, %Ecto.Changeset{}}.
+  ## Examples
 
-  Notes:
-    * Relies on DB FKs/unique indexes for integrity (invalid/missing IDs → changeset errors).
+      iex> create_tenant_calendar({tenant_id: "UUID", calendar_id: "UUID"})
+      {:ok, %Tenant{}}
+
+      iex> create_tenant_calendar(tenant, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
   """
   def create_tenant_calendar(attrs) do
     %TenantCalendar{}
     |> TenantCalendar.changeset(attrs)
-    |> Repo.insert()
+    |> SD.Repo.insert()
+    |> case do
+      {:ok, tenant_calendar} ->
+        {:ok, SD.Repo.preload(tenant_calendar, :calendar)}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
   @doc """
-  Fetch a single tenant_calendar by tenant_id and calendar_id.
+  Fetch the calendar associated with a tenant.
 
-  Returns the %TenantCalendar{} with :calendar preloaded, or nil if not found
-  or if either id is not a valid UUID.
+  Given a `tenant_id` and a `calendar_id`, returns the calendar if that calendar
+  is associated with the tenant. Returns `{:error, :not_found}` if no such
+  tenant_calendar exists.
+
+  ## Examples
+
+      iex> SD.Tenants.get_tenant_calendar(tenant_id, calendar_id)
+      {:ok, %TenantCalendar{}}
+
+      iex> SD.Tenants.get_tenant_calendar("00000000-0000-0000-0000-000000000000", calendar_id)
+      {:error, :not_found}
+
+      iex> SD.Tenants.get_tenant_calendar("not a uuid", calendar_id)
+      {:error, :invalid_tenant_id}
+
+      iex> SD.Tenants.get_tenant_calendar(tenant_id, "not a uuid")
+      {:error, :invalid_calendar_id}
   """
   def get_tenant_calendar(tenant_id, calendar_id) do
-    with {:ok, _} <- Ecto.UUID.cast(tenant_id),
-         {:ok, _} <- Ecto.UUID.cast(calendar_id) do
-      from(tc in TenantCalendar,
-        where: tc.tenant_id == ^tenant_id and tc.calendar_id == ^calendar_id,
-        join: c in assoc(tc, :calendar),
-        preload: [calendar: c]
-      )
-      |> Repo.one()
-    else
-      :error -> nil
+    with {:ok, tenant_uuid} <-
+           Ecto.UUID.cast(tenant_id) |> check_calendar_uuid(:invalid_tenant_id),
+         {:ok, calendar_uuid} <-
+           Ecto.UUID.cast(calendar_id) |> check_calendar_uuid(:invalid_calendar_id) do
+      case Repo.one(
+             from(tc in TenantCalendar,
+               where: tc.tenant_id == ^tenant_uuid and tc.calendar_id == ^calendar_uuid,
+               join: c in assoc(tc, :calendar),
+               preload: [calendar: c]
+             )
+           ) do
+        nil -> {:error, :not_found}
+        tenant_calendar -> {:ok, tenant_calendar}
+      end
     end
   end
+
+  defp check_calendar_uuid(:error, reason), do: {:error, reason}
+  defp check_calendar_uuid({:ok, uuid}, _reason), do: {:ok, uuid}
 
   @doc """
   List calendars linked to a tenant via tenant_calendars.
@@ -338,39 +370,31 @@ defmodule SD.Tenants do
       {:error, :not_found}
 
       iex> SD.Tenants.get_tenant_user("not a uuid", user_id)
-      {:error, :invalid_id}
+      {:error, :invalid_tenant_id}
+
+      iex> SD.Tenants.get_tenant_user("tenant", not a uuid)
+      {:error, :invalid_user_id}
 
 
   """
-
-  def get_tenant_user(attrs) when is_map(attrs) do
-    tenant_id_raw = Map.get(attrs, "tenant_id") || Map.get(attrs, :tenant_id)
-    user_id_raw = Map.get(attrs, "user_id") || Map.get(attrs, :user_id)
-
-    with {:ok, tenant_id} <- Ecto.UUID.cast(tenant_id_raw),
-         {:ok, user_id} <- Ecto.UUID.cast(user_id_raw),
-         {:ok, tenant_user} <- do_get_tenant_user(tenant_id, user_id) do
-      {:ok, tenant_user}
-    else
-      # one of the UUID casts failed
-      :error -> {:error, :invalid_id}
-      {:error, :not_found} -> {:error, :not_found}
+  def get_tenant_user(tenant_id, user_id) do
+    with {:ok, tenant_uuid} <- Ecto.UUID.cast(tenant_id) |> check_tenant_uuid(:invalid_tenant_id),
+         {:ok, user_uuid} <- Ecto.UUID.cast(user_id) |> check_tenant_uuid(:invalid_user_id) do
+      case Repo.one(
+             from(tc in TenantUser,
+               where: tc.tenant_id == ^tenant_uuid and tc.user_id == ^user_uuid,
+               join: c in assoc(tc, :user),
+               preload: [user: c]
+             )
+           ) do
+        nil -> check_tenant_uuid(:error, :not_found)
+        tenant_user -> {:ok, tenant_user}
+      end
     end
   end
 
-  defp do_get_tenant_user(tenant_id, user_id) do
-    tu =
-      from(tu in TenantUser,
-        where: tu.tenant_id == ^tenant_id and tu.user_id == ^user_id,
-        preload: [:user]
-      )
-      |> Repo.one()
-
-    case tu do
-      %TenantUser{} = tenant_user -> {:ok, tenant_user}
-      _ -> {:error, :not_found}
-    end
-  end
+  defp check_tenant_uuid(:error, reason), do: {:error, reason}
+  defp check_tenant_uuid({:ok, uuid}, _reason), do: {:ok, uuid}
 
   @doc """
   Lists tenant_users for a given tenant.
