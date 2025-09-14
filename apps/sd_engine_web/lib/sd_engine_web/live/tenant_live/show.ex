@@ -6,7 +6,8 @@ defmodule SDWeb.TenantLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        Tenant ID: {@tenant.id}
+        Tenant: {@tenant.name}
+        <:subtitle> ID: {@tenant.id} </:subtitle>
         <:actions>
           <.button navigate={~p"/"}>
             <.icon name="hero-arrow-left" />
@@ -18,12 +19,16 @@ defmodule SDWeb.TenantLive.Show do
           >
             <.icon name="hero-pencil-square" /> Edit tenant
           </.button>
+          <.button variant="primary" navigate={~p"/tenants/#{@tenant}/calendars"}>
+            <.icon name="hero-plus" /> Calendars
+          </.button>
         </:actions>
       </.header>
 
       <.list>
         <:item title="Name">{@tenant.name}</:item>
       </.list>
+
     </Layouts.app>
     """
   end
