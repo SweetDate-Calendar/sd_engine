@@ -19,6 +19,9 @@ defmodule SDWeb.EventLive.Show do
            <.button variant="primary" navigate={~p"/events/#{@event}/event_invitations"}>
             <.icon name="hero-pencil-square" /> Invitations
           </.button>
+           <.button variant="primary" navigate={~p"/events/#{@event}/users"}>
+            <.icon name="hero-plus" /> Users
+          </.button>
         </:actions>
       </.header>
 
