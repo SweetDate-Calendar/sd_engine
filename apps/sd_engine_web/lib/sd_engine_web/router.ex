@@ -43,6 +43,8 @@ defmodule SDWeb.Router do
     live "/tenants/new", TenantLive.Form, :new
     live "/tenants/:id", TenantLive.Show, :show
     live "/tenants/:id/edit", TenantLive.Form, :edit
+    live "/tenants/:id/calendars", TenantCalendarsLive.Form, :new
+    live "/tenants/:tenant_id/calendars/:id/edit", TenantCalendarsLive.Form, :edit
 
     # live "/tenants/:tenant_id/calendars/new", Tenants.CalendarLive.Form, :new
     # live "/tenants/:tenant_id/calendars/:id", Tenants.CalendarLive.Show, :show

@@ -28,7 +28,7 @@ defmodule SD.Umbrella.MixProject do
     [
       {:phoenix, "~> 1.8.1", override: true},
       # Required to run "mix format" on ~H/.heex files from the umbrella root
-      {:phoenix_live_view, ">= 0.0.0"}
+      {:phoenix_live_view, ">= 1.1.1"}
     ]
   end
 
