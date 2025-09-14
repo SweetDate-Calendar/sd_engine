@@ -56,7 +56,7 @@ defmodule SDWeb.EventUserLive.Form do
           <.button phx-disable-with="Assigning..." variant="primary">
             Assign User
           </.button>
-          <.button navigate={~p"/events/#{@event.id}"}>Cancel</.button>
+          <.button navigate={~p"/calendars/#{@event.calendar_id}/events/#{@event.id}"}>Cancel</.button>
         </footer>
       </.form>
 
