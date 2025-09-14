@@ -22,6 +22,9 @@ defmodule SDWeb.TenantLive.Show do
           <.button variant="primary" navigate={~p"/tenants/#{@tenant}/calendars"}>
             <.icon name="hero-plus" /> Calendars
           </.button>
+          <.button variant="primary" navigate={~p"/tenants/#{@tenant}/users"}>
+            <.icon name="hero-plus" /> Users
+          </.button>
         </:actions>
       </.header>
 
