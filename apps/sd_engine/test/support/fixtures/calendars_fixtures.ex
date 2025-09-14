@@ -100,4 +100,33 @@ defmodule SD.CalendarsFixtures do
 
     calendar_user
   end
+
+  @doc """
+  Generate an event_user.
+  If `:event_id` or `:user_id` are not provided, fixtures are used.
+  """
+  def event_user_fixture(attrs \\ %{}) do
+    event_id =
+      Map.get(attrs, :event_id) ||
+        event_fixture().id
+
+    user_id =
+      Map.get(attrs, :user_id) ||
+        user_fixture().id
+
+    role = Map.get(attrs, :role, "attendee")
+    status = Map.get(attrs, :status, "invited")
+
+    {:ok, event_user} =
+      attrs
+      |> Enum.into(%{
+        user_id: user_id,
+        event_id: event_id,
+        role: role,
+        status: status
+      })
+      |> SD.Calendars.create_event_user()
+
+    event_user
+  end
 end

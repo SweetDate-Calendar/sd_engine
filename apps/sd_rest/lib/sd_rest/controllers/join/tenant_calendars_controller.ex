@@ -38,7 +38,7 @@ defmodule SDRest.Join.TenantCalendarsController do
       {:error, :invalid_calendar_id} ->
         json(conn |> put_status(404), %{"status" => "error", "message" => "invalid calendar_id"})
 
-      _ ->
+      {:error, :not_found} ->
         json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
     end
   end

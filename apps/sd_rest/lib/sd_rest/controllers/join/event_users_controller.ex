@@ -12,6 +12,7 @@ defmodule SDRest.Join.EventUsersController do
         |> Map.take([:id, :email, :name])
         |> Map.merge(%{
           "role" => event_user.role,
+          "status" => event_user.status,
           "inserted_at" => event_user.inserted_at,
           "updated_at" => event_user.updated_at
         })
@@ -43,6 +44,7 @@ defmodule SDRest.Join.EventUsersController do
               |> Map.take([:id, :name, :email])
               |> Map.merge(%{
                 "role" => event_user.role,
+                "status" => event_user.status,
                 "inserted_at" => event_user.inserted_at,
                 "updated_at" => event_user.updated_at
               })
@@ -75,6 +77,9 @@ defmodule SDRest.Join.EventUsersController do
 
       {:error, :invalid_id} ->
         json(conn |> put_status(404), %{"status" => "error", "message" => "invalid id"})
+
+      {:error, :not_found} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
     end
   end
 end
