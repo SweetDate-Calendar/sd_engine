@@ -18,6 +18,7 @@ defmodule SDRest.Router do
   # if Mix.env() in [:dev, :test] do
   scope "/api/v1/test", SDRest do
     post "/prune", TestController, :prune
+    post "/seed", TestController, :seed
   end
 
   # end
@@ -29,12 +30,27 @@ defmodule SDRest.Router do
       resources "/events", EventsController
     end
 
-    resources "/tenants", TenantsController do
-      resources "/users", TenantUsersController
-      resources "/calendars", TenantSweetDateController
-    end
+    resources "/tenants", TenantsController
 
     resources "/users", UsersController do
+      resources "/calendars", CalendarsController
+    end
+  end
+
+  scope "/api/v1/join", SDRest.Join do
+    pipe_through(:api_auth)
+
+    resources "/tenants", TenantController, only: [] do
+      resources "/calendars", TenantCalendarsController, only: [:create, :delete]
+      resources "/users", TenantUsersController, only: [:create, :update, :delete]
+    end
+
+    resources "/calendars", CalendarController, only: [] do
+      resources "/users", CalendarUsersController, only: [:create, :update, :delete]
+    end
+
+    resources "/events", EventController, only: [] do
+      resources "/users", EventUsersController, only: [:create, :update, :delete]
     end
   end
 end

@@ -4,7 +4,7 @@ defmodule SD.UsersTest do
   alias SD.Accounts
   alias SD.{Users, SweetDate}
   alias SD.SweetDate.Calendar
-  alias SD.SweetDate.CalendarUser
+  alias SD.Calendars.CalendarUser
 
   import SD.AccountsFixtures
 

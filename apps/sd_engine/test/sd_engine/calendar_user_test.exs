@@ -1,11 +1,11 @@
-defmodule SD.SweetDate.CalendarUserTest do
+defmodule SD.Calendars.CalendarUserTest do
   use SD.DataCase, async: true
 
-  alias SD.SweetDate.CalendarUser
-  alias SD.Accounts
+  alias SD.Calendars.CalendarUser
+  alias SD.Calendars
   alias SD.Repo
 
-  import SD.SweetDateFixtures
+  import SD.CalendarsFixtures
   import SD.AccountsFixtures
 
   describe "calendar_users join" do
@@ -13,17 +13,29 @@ defmodule SD.SweetDate.CalendarUserTest do
       user = user_fixture()
       calendar = calendar_fixture()
 
-      Accounts.create_calendar_user(calendar.id, user.id, :guest)
+      Calendars.create_calendar_user(%{
+        calendar_id: calendar.id,
+        user_id: user.id,
+        role: :guest
+      })
 
       assert {:error, _} =
-               Accounts.create_calendar_user(calendar.id, user.id, :guest)
+               Calendars.create_calendar_user(%{
+                 calendar_id: calendar.id,
+                 user_id: user.id,
+                 role: :guest
+               })
     end
 
     test "user can be added to calendar and accessed from both sides" do
       user = user_fixture()
       calendar = calendar_fixture()
 
-      Accounts.create_calendar_user(calendar.id, user.id, :guest)
+      Calendars.create_calendar_user(%{
+        calendar_id: calendar.id,
+        user_id: user.id,
+        role: :guest
+      })
 
       user = Repo.preload(user, :calendars)
       assert Enum.any?(user.calendars, &(&1.id == calendar.id))
@@ -36,7 +48,11 @@ defmodule SD.SweetDate.CalendarUserTest do
       user = user_fixture()
       calendar = calendar_fixture()
 
-      Accounts.create_calendar_user(calendar.id, user.id, :guest)
+      Calendars.create_calendar_user(%{
+        calendar_id: calendar.id,
+        user_id: user.id,
+        role: :guest
+      })
 
       Repo.delete!(user)
 
@@ -51,13 +67,17 @@ defmodule SD.SweetDate.CalendarUserTest do
       user = user_fixture()
       calendar = calendar_fixture()
 
-      Accounts.create_calendar_user(calendar.id, user.id, :guest)
+      Calendars.create_calendar_user(%{
+        calendar_id: calendar.id,
+        user_id: user.id,
+        role: :guest
+      })
 
       Repo.delete!(calendar)
 
       refute Repo.exists?(
-               from(au in CalendarUser,
-                 where: au.calendar_id == ^calendar.id and au.user_id == ^user.id
+               from(cu in CalendarUser,
+                 where: cu.calendar_id == ^calendar.id and cu.user_id == ^user.id
                )
              )
     end

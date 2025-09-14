@@ -12,13 +12,6 @@ defmodule SDRest.ControllerHelpers do
 
   # -- Public API (callable directly or via the macro-generated wrappers) --
 
-  def ensure_uuid(id) when is_binary(id) do
-    case Ecto.UUID.cast(id) do
-      {:ok, _} -> :ok
-      :error -> :error
-    end
-  end
-
   def pagination(params, default_limit, max_limit) do
     limit =
       params
@@ -55,6 +48,42 @@ defmodule SDRest.ControllerHelpers do
     end)
   end
 
+  def ensure_uuid(id) when is_binary(id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, _} -> :ok
+      :error -> :error
+    end
+  end
+
+  # def validate_uuid_fields(params, fields) do
+  #   Enum.reduce(fields, %{}, fn field, acc ->
+  #     value = Map.get(params, field)
+
+  #     case ensure_uuid(value) do
+  #       :ok -> acc
+  #       :error -> Map.put(acc, field, ["is invalid"])
+  #     end
+  #   end)
+  # end
+
+  # def validate_uuid_or_422!(conn, params, required_fields) do
+  #   errors = validate_uuid_fields(params, required_fields)
+
+  #   if map_size(errors) > 0 do
+  #     conn
+  #     |> Plug.Conn.put_status(:unprocessable_entity)
+  #     |> Phoenix.Controller.json(%{
+  #       "status" => "error",
+  #       "message" => "invalid input",
+  #       "error_code" => "VALIDATION_ERROR",
+  #       "fields" => errors
+  #     })
+  #     |> Plug.Conn.halt()
+  #   else
+  #     conn
+  #   end
+  # end
+
   # -- Macro sugar: injects @default_limit/@max_limit and a local pagination/1 --
 
   defmacro __using__(opts \\ []) do
@@ -66,14 +95,16 @@ defmodule SDRest.ControllerHelpers do
       @max_limit unquote(max_limit)
 
       import SDRest.ControllerHelpers,
-        only: [ensure_uuid: 1, translate_changeset_errors: 1, parse_int: 2, clamp: 3]
+        only: [
+          ensure_uuid: 1,
+          translate_changeset_errors: 1,
+          parse_int: 2,
+          clamp: 3
+        ]
 
       # Local pagination/1 that closes over @default_limit/@max_limit
       defp pagination(params),
         do: SDRest.ControllerHelpers.pagination(params, @default_limit, @max_limit)
-
-      # If you  want parse_int/clamp locally, uncomment these:
-      # import SDRest.ControllerHelpers, only: [parse_int: 2, clamp: 3]
     end
   end
 end

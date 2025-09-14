@@ -1,0 +1,92 @@
+defmodule SDRest.Join.CalendarUsersController do
+  use SDRest, :controller
+
+  import SDRest.ControllerHelpers
+  alias SD.Calendars
+
+  def create(conn, params) do
+    with {:ok, calendar_user} <- Calendars.create_calendar_user(params) do
+      calendar_user =
+        calendar_user
+        |> SD.Repo.preload(:user)
+
+      json(conn |> put_status(:created), %{
+        "status" => "ok",
+        "user" =>
+          calendar_user.user
+          |> Map.from_struct()
+          |> Map.take([:id, :name, :email])
+          |> Map.merge(%{
+            "role" => calendar_user.role,
+            "inserted_at" => calendar_user.inserted_at,
+            "updated_at" => calendar_user.updated_at
+          })
+      })
+    else
+      {:error, changeset} ->
+        json(conn |> put_status(:unprocessable_entity), %{
+          "status" => "error",
+          "message" => translate_changeset_errors(changeset)
+        })
+    end
+  end
+
+  def update(conn, params) do
+    calendar_id = Map.get(params, "calendar_id", "")
+    user_id = Map.get(params, "id", "")
+
+    case Calendars.get_calendar_user(calendar_id, user_id) do
+      {:ok, calendar_user} ->
+        case Calendars.update_calendar_user(calendar_user, params) do
+          {:ok, calendar_user} ->
+            json(conn, %{
+              "status" => "ok",
+              "user" =>
+                calendar_user.user
+                |> Map.from_struct()
+                |> Map.take([:id, :name, :email])
+                |> Map.merge(%{
+                  "role" => calendar_user.role,
+                  "inserted_at" => calendar_user.inserted_at,
+                  "updated_at" => calendar_user.updated_at
+                })
+            })
+
+          {:error, message} ->
+            json(conn, %{
+              "status" => "error",
+              "message" => message
+            })
+        end
+
+      {:error, :not_found} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
+
+      {:error, :invalid_calendar_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid calendar id"})
+
+      {:error, :invalid_user_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid user id"})
+    end
+  end
+
+  def delete(conn, params) do
+    calendar_id = Map.get(params, "calendar_id", "")
+    user_id = Map.get(params, "id", "")
+
+    case Calendars.get_calendar_user(calendar_id, user_id) do
+      {:ok, calendar_user} ->
+        Calendars.delete_calendar_user(calendar_user)
+        json(conn, %{"status" => "ok"})
+
+      {:error, :invalid_user_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid user id"})
+
+      {:error, :invalid_calendar_id} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "invalid calendar id"})
+
+      {:error, :not_found} ->
+        json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
+    end
+  end
+end

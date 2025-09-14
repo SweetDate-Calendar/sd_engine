@@ -17,8 +17,8 @@ defmodule SDRest.TenantUsersControllerTest do
       tenant = tenant_fixture(%{name: "Team A"})
       u1 = user_fixture(%{name: "Alpha", email: "alpha@example.com"})
       u2 = user_fixture(%{name: "Beta", email: "beta@example.com"})
-      SD.Accounts.create_tenant_user(%{tenant_id: tenant.id, user_id: u1.id, role: :owner})
-      SD.Accounts.create_tenant_user(%{tenant_id: tenant.id, user_id: u2.id, role: :guest})
+      SD.Tenants.create_tenant_user(%{tenant_id: tenant.id, user_id: u1.id, role: :owner})
+      SD.Tenants.create_tenant_user(%{tenant_id: tenant.id, user_id: u2.id, role: :guest})
 
       path = "#{@tenants_base}/#{tenant.id}/users"
       conn = signed_get(conn, path)
@@ -50,9 +50,9 @@ defmodule SDRest.TenantUsersControllerTest do
       u1 = user_fixture(%{name: "A", email: "a@example.com"})
       u2 = user_fixture(%{name: "B", email: "b@example.com"})
       u3 = user_fixture(%{name: "C", email: "c@example.com"})
-      _ = SD.Accounts.create_tenant_user(%{tenant_id: tenant.id, user_id: u1.id, role: :guest})
-      _ = SD.Accounts.create_tenant_user(%{tenant_id: tenant.id, user_id: u2.id, role: :guest})
-      _ = SD.Accounts.create_tenant_user(%{tenant_id: tenant.id, user_id: u3.id, role: :guest})
+      _ = SD.Tenants.create_tenant_user(%{tenant_id: tenant.id, user_id: u1.id, role: :guest})
+      _ = SD.Tenants.create_tenant_user(%{tenant_id: tenant.id, user_id: u2.id, role: :guest})
+      _ = SD.Tenants.create_tenant_user(%{tenant_id: tenant.id, user_id: u3.id, role: :guest})
 
       conn = signed_get(conn, "#{@tenants_base}/#{tenant.id}/users?limit=2&offset=1")
 
@@ -130,7 +130,7 @@ defmodule SDRest.TenantUsersControllerTest do
     test "returns the user", %{conn: conn} do
       tenant = tenant_fixture(%{name: "Team D"})
       user = user_fixture(%{name: "Delta", email: "delta@example.com"})
-      _ = SD.Accounts.create_tenant_user(%{tenant_id: tenant.id, user_id: user.id, role: :guest})
+      _ = SD.Tenants.create_tenant_user(%{tenant_id: tenant.id, user_id: user.id, role: :guest})
 
       conn = signed_get(conn, "#{@tenants_base}/#{tenant.id}/users/#{user.id}")
 
@@ -159,7 +159,7 @@ defmodule SDRest.TenantUsersControllerTest do
       user = user_fixture(%{name: "Foxtrot", email: "foxtrot@example.com"})
 
       {:ok, tenant_user} =
-        SD.Accounts.create_tenant_user(%{tenant_id: tenant.id, user_id: user.id, role: :guest})
+        SD.Tenants.create_tenant_user(%{tenant_id: tenant.id, user_id: user.id, role: :guest})
 
       conn =
         signed_put(conn, "#{@tenants_base}/#{tenant.id}/users/#{tenant_user.user_id}", %{
@@ -197,7 +197,7 @@ defmodule SDRest.TenantUsersControllerTest do
       user = user_fixture(%{name: "Golf", email: "golf@example.com"})
 
       {:ok, _} =
-        SD.Accounts.create_tenant_user(%{tenant_id: tenant.id, user_id: user.id, role: :guest})
+        SD.Tenants.create_tenant_user(%{tenant_id: tenant.id, user_id: user.id, role: :guest})
 
       conn =
         signed_put(conn, "#{@tenants_base}/#{tenant.id}/users/#{user.id}", %{
@@ -220,7 +220,7 @@ defmodule SDRest.TenantUsersControllerTest do
       user = user_fixture(%{name: "Hotel", email: "hotel@example.com"})
 
       {:ok, _tu} =
-        SD.Accounts.create_tenant_user(%{tenant_id: tenant.id, user_id: user.id, role: :owner})
+        SD.Tenants.create_tenant_user(%{tenant_id: tenant.id, user_id: user.id, role: :owner})
 
       conn = signed_delete(conn, "#{@tenants_base}/#{tenant.id}/users/#{user.id}")
 

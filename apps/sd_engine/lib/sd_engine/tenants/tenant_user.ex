@@ -1,6 +1,8 @@
-defmodule SD.SweetDate.TenantUser do
+defmodule SD.Tenants.TenantUser do
   use Ecto.Schema
   import Ecto.Changeset
+
+  @derive {Jason.Encoder, only: [:tenant_id, :user_id, :role]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -19,7 +21,7 @@ defmodule SD.SweetDate.TenantUser do
   def changeset(tenant_user, attrs) do
     tenant_user
     |> cast(attrs, [:user_id, :tenant_id, :role])
-    |> validate_required([:user_id, :tenant_id, :role])
+    |> validate_required([:user_id, :tenant_id])
     |> validate_uuid(:tenant_id)
     |> validate_uuid(:user_id)
     |> foreign_key_constraint(:tenant_id)

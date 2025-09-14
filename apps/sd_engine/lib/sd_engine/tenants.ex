@@ -34,12 +34,21 @@ defmodule SD.Tenants do
   def list_tenants(opts \\ []) do
     limit = Keyword.get(opts, :limit, 25)
     offset = Keyword.get(opts, :offset, 0)
+    q = Keyword.get(opts, :q)
 
-    Tenant
-    |> order_by([t], asc: t.name)
-    |> limit(^limit)
-    |> offset(^offset)
-    |> Repo.all()
+    base_query = from(t in Tenant)
+
+    query =
+      if is_binary(q) and q != "" do
+        from t in base_query,
+          where: ilike(t.name, ^"%#{q}%"),
+          order_by: [asc: t.name]
+      else
+        from t in base_query,
+          order_by: [asc: t.name]
+      end
+
+    Repo.all(from t in query, limit: ^limit, offset: ^offset)
   end
 
   @doc """
@@ -199,47 +208,75 @@ defmodule SD.Tenants do
   end
 
   @doc """
-  Creates a tenant_calendar link between a tenant and an existing calendar.
+  Creates a tenant_calendar join
 
   Expects a map with:
     * "tenant_id"   – binary UUID
     * "calendar_id" – binary UUID
 
-  On success returns {:ok, %TenantCalendar{calendar: %Calendar{}}} with :calendar preloaded.
-  On failure returns {:error, %Ecto.Changeset{}}.
+  ## Examples
 
-  Notes:
-    * Relies on DB FKs/unique indexes for integrity (invalid/missing IDs → changeset errors).
+      iex> create_tenant_calendar({tenant_id: "UUID", calendar_id: "UUID"})
+      {:ok, %Tenant{}}
+
+      iex> create_tenant_calendar(tenant, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
   """
-  def create_tenant_calendar(%{"tenant_id" => _tenant_id, "calendar_id" => _calendar_id} = attrs) do
+  def create_tenant_calendar(attrs) do
     %TenantCalendar{}
     |> TenantCalendar.changeset(attrs)
-    |> Repo.insert()
+    |> SD.Repo.insert()
     |> case do
-      {:ok, tenant_calendar} -> {:ok, Repo.preload(tenant_calendar, :calendar)}
-      {:error, change_set} -> {:error, change_set}
+      {:ok, tenant_calendar} ->
+        {:ok, SD.Repo.preload(tenant_calendar, :calendar)}
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
   @doc """
-  Fetch a single tenant_calendar by tenant_id and calendar_id.
+  Fetch the calendar associated with a tenant.
 
-  Returns the %TenantCalendar{} with :calendar preloaded, or nil if not found
-  or if either id is not a valid UUID.
+  Given a `tenant_id` and a `calendar_id`, returns the calendar if that calendar
+  is associated with the tenant. Returns `{:error, :not_found}` if no such
+  tenant_calendar exists.
+
+  ## Examples
+
+      iex> SD.Tenants.get_tenant_calendar(tenant_id, calendar_id)
+      {:ok, %TenantCalendar{}}
+
+      iex> SD.Tenants.get_tenant_calendar("00000000-0000-0000-0000-000000000000", calendar_id)
+      {:error, :not_found}
+
+      iex> SD.Tenants.get_tenant_calendar("not a uuid", calendar_id)
+      {:error, :invalid_tenant_id}
+
+      iex> SD.Tenants.get_tenant_calendar(tenant_id, "not a uuid")
+      {:error, :invalid_calendar_id}
   """
   def get_tenant_calendar(tenant_id, calendar_id) do
-    with {:ok, _} <- Ecto.UUID.cast(tenant_id),
-         {:ok, _} <- Ecto.UUID.cast(calendar_id) do
-      from(tc in TenantCalendar,
-        where: tc.tenant_id == ^tenant_id and tc.calendar_id == ^calendar_id,
-        join: c in assoc(tc, :calendar),
-        preload: [calendar: c]
-      )
-      |> Repo.one()
-    else
-      :error -> nil
+    with {:ok, tenant_uuid} <-
+           Ecto.UUID.cast(tenant_id) |> check_calendar_uuid(:invalid_tenant_id),
+         {:ok, calendar_uuid} <-
+           Ecto.UUID.cast(calendar_id) |> check_calendar_uuid(:invalid_calendar_id) do
+      case Repo.one(
+             from(tc in TenantCalendar,
+               where: tc.tenant_id == ^tenant_uuid and tc.calendar_id == ^calendar_uuid,
+               join: c in assoc(tc, :calendar),
+               preload: [calendar: c]
+             )
+           ) do
+        nil -> {:error, :not_found}
+        tenant_calendar -> {:ok, tenant_calendar}
+      end
     end
   end
+
+  defp check_calendar_uuid(:error, reason), do: {:error, reason}
+  defp check_calendar_uuid({:ok, uuid}, _reason), do: {:ok, uuid}
 
   @doc """
   List calendars linked to a tenant via tenant_calendars.
@@ -298,6 +335,158 @@ defmodule SD.Tenants do
   """
   def change_tenant_calendar(%TenantCalendar{} = tenant_calendar, attrs \\ %{}) do
     TenantCalendar.changeset(tenant_calendar, attrs)
+  end
+
+  # --------------- tenant users ---------------
+
+  alias SD.Tenants.TenantUser
+
+  # in SD.Tenants
+  def create_tenant_user(attrs) do
+    %TenantUser{}
+    |> TenantUser.changeset(attrs)
+    |> SD.Repo.insert()
+    |> case do
+      {:ok, tenant_user} ->
+        {:ok, SD.Repo.preload(tenant_user, :user)}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  @doc """
+  Fetch the user associated with a tenant.
+
+  Given a `tenant_id` and a `user_id`, returns the user if that user
+  is a member of the tenant. Returns `nil` if no such tenant_user exists.
+
+  ## Examples
+
+      iex>   SD.Tenants.get_tenant_user(tenant_id, user_id)
+      {:ok, %TenantUser{}}
+
+      iex> SD.Tenants.get_tenant_user("00000000-0000-0000-0000-000000000000", user_id)
+      {:error, :not_found}
+
+      iex> SD.Tenants.get_tenant_user("not a uuid", user_id)
+      {:error, :invalid_tenant_id}
+
+      iex> SD.Tenants.get_tenant_user("tenant", not a uuid)
+      {:error, :invalid_user_id}
+
+
+  """
+  def get_tenant_user(tenant_id, user_id) do
+    with {:ok, tenant_uuid} <- Ecto.UUID.cast(tenant_id) |> check_tenant_uuid(:invalid_tenant_id),
+         {:ok, user_uuid} <- Ecto.UUID.cast(user_id) |> check_tenant_uuid(:invalid_user_id) do
+      case Repo.one(
+             from(tc in TenantUser,
+               where: tc.tenant_id == ^tenant_uuid and tc.user_id == ^user_uuid,
+               join: c in assoc(tc, :user),
+               preload: [user: c]
+             )
+           ) do
+        nil -> check_tenant_uuid(:error, :not_found)
+        tenant_user -> {:ok, tenant_user}
+      end
+    end
+  end
+
+  defp check_tenant_uuid(:error, reason), do: {:error, reason}
+  defp check_tenant_uuid({:ok, uuid}, _reason), do: {:ok, uuid}
+
+  @doc """
+  Lists tenant_users for a given tenant.
+
+  Returns a list of `%SD.Tenants.TenantUser{}` structs with the associated
+  `%SD.Accounts.User{}` preloaded in `:user`.
+
+  Options:
+    * `:limit`  – maximum number of records (default: 25)
+    * `:offset` – number of records to skip (default: 0)
+    * `:q`      – optional search string; matches `user.name` or `user.email` (ILIKE)
+
+  Notes:
+    * If `tenant_id` is not a valid UUID, an empty list `[]` is returned.
+    * No 404 handling here; callers decide how to treat empty results.
+
+  ## Examples
+
+      iex> SD.Tenants.list_tenant_users(tenant_id)
+      [%SD.Tenants.TenantUser{user: %SD.Accounts.User{}}, ...]
+
+      iex> SD.Tenants.list_tenant_users(tenant_id, limit: 10, offset: 20, q: "alice")
+      [%SD.Tenants.TenantUser{user: %SD.Accounts.User{}}, ...]
+  """
+  def list_tenant_users(tenant_id, opts \\ []) do
+    case Ecto.UUID.cast(tenant_id) do
+      :error ->
+        []
+
+      {:ok, _} ->
+        limit = Keyword.get(opts, :limit, 25)
+        offset = Keyword.get(opts, :offset, 0)
+        q = Keyword.get(opts, :q)
+
+        base_query(tenant_id)
+        |> search_query(q)
+        |> limit(^limit)
+        |> offset(^offset)
+        |> SD.Repo.all()
+    end
+  end
+
+  defp base_query(tenant_id) do
+    from tu in SD.Tenants.TenantUser,
+      where: tu.tenant_id == ^tenant_id
+  end
+
+  defp search_query(base, q) do
+    if is_binary(q) and q != "" do
+      from tu in base,
+        join: u in assoc(tu, :user),
+        where: ilike(u.name, ^"%#{q}%") or ilike(u.email, ^"%#{q}%"),
+        preload: [user: u]
+    else
+      from tu in base, preload: [:user]
+    end
+  end
+
+  # Ecto.UUID.cast(tenant_id)
+
+  @doc """
+  Update a tenant user.
+
+  ## Examples
+
+      iex> update_tenant_user(tenant_user, %{role: "editor"})
+      {:ok, %TenantUser{}}
+
+      iex> update_tenant_user(tenant_user, %{role: nil})
+      {:error, %Ecto.Changeset{}}
+  """
+  def update_tenant_user(%TenantUser{} = tenant_user, attrs) do
+    tenant_user
+    |> TenantUser.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Delete a tenant user.
+
+  ## Examples
+
+      iex> delete_tenant_user(user)
+      {:ok, %TenantUser{}}
+  """
+  def delete_tenant_user(%TenantUser{} = tenant_user), do: Repo.delete(tenant_user)
+
+  @doc """
+  Return an `%Ecto.Changeset{}` for tracking tenant user changes.
+  """
+  def change_tenant_user(%TenantUser{} = user, attrs \\ %{}) do
+    TenantUser.changeset(user, attrs)
   end
 
   @doc """

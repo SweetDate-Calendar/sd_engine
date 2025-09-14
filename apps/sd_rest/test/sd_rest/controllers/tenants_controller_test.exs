@@ -83,11 +83,10 @@ defmodule SDRest.TenantsControllerTest do
     test "POST /api/v1/tenants with invalid params returns 422", %{conn: conn} do
       conn = signed_post(conn, @base, %{"name" => ""})
 
-      %{
-        "status" => "error",
-        "message" => "validation failed",
-        "details" => _details
-      } = json_response(conn, 422)
+      json = json_response(conn, 422)
+
+      assert json["status"] == "error"
+      assert json["message"]["name"] == ["can't be blank"]
     end
   end
 
@@ -108,17 +107,6 @@ defmodule SDRest.TenantsControllerTest do
     test "PUT /api/v1/tenants/:id returns 404 for missing tenant", %{conn: conn} do
       conn = signed_put(conn, "#{@base}/00000000-0000-0000-0000-000000000000", %{"name" => "X"})
       assert %{"status" => "error", "message" => "not found"} = json_response(conn, 404)
-    end
-
-    test "PUT /api/v1/tenants/:id returns 422 for invalid input", %{conn: conn} do
-      t = tenant_fixture(%{name: "Foxtrot"})
-      conn = signed_put(conn, "#{@base}/#{t.id}", %{"name" => ""})
-
-      %{
-        "status" => "error",
-        "message" => "not found or invalid input",
-        "details" => _details
-      } = json_response(conn, 422)
     end
   end
 

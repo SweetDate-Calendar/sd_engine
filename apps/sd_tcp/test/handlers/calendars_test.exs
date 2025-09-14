@@ -1,6 +1,6 @@
 defmodule SDTCP.Handlers.SweetDateTest do
   use SDTCP.DataCase, async: false
-  import SD.SweetDateFixtures
+  import SD.CalendarsFixtures
   import SDTCP.TestHelper
 
   describe "calendars" do

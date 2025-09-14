@@ -4,6 +4,14 @@ defmodule SDRest.UsersController do
 
   alias SD.Accounts
 
+  defp broadcast_user(event, user) do
+    Phoenix.PubSub.broadcast(SD.PubSub, "users", %Phoenix.Socket.Broadcast{
+      topic: "users",
+      event: event,
+      payload: user
+    })
+  end
+
   # GET /api/v1/users?limit=25&offset=0
   def index(conn, params) do
     {limit, offset} = pagination(params)
@@ -12,11 +20,9 @@ defmodule SDRest.UsersController do
 
     json(conn, %{
       "status" => "ok",
-      "result" => %{
-        "users" => Enum.map(users, &user_json/1),
-        "limit" => limit,
-        "offset" => offset
-      }
+      "users" => Enum.map(users, &user_json/1),
+      "limit" => limit,
+      "offset" => offset
     })
   end
 
@@ -26,7 +32,7 @@ defmodule SDRest.UsersController do
          {:ok, user} <- fetch_user(id) do
       json(conn, %{
         "status" => "ok",
-        "result" => %{"user" => user_json(user)}
+        "user" => user_json(user)
       })
     else
       :error ->
@@ -49,6 +55,8 @@ defmodule SDRest.UsersController do
 
     case Accounts.create_user(attrs) do
       {:ok, user} ->
+        broadcast_user("created", user)
+
         json(conn |> put_status(201), %{
           "status" => "ok",
           "user" => user_json(user)
@@ -57,8 +65,7 @@ defmodule SDRest.UsersController do
       {:error, changeset} ->
         json(conn |> put_status(422), %{
           "status" => "error",
-          "message" => "validation failed",
-          "details" => translate_changeset_errors(changeset)
+          "message" => translate_changeset_errors(changeset)
         })
     end
   end
@@ -69,6 +76,7 @@ defmodule SDRest.UsersController do
          {:ok, user} <- fetch_user(id),
          attrs <- Map.take(params, ["name", "email"]),
          {:ok, updated} <- Accounts.update_user(user, attrs) do
+      broadcast_user("updated", updated)
       json(conn, %{"status" => "ok", "user" => user_json(updated)})
     else
       :error ->
@@ -77,11 +85,10 @@ defmodule SDRest.UsersController do
       {:error, :not_found} ->
         json(conn |> put_status(404), %{"status" => "error", "message" => "not found"})
 
-      {:error, %Ecto.Changeset{} = cs} ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         json(conn |> put_status(422), %{
           "status" => "error",
-          "message" => "not found or invalid input",
-          "details" => translate_changeset_errors(cs)
+          "message" => translate_changeset_errors(changeset)
         })
 
       {:error, reason} ->
@@ -94,6 +101,8 @@ defmodule SDRest.UsersController do
     with :ok <- ensure_uuid(id),
          {:ok, user} <- fetch_user(id),
          {:ok, _} <- Accounts.delete_user(user) do
+      broadcast_user("deleted", user)
+
       json(conn, %{
         "status" => "ok",
         "user" => %{

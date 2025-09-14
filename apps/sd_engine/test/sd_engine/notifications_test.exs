@@ -21,7 +21,7 @@ defmodule SD.NotificationsTest do
     end
 
     test "create_invitation/1 with valid data creates a invitation" do
-      event = SD.SweetDateFixtures.event_fixture()
+      event = SD.CalendarsFixtures.event_fixture()
 
       valid_attrs = %{
         status: "pending",

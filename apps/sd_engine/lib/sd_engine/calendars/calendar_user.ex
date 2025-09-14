@@ -1,6 +1,8 @@
-defmodule SD.SweetDate.CalendarUser do
+defmodule SD.Calendars.CalendarUser do
   use Ecto.Schema
   import Ecto.Changeset
+
+  @derive {Jason.Encoder, only: [:id, :calendar_id, :user_id, :role, :inserted_at, :updated_at]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id

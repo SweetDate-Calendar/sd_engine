@@ -56,24 +56,39 @@ defmodule SDRest.SignedRequestHelpers do
         ]
       end
 
-      defp put_headers(conn, headers),
-        do: Enum.reduce(headers, conn, fn {k, v}, acc -> put_req_header(acc, k, v) end)
+      defp put_headers(conn, headers) do
+        Enum.reduce(headers, conn, fn {k, v}, acc ->
+          put_req_header(acc, k, v)
+        end)
+      end
 
       defp signed_get(conn, path),
         do: put_headers(conn, sign_headers(:get, path)) |> get(path)
 
-      defp signed_post(conn, path, params),
+      defp signed_post(conn, path, params) do
+        body = Jason.encode!(params)
+        headers = [{"content-type", "application/json"} | sign_headers(:post, path)]
+
+        conn
+        |> put_headers(headers)
+        |> post(path, body)
+      end
+
+      defp signed_patch(conn, path, params),
         do:
-          put_headers(conn, [{"content-type", "application/json"} | sign_headers(:post, path)])
-          |> post(path, Jason.encode!(params))
+          put_headers(conn, [{"content-type", "application/json"} | sign_headers(:patch, path)])
+          |> patch(path, Jason.encode!(params))
 
       defp signed_put(conn, path, params),
         do:
           put_headers(conn, [{"content-type", "application/json"} | sign_headers(:put, path)])
           |> put(path, Jason.encode!(params))
 
-      defp signed_delete(conn, path),
-        do: put_headers(conn, sign_headers(:delete, path)) |> delete(path)
+      defp signed_delete(conn, path, params \\ %{}) do
+        conn
+        |> put_headers([{"content-type", "application/json"} | sign_headers(:delete, path)])
+        |> delete(path, Jason.encode!(params))
+      end
     end
   end
 end

@@ -2,7 +2,7 @@ defmodule SDRest.ChangesetErrorsTest do
   use SD.DataCase, async: true
 
   alias SDRest.ChangesetErrors
-  alias SD.SweetDate.TenantUser
+  alias SD.Tenants.TenantUser
 
   describe "to_map/1" do
     test "returns map with messages for enum invalid value (no protocol crash)" do

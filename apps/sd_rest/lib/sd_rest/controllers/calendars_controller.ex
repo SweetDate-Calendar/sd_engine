@@ -12,11 +12,9 @@ defmodule SDRest.CalendarsController do
 
     json(conn, %{
       "status" => "ok",
-      "result" => %{
-        "calendars" => Enum.map(calendars, &calendar_json/1),
-        "limit" => limit,
-        "offset" => offset
-      }
+      "calendars" => Enum.map(calendars, &calendar_json/1),
+      "limit" => limit,
+      "offset" => offset
     })
   end
 
@@ -26,7 +24,7 @@ defmodule SDRest.CalendarsController do
          {:ok, calendar} <- fetch_calendar(id) do
       json(conn, %{
         "status" => "ok",
-        "result" => %{"calendar" => calendar_json(calendar)}
+        "calendar" => calendar_json(calendar)
       })
     else
       :error ->
@@ -58,8 +56,7 @@ defmodule SDRest.CalendarsController do
       {:error, changeset} ->
         json(conn |> put_status(422), %{
           "status" => "error",
-          "message" => "validation failed",
-          "details" => translate_changeset_errors(changeset)
+          "message" => translate_changeset_errors(changeset)
         })
     end
   end
@@ -81,8 +78,7 @@ defmodule SDRest.CalendarsController do
       {:error, %Ecto.Changeset{} = cs} ->
         json(conn |> put_status(422), %{
           "status" => "error",
-          "message" => "not found or invalid input",
-          "details" => translate_changeset_errors(cs)
+          "message" => translate_changeset_errors(cs)
         })
 
       {:error, reason} ->

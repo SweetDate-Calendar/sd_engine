@@ -85,6 +85,9 @@ defmodule SDWeb.TenantLive.Index do
         %Phoenix.Socket.Broadcast{event: "pruned"},
         socket
       ) do
-    {:noreply, stream(socket, :tenants, [], reset: true)}
+    {:noreply,
+     socket
+     |> stream(:tenants, [], reset: true)
+     |> stream(:tenants, Tenants.list_tenants())}
   end
 end

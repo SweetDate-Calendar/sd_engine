@@ -2,19 +2,21 @@ defmodule SD.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, only: [:id, :name, :email]}
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users" do
     field :name, :string
     field :email, :string
 
-    has_many :tenant_users, SD.SweetDate.TenantUser
+    has_many :tenant_users, SD.Tenants.TenantUser
     has_many :tenants, through: [:tenant_users, :tenant]
 
-    has_many :calendar_users, SD.SweetDate.CalendarUser
+    has_many :calendar_users, SD.Calendars.CalendarUser
     has_many :calendars, through: [:calendar_users, :calendar]
 
-    has_many :event_users, SD.SweetDate.EventUser
+    has_many :event_users, SD.Calendars.EventUser
     has_many :events, through: [:event_users, :event]
 
     timestamps()

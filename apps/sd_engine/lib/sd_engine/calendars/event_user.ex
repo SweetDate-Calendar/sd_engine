@@ -1,6 +1,8 @@
-defmodule SD.SweetDate.EventUser do
+defmodule SD.Calendars.EventUser do
   use Ecto.Schema
   import Ecto.Changeset
+
+  @derive {Jason.Encoder, only: [:status, :role, :user_id, :event_id]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -13,7 +15,7 @@ defmodule SD.SweetDate.EventUser do
       values: [:invited, :accepted, :declined, :maybe, :cancelled],
       default: :invited
 
-    belongs_to :event, SD.SweetDate.Event, type: :binary_id
+    belongs_to :event, SD.Calendars.Event, type: :binary_id
     belongs_to :user, SD.Accounts.User, type: :binary_id
 
     timestamps()

@@ -44,6 +44,8 @@ defmodule SDWeb.UserLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket), do: SDWeb.Endpoint.subscribe("users")
+
     {:ok,
      socket
      |> assign(:page_title, "Listing Users")
@@ -56,5 +58,37 @@ defmodule SDWeb.UserLive.Index do
     {:ok, _} = Accounts.delete_user(user)
 
     {:noreply, stream_delete(socket, :users, user)}
+  end
+
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: "created", payload: %SD.Accounts.User{} = user},
+        socket
+      ) do
+    {:noreply, stream_insert(socket, :users, user)}
+  end
+
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: "updated", payload: %SD.Accounts.User{} = user},
+        socket
+      ) do
+    {:noreply, stream_insert(socket, :users, user)}
+  end
+
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: "deleted", payload: %SD.Accounts.User{} = user},
+        socket
+      ) do
+    {:noreply, stream_delete(socket, :users, user)}
+  end
+
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: "pruned"},
+        socket
+      ) do
+    {:noreply,
+     socket
+     |> stream(:users, [], reset: true)
+     |> stream(:users, Accounts.list_users())}
   end
 end

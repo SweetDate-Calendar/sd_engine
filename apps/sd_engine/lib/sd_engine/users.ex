@@ -187,7 +187,7 @@ defmodule SD.Users do
       Ecto.Multi.new()
       |> Ecto.Multi.insert(:calendar, Calendar.changeset(%Calendar{}, params))
       |> Ecto.Multi.insert(:calendar_user, fn %{calendar: calendar} ->
-        %SD.SweetDate.CalendarUser{
+        %SD.Calendars.CalendarUser{
           user_id: user_id,
           calendar_id: calendar.id
         }
