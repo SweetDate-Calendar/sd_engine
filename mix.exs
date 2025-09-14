@@ -26,7 +26,7 @@ defmodule SD.Umbrella.MixProject do
   # and cannot be accessed from applications inside the apps/ folder.
   defp deps do
     [
-      {:phoenix, "~> 1.8.0-rc.4", override: true},
+      {:phoenix, "~> 1.8.1", override: true},
       # Required to run "mix format" on ~H/.heex files from the umbrella root
       {:phoenix_live_view, ">= 0.0.0"}
     ]
