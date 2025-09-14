@@ -51,8 +51,6 @@ defmodule SDRest.Join.EventUsersControllerTest do
       conn = signed_post(conn, endpoint, %{})
       json = json_response(conn, 422)
 
-      IO.inspect(json)
-
       assert json["status"] == "error"
       assert json["message"]["user_id"] == ["can't be blank"]
     end
