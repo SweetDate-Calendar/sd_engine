@@ -21,7 +21,7 @@ defmodule SD.Tenants.TenantUser do
   def changeset(tenant_user, attrs) do
     tenant_user
     |> cast(attrs, [:user_id, :tenant_id, :role])
-    |> validate_required([:user_id, :tenant_id])
+    |> validate_required([:user_id, :tenant_id, :role])
     |> validate_uuid(:tenant_id)
     |> validate_uuid(:user_id)
     |> foreign_key_constraint(:tenant_id)

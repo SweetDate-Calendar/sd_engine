@@ -14,7 +14,14 @@ defmodule SDWeb.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.html": :test,
+        "coveralls.json": :test,
+        "coveralls.lcov": :test
+      ]
     ]
   end
 
@@ -58,7 +65,8 @@ defmodule SDWeb.MixProject do
       {:gettext, "~> 0.26"},
       {:sd_engine, in_umbrella: true},
       {:jason, "~> 1.4.4"},
-      {:bandit, "~> 1.7"}
+      {:bandit, "~> 1.7"},
+      {:excoveralls, "~> 0.18", only: [:test], runtime: false}
       # {:sd_web, in_umbrella: true}
     ]
   end
