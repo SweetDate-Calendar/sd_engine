@@ -117,4 +117,47 @@ defmodule SD.AccountTest do
       assert %Ecto.Changeset{} = Account.change_credential(credential)
     end
   end
+
+  describe "generate_credential/1" do
+    test "successfully generates a credential with default safe values" do
+      {:ok, cred, priv} = Account.generate_credential()
+
+      assert %Credential{} = cred
+      assert String.starts_with?(cred.app_id, "app_")
+      assert cred.status == :active
+      assert cred.alg == :ed25519
+      assert is_binary(cred.public_key)
+      refute is_nil(priv)
+
+      # Ensure the private key is not stored in DB
+      from_db = Account.get_credential!(cred.id)
+      refute Map.has_key?(from_db, :private_key)
+    end
+
+    test "ignores unsafe attrs and only allows permitted ones" do
+      {:ok, cred, _priv} =
+        Account.generate_credential(%{
+          status: :disabled,
+          alg: :rsa,
+          public_key: "tampered",
+          app_id: "my_custom_id",
+          expires_at: ~U[2030-01-01 00:00:00Z]
+        })
+
+      # Still enforced defaults
+      assert cred.status == :active
+      assert cred.alg == :ed25519
+      assert String.starts_with?(cred.app_id, "app_")
+      refute cred.public_key == "tampered"
+
+      # Allowed field was respected (normalize comparison)
+      assert DateTime.compare(cred.expires_at, ~U[2030-01-01 00:00:00Z]) == :eq
+    end
+
+    test "returns error changeset if insert fails" do
+      # invalid expires_at type should trigger changeset error
+      assert {:error, %Ecto.Changeset{}} =
+               Account.generate_credential(%{expires_at: "not a datetime"})
+    end
+  end
 end

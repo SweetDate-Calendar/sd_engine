@@ -244,4 +244,191 @@ defmodule SD.TenantsTest do
       # assert Enum.any?(items3, &(&1.user_1.email == "alpha@example.com"))
     end
   end
+
+  describe "tenants extra coverage" do
+    test "get_tenant/1 returns nil for invalid uuid" do
+      assert Tenants.get_tenant("not-a-uuid") == nil
+    end
+
+    test "list_tenants/1 with q filter" do
+      t1 = tenant_fixture(%{name: "Apple Tenant"})
+      _t2 = tenant_fixture(%{name: "Banana Tenant"})
+
+      results = Tenants.list_tenants(q: "Apple")
+      assert Enum.any?(results, &(&1.id == t1.id))
+    end
+  end
+
+  describe "tenant calendars" do
+    alias SD.Tenants.TenantCalendar
+
+    test "create_tenant_calendar/1 with valid data" do
+      tenant = tenant_fixture()
+      cal = SD.CalendarsFixtures.calendar_fixture()
+
+      attrs = %{tenant_id: tenant.id, calendar_id: cal.id}
+      assert {:ok, %TenantCalendar{} = tc} = Tenants.create_tenant_calendar(attrs)
+      assert tc.tenant_id == tenant.id
+      assert tc.calendar_id == cal.id
+      assert tc.calendar.id == cal.id
+    end
+
+    test "create_tenant_calendar/1 with invalid data returns error" do
+      assert {:error, %Ecto.Changeset{}} =
+               Tenants.create_tenant_calendar(%{tenant_id: "bad", calendar_id: "bad"})
+    end
+
+    test "get_tenant_calendar/2 returns the tenant_calendar" do
+      tenant = tenant_fixture()
+      cal = SD.CalendarsFixtures.calendar_fixture()
+      {:ok, tc} = Tenants.create_tenant_calendar(%{tenant_id: tenant.id, calendar_id: cal.id})
+
+      assert {:ok, found} = Tenants.get_tenant_calendar(tenant.id, cal.id)
+      assert found.id == tc.id
+      assert found.calendar.id == cal.id
+    end
+
+    test "get_tenant_calendar/2 returns :not_found when missing" do
+      tenant = tenant_fixture()
+
+      assert {:error, :not_found} =
+               Tenants.get_tenant_calendar(tenant.id, Ecto.UUID.generate())
+    end
+
+    test "get_tenant_calendar/2 returns error for invalid uuids" do
+      tenant = tenant_fixture()
+      cal = SD.CalendarsFixtures.calendar_fixture()
+
+      assert {:error, :invalid_tenant_id} =
+               Tenants.get_tenant_calendar("not-a-uuid", cal.id)
+
+      assert {:error, :invalid_calendar_id} =
+               Tenants.get_tenant_calendar(tenant.id, "not-a-uuid")
+    end
+
+    test "list_tenant_calendars/2 returns tenant calendars with preload" do
+      tenant = tenant_fixture()
+      cal = SD.CalendarsFixtures.calendar_fixture()
+      {:ok, _tc} = Tenants.create_tenant_calendar(%{tenant_id: tenant.id, calendar_id: cal.id})
+
+      results = Tenants.list_tenant_calendars(tenant.id)
+      assert Enum.any?(results, &(&1.calendar.id == cal.id))
+    end
+
+    test "list_tenant_calendars/2 returns [] for invalid uuid" do
+      assert Tenants.list_tenant_calendars("not-a-uuid") == []
+    end
+
+    test "list_tenant_calendars/2 with q filter" do
+      tenant = tenant_fixture()
+      cal = SD.CalendarsFixtures.calendar_fixture(%{name: "Filtered Calendar"})
+      {:ok, _tc} = Tenants.create_tenant_calendar(%{tenant_id: tenant.id, calendar_id: cal.id})
+
+      results = Tenants.list_tenant_calendars(tenant.id, q: "Filtered")
+      assert Enum.any?(results, &(&1.calendar.id == cal.id))
+    end
+
+    test "delete_tenant_calendar/1 deletes the join" do
+      tenant = tenant_fixture()
+      cal = SD.CalendarsFixtures.calendar_fixture()
+      {:ok, tc} = Tenants.create_tenant_calendar(%{tenant_id: tenant.id, calendar_id: cal.id})
+
+      assert {:ok, %TenantCalendar{}} = Tenants.delete_tenant_calendar(tc)
+      assert {:error, :not_found} = Tenants.get_tenant_calendar(tenant.id, cal.id)
+    end
+
+    test "change_tenant_calendar/1 returns a changeset" do
+      tenant = tenant_fixture()
+      cal = SD.CalendarsFixtures.calendar_fixture()
+      {:ok, tc} = Tenants.create_tenant_calendar(%{tenant_id: tenant.id, calendar_id: cal.id})
+
+      assert %Ecto.Changeset{} = Tenants.change_tenant_calendar(tc)
+    end
+  end
+
+  describe "tenant users extra coverage" do
+    alias SD.Tenants.TenantUser
+
+    test "get_tenant_user/2 returns tenant_user" do
+      tenant = tenant_fixture()
+      user = SD.AccountsFixtures.user_fixture()
+
+      {:ok, tu} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => tenant.id,
+          "user_id" => user.id,
+          "role" => "admin"
+        })
+
+      assert {:ok, found} = Tenants.get_tenant_user(tenant.id, user.id)
+      assert found.id == tu.id
+      assert found.user.id == user.id
+    end
+
+    test "get_tenant_user/2 returns :not_found when missing" do
+      tenant = tenant_fixture()
+      assert {:error, :not_found} = Tenants.get_tenant_user(tenant.id, Ecto.UUID.generate())
+    end
+
+    test "get_tenant_user/2 returns error for invalid uuids" do
+      tenant = tenant_fixture()
+      user = SD.AccountsFixtures.user_fixture()
+
+      assert {:error, :invalid_tenant_id} =
+               Tenants.get_tenant_user("bad", user.id)
+
+      assert {:error, :invalid_user_id} =
+               Tenants.get_tenant_user(tenant.id, "bad")
+    end
+
+    test "update_tenant_user/2 updates role" do
+      tenant = tenant_fixture()
+      user = SD.AccountsFixtures.user_fixture()
+
+      {:ok, tu} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => tenant.id,
+          "user_id" => user.id,
+          "role" => "guest"
+        })
+
+      assert {:ok, %TenantUser{} = updated} = Tenants.update_tenant_user(tu, %{role: "owner"})
+      assert to_string(updated.role) == "owner"
+    end
+
+    test "update_tenant_user/2 with invalid data returns error" do
+      tenant = tenant_fixture()
+      user = SD.AccountsFixtures.user_fixture()
+
+      {:ok, tu} =
+        Tenants.create_tenant_user(%{
+          "tenant_id" => tenant.id,
+          "user_id" => user.id,
+          "role" => "owner"
+        })
+
+      assert {:error, %Ecto.Changeset{}} = Tenants.update_tenant_user(tu, %{role: nil})
+    end
+
+    test "delete_tenant_user/1 deletes tenant user" do
+      tenant = tenant_fixture()
+      user = SD.AccountsFixtures.user_fixture()
+
+      {:ok, tu} =
+        Tenants.create_tenant_user(%{"tenant_id" => tenant.id, "user_id" => user.id})
+
+      assert {:ok, %TenantUser{}} = Tenants.delete_tenant_user(tu)
+      assert {:error, :not_found} = Tenants.get_tenant_user(tenant.id, user.id)
+    end
+
+    test "change_tenant_user/1 returns changeset" do
+      tenant = tenant_fixture()
+      user = SD.AccountsFixtures.user_fixture()
+
+      {:ok, tu} =
+        Tenants.create_tenant_user(%{"tenant_id" => tenant.id, "user_id" => user.id})
+
+      assert %Ecto.Changeset{} = Tenants.change_tenant_user(tu)
+    end
+  end
 end

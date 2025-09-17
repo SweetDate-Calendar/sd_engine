@@ -92,8 +92,6 @@ defmodule SDWeb.EventLive.Form do
              )
          )}
 
-      #  |> push_navigate(to: socket.assigns.return_to)}
-
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
